@@ -64,6 +64,14 @@ public class Constants {
         public static final int FrontRightTurnMotorID = 32;
         public static final int BackLeftTurnMotorID = 33;
         public static final int BackRightTurnMotorID = 34;
+
+        /***************************** ARM *****************************/
+
+        public static final int ArmDummyMotorID = 41;
+        public static final int WristDummyMotorID = 42;
+        public static final int LeftElevatorDummyMotorID = 43;
+        public static final int RightElevatorDummyMotorID = 44;
+        public static final int EncoderDummyID = 45;
     }
 
     /***************************************************************************/
@@ -151,6 +159,16 @@ public class Constants {
         //     MaxModuleMetersPerSecond,
         //     flModuleOffset.getNorm(), // Drive base radius (distance from center to furthest module)
         //     new ReplanningConfig());
+    }
+
+    /***************************************************************************/
+    /***************************************************************************/
+    /***************************************************************************/
+
+    public static final class ArmConstants {
+        // placeholder.
+        public static final double SupplyCurrentLimit = 40;
+        public static final double AngleCANCoderMagnetOffset = 0.48583;
     }
 
 
