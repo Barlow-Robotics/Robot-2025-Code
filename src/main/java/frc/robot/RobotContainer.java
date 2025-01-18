@@ -53,7 +53,7 @@ import frc.robot.autonomous.DynamicPathPlanner;
 import frc.robot.commands.DriveRobot;
 import edu.wpi.first.wpilibj2.command.Command; 
 import javax.swing.SwingUtilities; 
-import frc.robot.RobotCommunicator;
+// import frc.robot.RobotCommunicator;
 import javax.swing.*;
 import java.awt.Point;
 import java.awt.Dimension;
@@ -115,15 +115,15 @@ public class RobotContainer {
 
     private SendableChooser<Command> autoChooser;
     boolean moveToCoral;
-    private final RobotCommunicator communicator; 
-    private RobotController robotController;
+    // private final RobotCommunicator communicator; 
+    // private RobotController robotController;
     public RobotContainer() {
-        communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event Dispatch Thread 
-        SwingUtilities.invokeLater(() -> { robotController = new RobotController(communicator); 
-            JFrame frame = new JFrame("Robot Controller"); 
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-            frame.add(robotController); frame.pack(); frame.setVisible(true); 
-        });
+        // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event Dispatch Thread 
+        // SwingUtilities.invokeLater(() -> { robotController = new RobotController(communicator); 
+        //     JFrame frame = new JFrame("Robot Controller"); 
+        //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        //     frame.add(robotController); frame.pack(); frame.setVisible(true); 
+        // });
         moveToCoral = false; 
         driveSub = new Drive();
         visionSub = new Vision();
