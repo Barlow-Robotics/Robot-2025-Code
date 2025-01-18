@@ -9,6 +9,7 @@ package frc.robot;
 // import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 // import com.pathplanner.lib.util.PIDConstants;
 // import com.pathplanner.lib.util.ReplanningConfig;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
+import frc.robot.commands.TuneableParameter;
 
 public class Constants {
 
@@ -39,7 +41,47 @@ public class Constants {
     /***************************************************************************/
     /***************************************************************************/
     /***************************************************************************/
+    public static final class VisionConstants {
+        public static final int CameraLightID = 0; // Need to change
+        public static final String PoseCameraName = "Global_Shutter_Camera";
+        public static final String TargetCameraName = "Arducam_OV9281_USB_Camera";
 
+        public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
+        public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
+
+        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+        // wpk need to update these to be more exact.
+        public static final Transform3d PoseCameraToRobot =
+                new Transform3d(
+                    new Translation3d(0.0, -Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
+                    new Rotation3d(0, Units.degreesToRadians(5), 0));
+        public static final Transform3d RobotToPoseCamera = PoseCameraToRobot.inverse();
+
+        public static final Transform3d TargetCamToRobot =
+                new Transform3d(
+                    new Translation3d(0.0, Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
+                    new Rotation3d(0, Units.degreesToRadians(5), 0));
+        public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
+
+        // // The layout of the AprilTags on the field
+        public static final AprilTagFieldLayout FieldTagLayout =
+                AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+
+        // The standard deviations of our vision estimated poses, which affect correction rate
+        // (Fake values. Experiment and determine estimation noise on an actual robot.)
+        public static final Matrix<N3, N1> SingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> MultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+
+        // constants for vision-calculated speaker shooting - LMT
+        public static final int RedSpeakerCenterAprilTagID = 4;
+        public static final int BlueSpeakerCenterAprilTagID = 7;
+        public static final int NullAprilTagID = -1;
+        public static final double InvalidAngle = -361; 
+        public static final double NoTargetDistance = -1;
+
+        public static final double NoteAlignPixelTolerance = 250; // NEED TO CHANGE
+
+    }
     public static final class ElectronicsIDs {
 
         public static final int DriverControllerPort = 1;
