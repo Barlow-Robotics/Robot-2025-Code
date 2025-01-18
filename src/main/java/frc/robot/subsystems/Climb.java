@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climb extends SubsystemBase {
@@ -18,5 +19,13 @@ public class Climb extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  } 
+
+  public double getSpeed() {
+    return climbMotor.getVelocity().getValueAsDouble();
   }
+  public void setSpeed(double speed) {
+     climbMotor.set(speed);
+  }
+
 }

@@ -6,10 +6,12 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeIntake extends SubsystemBase {
-  /** Creates a new Algae. */
+  /* Creates a new Algae. */
+  
   private SparkMax intakeMotor;
 
 
@@ -19,4 +21,13 @@ public class AlgaeIntake extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  public double getSpeed() {
+    return intakeMotor.getEncoder().getVelocity();
+  }
+
+  // Can't figure out how to get this to return velocity, need to fix -Ang
+  // public void setSpeed(double speed) {
+  //   intakeMotor.set(speed);
+  // }
 }
