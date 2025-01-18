@@ -389,6 +389,13 @@ public class Drive extends SubsystemBase {
         var moduleDeltas = new SwerveModulePosition[modulePositions.length];
         for (int index = 0; index < modulePositions.length; index++) {
             var current = modulePositions[index];
+            if (previousPositions[0] == null) {
+                previousPositions[0] = frontLeft.getPosition();
+                previousPositions[1] = frontRight.getPosition();
+                previousPositions[2] = backLeft.getPosition();
+                previousPositions[3] = backRight.getPosition();   
+            }
+        //     System.out.println(previousPositions[0]);
             var previous = previousPositions[index];
 
             moduleDeltas[index] = new SwerveModulePosition(current.distanceMeters - previous.distanceMeters,
