@@ -19,11 +19,13 @@ import frc.robot.Constants.ElectronicsIDs;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
+  private Command currentTeleopCommand;
 
-  private final RobotContainer m_robotContainer;
-
+  private final RobotContainer robotContainer;
+  boolean pathPlannerConfigured = false ;
+  boolean currentlyFollowingAPath = false;
   public Robot() {
-    m_robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer();
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
 
     if (isReal()) {
@@ -43,6 +45,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
+    robotContainer.visionSub.periodic();
     String currentDriverController = DriverStation.getJoystickName(ElectronicsIDs.DriverControllerPort);
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
     Logger.recordOutput("Controllers/Driver", currentDriverController);
@@ -62,7 +65,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -83,7 +86,34 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    // System.err.println(robotContainer.getCoralVision());
+    if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
+      Command selectedAutoCommand = robotContainer.getVisionPathPlannerPathing();
+
+      if (selectedAutoCommand != null) {
+        System.out.println("PATH");
+      }
+      else {
+        System.out.println("NO PATH");
+        System.out.println(robotContainer.visionSub.getBestTrackableTarget());
+      }
+
+      if (!currentlyFollowingAPath && selectedAutoCommand != null) {
+          currentlyFollowingAPath = true;
+          currentTeleopCommand = selectedAutoCommand;
+          selectedAutoCommand.schedule();
+      }
+    }
+    if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
+        currentlyFollowingAPath = false;
+        currentTeleopCommand = null;
+    }
+    if (currentlyFollowingAPath) {
+        
+        // check the driver controller that it hasnt moved too much. 
+   }
+  }
 
   @Override
   public void teleopExit() {}

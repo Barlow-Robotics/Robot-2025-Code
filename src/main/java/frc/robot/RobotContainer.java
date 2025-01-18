@@ -51,9 +51,14 @@ import frc.robot.autonomous.DynamicChoreoCommand;
 import frc.robot.autonomous.DynamicChoreo;
 import frc.robot.autonomous.DynamicPathPlanner;
 import frc.robot.commands.DriveRobot;
-import edu.wpi.first.wpilibj2.command.Command; 
-import javax.swing.SwingUtilities; 
+// <<<<<<< Updated upstream
+// import edu.wpi.first.wpilibj2.command.Command; 
+// import javax.swing.SwingUtilities; 
+// // import frc.robot.RobotCommunicator;
+// =======
+// import edu.wpi.first.wpilibj2.command.Command;
 // import frc.robot.RobotCommunicator;
+// >>>>>>> Stashed changes
 import javax.swing.*;
 import java.awt.Point;
 import java.awt.Dimension;
@@ -94,6 +99,8 @@ public class RobotContainer {
 
     private Trigger climbButton; // button a
     private Trigger piviotToPoint;
+    private Trigger moveToCoralButton;
+
     // private Trigger climbAbortButton; // right stick
 
     // private Trigger toggleLEDsButton; // hamburger
@@ -120,6 +127,8 @@ public class RobotContainer {
     public RobotContainer() {
         // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event Dispatch Thread 
         // SwingUtilities.invokeLater(() -> { robotController = new RobotController(communicator); 
+        // SwingUtilities.invokeLater(() -> { 
+        //     robotController = new RobotController(communicator); 
         //     JFrame frame = new JFrame("Robot Controller"); 
         //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         //     frame.add(robotController); frame.pack(); frame.setVisible(true); 
@@ -159,6 +168,10 @@ public class RobotContainer {
 
         restartGyroButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
+
+        moveToCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button8);
+        moveToCoralButton.onTrue(new InstantCommand(() -> changeCoralVision(true))).onFalse(new InstantCommand(() -> changeCoralVision(false)));
+
 
     }
 
