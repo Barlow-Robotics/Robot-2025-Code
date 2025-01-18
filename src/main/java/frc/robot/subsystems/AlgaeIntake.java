@@ -9,6 +9,8 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import org.littletonrobotics.junction.Logger;
+
 public class AlgaeIntake extends SubsystemBase {
   /* Creates a new Algae. */
   
