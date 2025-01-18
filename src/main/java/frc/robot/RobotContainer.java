@@ -1,4 +1,6 @@
 
+package frc.robot;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -41,9 +43,10 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 // import frc.robot.Constants.ShooterMountConstants;
 import frc.robot.Constants.XboxControllerConstants;
-import frc.robot.autonomous.DynamicChoreoCommandd;
+import frc.robot.autonomous.DynamicChoreoCommand;
 import frc.robot.autonomous.DynamicChoreo;
 import frc.robot.autonomous.DynamicPathPlanner;
+import frc.robot.commands.DriveRobot;
 // import frc.robot.commands.DriveRobotWithAprilTagAlign;
 // import frc.robot.commands.DriveRobotWithNoteAlign;
 // import frc.robot.commands.PivotToPoint;
@@ -54,64 +57,17 @@ import frc.robot.autonomous.DynamicPathPlanner;
 // import frc.robot.commands.StartShooterIntake;
 // import frc.robot.commands.StopShooterIntake;
 import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.FloorIntake;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.ShooterMount;
-import frc.robot.subsystems.ShooterMount.ShooterMountState;
-import frc.robot.subsystems.Underglow;
+// import frc.robot.subsystems.FloorIntake;
+// import frc.robot.subsystems.Shooter;
+// import frc.robot.subsystems.ShooterMount;
+// import frc.robot.subsystems.ShooterMount.ShooterMountState;
+// import frc.robot.subsystems.Underglow;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
 
-    /* SUBSYSTEMS 
-    public final Vision visionSub = new Vision();
-    public final Drive driveSub = new Drive(visionSub);
-    public final Shooter shooterSub = new Shooter();
-    public final ShooterMount shooterMountSub = new ShooterMount(visionSub, driveSub);
-    public final FloorIntake floorIntakeSub = new FloorIntake();
-    public final Underglow underglowSub = new Underglow();
-
-    /* COMMANDS */
-
-    private final SetShooterMountPosition setShooterPosSpeakerCmd = new SetShooterMountPosition(shooterMountSub,
-            ShooterMountState.Speaker);
-    private final SetShooterMountPosition setShooterPosAmpCmd = new SetShooterMountPosition(shooterMountSub,
-            ShooterMountState.Amp);
-    private final SetShooterMountPosition setShooterPosSourceIntakeCmd = new SetShooterMountPosition(shooterMountSub,
-            ShooterMountState.SourceIntake);
-    private final SetShooterMountPosition setShooterPosFloorCmd = new SetShooterMountPosition(shooterMountSub,
-            ShooterMountState.FloorIntake);
-    private final SetShooterMountPosition setShooterPosFerryCmd = new SetShooterMountPosition(shooterMountSub,
-            ShooterMountState.Ferry);
-
-    private final StartClimbing climbCmd = new StartClimbing(shooterMountSub);
-    // private final SetShooterMountPosition retryClimbCmd = new
-    // SetShooterMountPosition(shooterMountSub,
-    // ShooterMountState.Preclimb);
-    // private final SetShooterMountPosition climbAbortCmd = new
-    // 2SetShooterMountPosition(shooterMountSub,
-    // ShooterMountState.ClimbAbort);
-
-    private final StartShooterIntake startShooterIntakeCmd = new StartShooterIntake(shooterSub, floorIntakeSub,
-            shooterMountSub);
-    private final StopShooterIntake stopShooterIntakeCmd = new StopShooterIntake(shooterSub, floorIntakeSub);
-    private final ReverseFloorIntake reverseFloorIntakeCmd = new ReverseFloorIntake(floorIntakeSub);
-
-
-    private final PivotToPoint piviotToSpeakerCommand = new PivotToPoint(new Pose2d(0.44, 5.55, new Rotation2d(0)), driveSub);
-    private final PivotToPoint piviotToCenterNoteCommand = new PivotToPoint(new Pose2d(2.90, 5.55, new Rotation2d(0)), driveSub);
-    private final PivotToPoint piviotToAmpNoteCommand = new PivotToPoint(new Pose2d(2.90, 7, new Rotation2d(0)), driveSub);
-    private final PivotToPoint piviotToStageNoteCommand = new PivotToPoint(new Pose2d(2.90, 4.10, new Rotation2d(0)), driveSub);
-
-
-    private final PivotToPoint piviotToSpeakerCommandRED = new PivotToPoint(new Pose2d(16.1, 5.55, new Rotation2d(0)), driveSub);
-    private final PivotToPoint piviotToCenterNoteCommandRED = new PivotToPoint(new Pose2d(13.66, 5.55, new Rotation2d(0)), driveSub);
-    private final PivotToPoint piviotToAmpNoteCommandRED = new PivotToPoint(new Pose2d(13.66, 7, new Rotation2d(0)), driveSub);
-    private final PivotToPoint piviotToStageNoteCommandRED = new PivotToPoint(new Pose2d(13.66, 4.1, new Rotation2d(0)), driveSub);
-
 
     /* CONTROLLERS */
-
     private static Joystick driverController;
     private static Joystick operatorController;
 
@@ -140,6 +96,8 @@ public class RobotContainer {
     private PIDController noteYawPID;
     private PIDController targetYawPID;
 
+    public Drive driveSub;
+    public Vision visionSub;
 
     /* AUTO */
 
@@ -160,17 +118,12 @@ public class RobotContainer {
 
         configureBindings();
         driveSub.setDefaultCommand(
-
-                new DriveRobotWithNoteAlign(
+                new DriveRobot(
                         driveSub,
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisX),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisY),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate),
-                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider),
-                        visionSub,
-                        floorIntakeSub,
-                        () -> autoAlignButton.getAsBoolean()));
-
+                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), true));
     }
 
     private void configureBindings() {
@@ -184,38 +137,7 @@ public class RobotContainer {
         restartGyroButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
 
-        /******************** SET SHOOTER MOUNT POSITION ********************/
 
-        moveToSpeakerButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonX);
-        moveToSpeakerButton.onTrue(setShooterPosSpeakerCmd);
-
-        moveToAmpButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonY);
-        moveToAmpButton.onTrue(setShooterPosAmpCmd);
-
-        moveToSourceButton = new JoystickButton(operatorController, XboxControllerConstants.LeftStick);
-        moveToSourceButton.onTrue(setShooterPosSourceIntakeCmd);
-
-        moveToFloorButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper);
-        moveToFloorButton.onTrue(setShooterPosFloorCmd);
-
-        moveToFerryButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
-        moveToFerryButton.onTrue(setShooterPosFerryCmd);
-
-        /******************** SHOOTER & INTAKE ********************/
-
-        shootIntakeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
-        shootIntakeButton.onTrue(startShooterIntakeCmd).onFalse(stopShooterIntakeCmd);
-
-        reverseFloorIntakeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
-        reverseFloorIntakeButton.onTrue(reverseFloorIntakeCmd).onFalse(stopShooterIntakeCmd);
-
-        /******************** CLIMB ********************/
-
-        climbButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonA);
-        climbButton.onTrue(climbCmd);
-
-
-        /********************* LED BINDINGS ************************************* */
     }
 
     public void configurePathPlanner() {
@@ -250,27 +172,27 @@ public class RobotContainer {
                 },
                 driveSub);
 
-        NamedCommands.registerCommand("StartShooterIntake", startShooterIntakeCmd);
-        NamedCommands.registerCommand("StopShooterIntake", stopShooterIntakeCmd);
-        NamedCommands.registerCommand("SetShooterMountPositionAmp", setShooterPosAmpCmd);
-        NamedCommands.registerCommand("SetShooterMountPositionSpeaker", setShooterPosSpeakerCmd);
-        NamedCommands.registerCommand("SetShooterMountPositionFloor", setShooterPosFloorCmd);
-        NamedCommands.registerCommand("start_intake_shoot", new SequentialCommandGroup(setShooterPosSpeakerCmd, startShooterIntakeCmd));
+        // NamedCommands.registerCommand("StartShooterIntake", startShooterIntakeCmd);
+        // NamedCommands.registerCommand("StopShooterIntake", stopShooterIntakeCmd);
+        // NamedCommands.registerCommand("SetShooterMountPositionAmp", setShooterPosAmpCmd);
+        // NamedCommands.registerCommand("SetShooterMountPositionSpeaker", setShooterPosSpeakerCmd);
+        // NamedCommands.registerCommand("SetShooterMountPositionFloor", setShooterPosFloorCmd);
+        // NamedCommands.registerCommand("start_intake_shoot", new SequentialCommandGroup(setShooterPosSpeakerCmd, startShooterIntakeCmd));
 
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-            if (alliance.get() == DriverStation.Alliance.Red) {
-                NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommandRED);
-                NamedCommands.registerCommand("PivotToCenterNote", piviotToCenterNoteCommandRED);
-                NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommandRED);
-                NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommandRED);
-            } else {
-                NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommand);
-                NamedCommands.registerCommand("PivotToCenterNote", piviotToCenterNoteCommand);
-                NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommand);
-                NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommand);
-            }
-        }
+        // var alliance = DriverStation.getAlliance();
+        // if (alliance.isPresent()) {
+        //     if (alliance.get() == DriverStation.Alliance.Red) {
+        //         NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommandRED);
+        //         NamedCommands.registerCommand("PivotToCenterNote", piviotToCenterNoteCommandRED);
+        //         NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommandRED);
+        //         NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommandRED);
+        //     } else {
+        //         NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommand);
+        //         NamedCommands.registerCommand("PivotToCenterNote", piviotToCenterNoteCommand);
+        //         NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommand);
+        //         NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommand);
+        //     }
+        // }
 
 
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
@@ -280,7 +202,7 @@ public class RobotContainer {
         autoChooser.addOption("Routine A", new DynamicPathPlanner("Routine A", visionSub));
         autoChooser.addOption("Routine B", new DynamicPathPlanner("Routine B", visionSub));
         autoChooser.addOption("Routine C", new DynamicChoreo("Routine C", visionSub, driveSub));
-        autoChooser.addOption("Routine D", new DynamicChoreoCommandd("Routine D", visionSub, driveSub));
+        autoChooser.addOption("Routine D", new DynamicChoreoCommand("Routine D", visionSub, driveSub));
         
 
         autoChooser.addOption("Choreo", driveSub.ChoreoAuto("CompletePath"));
@@ -295,7 +217,7 @@ public class RobotContainer {
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);
 
         /* LOGGING */
-        PPHolonomicDriveController.setRotationTargetOverride(this::getRotationTargetOverride);
+        // PPHolonomicDriveController.setRotationTargetOverride(this::getRotationTargetOverride);
 
         PathPlannerLogging.setLogCurrentPoseCallback(
                 (currentPose) -> {
@@ -312,41 +234,41 @@ public class RobotContainer {
                 });
     }
 
-    public Optional<Rotation2d> getRotationTargetOverride(){
+    // public Optional<Rotation2d> getRotationTargetOverride(){
 
-        Optional<Rotation2d> result = Optional.empty() ;
+    //     Optional<Rotation2d> result = Optional.empty() ;
 
-        if (RobotState.isAutonomous()) {
+    //     // if (RobotState.isAutonomous()) {
 
-            if ( shooterMountSub.getShooterMountState() == ShooterMountState.FloorIntake ) {
-                if (visionSub.noteIsVisible() && Math.abs(visionSub.getNoteDistanceFromCenter()) < Constants.VisionConstants.NoteAlignPixelTolerance) {
-                    double yaw = visionSub.getNoteDistanceFromCenter();
-                    double rotDelta = noteYawPID.calculate(yaw);
-                    result =  Optional.of( driveSub.getPose().getRotation().plus(new Rotation2d(rotDelta)) ) ;
-                } else {
-                    noteYawPID.reset();
-                }
-            } else if (shooterMountSub.getShooterMountState() == ShooterMountState.Speaker && !visionSub.allDetectedTargets.isEmpty()) {
-                var bestTarget = visionSub.getBestTrackableTarget() ;
-                if (bestTarget.isPresent()) {
-                    var rotOffset = bestTarget.get().getYaw();
-                    rotOffset = targetYawPID.calculate(rotOffset);
-                    result = Optional.of( driveSub.getPose().getRotation().plus(new Rotation2d(rotOffset)) ) ;
-                    result = Optional.empty() ;
+    //     //     // if ( shooterMountSub.getShooterMountState() == ShooterMountState.FloorIntake ) {
+    //     //     //     if (visionSub.noteIsVisible() && Math.abs(visionSub.getNoteDistanceFromCenter()) < Constants.VisionConstants.NoteAlignPixelTolerance) {
+    //     //     //         double yaw = visionSub.getNoteDistanceFromCenter();
+    //     //     //         double rotDelta = noteYawPID.calculate(yaw);
+    //     //     //         result = Optional.of( driveSub.getPose().getRotation().plus(new Rotation2d(rotDelta)) ) ;
+    //     //     //     } else {
+    //     //     //         noteYawPID.reset();
+    //     //     //     }
+    //     //     // } else if (shooterMountSub.getShooterMountState() == ShooterMountState.Speaker && !visionSub.allDetectedTargets.isEmpty()) {
+    //     //     //     var bestTarget = visionSub.getBestTrackableTarget() ;
+    //     //     //     if (bestTarget.isPresent()) {
+    //     //     //         var rotOffset = bestTarget.get().getYaw();
+    //     //     //         rotOffset = targetYawPID.calculate(rotOffset);
+    //     //     //         result = Optional.of( driveSub.getPose().getRotation().plus(new Rotation2d(rotOffset)) ) ;
+    //     //     //         result = Optional.empty() ;
 
-                    // Logger.recordOutput("YawOverrideAlign/targetYaw", bestTarget.get().getYaw());
-                    // Logger.recordOutput("YawOverrideAlign/proposed rot", result.get());
-                    // Logger.recordOutput("YawOverrideAlign/rot offset", result.get());
-                } else {
+    //     //     //         // Logger.recordOutput("YawOverrideAlign/targetYaw", bestTarget.get().getYaw());
+    //     //     //         // Logger.recordOutput("YawOverrideAlign/proposed rot", result.get());
+    //     //     //         // Logger.recordOutput("YawOverrideAlign/rot offset", result.get());
+    //     //     //     } else {
 
-                }
-                noteYawPID.reset();
+    //     //     //     }
+    //     //     //     noteYawPID.reset();
 
-            }
-        }
+    //     //     }
+    //     }
 
-        return result;
-    }
+    //     return result;
+    // }
 
     public Command getAutonomousCommand() {
         if (autoChooser != null) {
