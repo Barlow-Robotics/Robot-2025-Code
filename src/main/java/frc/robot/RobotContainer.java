@@ -66,8 +66,7 @@ import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
 
-
-    /* CONTROLLERS */
+    /* SUBSYSTEMS */
     private static Joystick driverController;
     private static Joystick operatorController;
 
@@ -96,14 +95,15 @@ public class RobotContainer {
     private PIDController noteYawPID;
     private PIDController targetYawPID;
 
-    public Drive driveSub;
-    public Vision visionSub;
-
+    public final Drive driveSub;
+    public final Vision visionSub;
     /* AUTO */
 
     private SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        driveSub = new Drive();
+        visionSub = new Vision();
         noteYawPID = new PIDController(
                 DriveConstants.YawOverrideAlignNoteKP,
                 DriveConstants.YawOverrideAlignNoteKI,
@@ -136,7 +136,6 @@ public class RobotContainer {
 
         restartGyroButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
-
 
     }
 
@@ -193,6 +192,7 @@ public class RobotContainer {
         //         NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommand);
         //     }
         // }
+
 
 
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
@@ -269,7 +269,6 @@ public class RobotContainer {
 
     //     return result;
     // }
-
     public Command getAutonomousCommand() {
         if (autoChooser != null) {
             return autoChooser.getSelected();
