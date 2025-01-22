@@ -211,7 +211,39 @@ public class Constants {
         // placeholder.
         public static final double SupplyCurrentLimit = 40;
         public static final double AngleCANCoderMagnetOffset = 0.48583;
-    }
+
+        /* ELEVATOR */
+
+        public static final double MaxHeightInches = 45; // CHANGE
+        public static final double StartingHeight = 24.75; // CHANGE
+
+        public static final double ElevatorKP = 32; // CHANGE
+        public static final double ElevatorKI = 0.001; // CHANGE
+        public static final double ElevatorKD = 0.0; // CHANGE
+        // public static final double ElevatorIZone = 0.1; // motor already does this
+        public static final double ElevatorFF = 0.0; // CHANGE
+        public static final double ElevatorKG = 2.7; // CHANGE
+        public static final double ElevatorKS = 0; // CHANGE
+        public static final double ElevatorGearRatio = 15;
+//      public static final double ElevatorSprocketDiameter = 2.36;  // inches // CHANGE
+        public static final double ElevatorSprocketDiameter = 2.16;  // inches // CHANGE
+        public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
+        public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
+        // public static final double RotationsPerElevatorInch = 
+        // ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
+
+        public static final double ElevatorMaxInchesPerSec = 
+                Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio * ElevatorSprocketCircumference;
+        public static final double ElevatorCruiseInchesPerSec = 10; // CHANGE
+        public static final double ElevatorInchesPerSecPerSec = 10; // CHANGE
+        public static final double ElevatorJerk = 800; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
+    
+        public static final double WristKP = 32; // CHANGE
+        public static final double WristKI = 0.001; // CHANGE
+        public static final double WristKD = 0.0; // CHANGE
+        public static final double WristFF = 0.0; // CHANGE
+        public static final double WristIZone = 0.15; // CHANGE
+    }   
 
 
     public static final class AutoConstants {
