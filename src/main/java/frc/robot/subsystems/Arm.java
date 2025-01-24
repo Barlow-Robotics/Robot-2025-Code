@@ -28,6 +28,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -45,6 +47,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 // import frc.robot.sim.PhysicsSim;
 import frc.robot.subsystems.Vision.TargetToAlign;
@@ -61,22 +64,33 @@ public class Arm extends SubsystemBase {
     SparkMax wristMotor;
     private final SimDeviceSim wristMotorSim;
     SparkMaxConfig wristMotorConfig = new SparkMaxConfig();
+    public final SparkClosedLoopController wristPidController;
         
     private final DCMotorSim wristMotorModel = new DCMotorSim(
         LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
 
+    TalonFX leftElevatorMotor;
+    private final TalonFXSimState leftElevatorMotorSim;
+    private final DCMotorSim leftElevatorMotorModel = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
+
+    TalonFX rightElevatorMotor;
+    private final TalonFXSimState rightElevatorMotorSim;
+    private final DCMotorSim rightElevatorMotorModel = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
+    
     private final CANcoder wristEncoder; // needs an encoder
     private final CANcoderSimState wristEncoderSim; // CHANGE needed? never used
 
     public enum ArmState {
-        Resting, Level1, Level2, Level3, Level4
+        Home, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow
     }
 
     private final Drive driveSub;
     private final Vision visionSub;
 
-    private ArmState actualState = ArmState.Resting;
-    public ArmState desiredState = ArmState.Resting;
+    private ArmState actualState = ArmState.Home;
+    public ArmState desiredState = ArmState.Home;
 
     private double desiredAngle = 0; // CHANGE PLACEHOLDER
     private double desiredHeight = 0;
@@ -95,17 +109,33 @@ public class Arm extends SubsystemBase {
 
         wristEncoder = new CANcoder(ElectronicsIDs.EncoderDummyID, "rio");
         wristEncoderSim = wristEncoder.getSimState();
+        
+        wristPidController = wristMotor.getClosedLoopController();
+
+        leftElevatorMotor = new TalonFX(ElectronicsIDs.LeftElevatorDummyMotorID);
+        leftElevatorMotorSim = leftElevatorMotor.getSimState();
+        leftElevatorMotor.setPosition(0);
+
+        rightElevatorMotor = new TalonFX(ElectronicsIDs.RightElevatorDummyMotorID);
+        rightElevatorMotorSim = rightElevatorMotor.getSimState();
 
         applyAngleEncoderConfigs();
         setNeutralMode(NeutralModeValue.Brake);
         this.driveSub = driveSub;
         this.visionSub = visionSub;
+
+        wristMotorConfig.closedLoop
+            .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
+            .iZone(ArmConstants.WristIZone)
+            .outputRange(-1, 1);        
     }
 
     private void setDesiredAngleAndHeight() {
 
         switch (desiredState) {
-            case Resting: 
+            case Home: 
+                break;
+            case LoadCoral: 
                 break;
             case Level1:
                 break;
@@ -115,10 +145,13 @@ public class Arm extends SubsystemBase {
                 break;
             case Level4:
                 break;
+            case AlgaeHigh:
+                break;
+            case AlgaeLow:
+                break;
         }
         //setAngle(desiredAngle);
         //setHeightInches(desiredHeight);
-
     }
 
     public boolean hasCompletedMovement() {
@@ -135,11 +168,11 @@ public class Arm extends SubsystemBase {
 
         // Shuffleboard.getTab("Match").add("Can See Tag", targetIsVisible);
         // Shuffleboard.getTab("Match").add("Desired Shooter Angle", desiredAngle);
-
     }
 
     public void setWristAngle(double desiredDegrees) {
-
+        wristPidController.setReference(desiredDegrees, ControlType.kVelocity);
+        // finish, doesn't work
     }
 
     public void stopArmMotor() {
@@ -154,12 +187,18 @@ public class Arm extends SubsystemBase {
         return Units.rotationsToDegrees(armMotor.getPosition().getValue().baseUnitMagnitude());
     }
 
-    public void setHeightInches(double desiredInches) {
-      
+    public void setElevatorHeightInches(double desiredInches) {
+        double rotations = ((desiredInches - ArmConstants.StartingHeight) / 2)
+        * ArmConstants.RotationsPerElevatorInch;
+        MotionMagicVoltage request = new MotionMagicVoltage(rotations);
+        leftElevatorMotor.setControl(request.withSlot(0));
     }
 
     public double getHeightInches() {
-        
+        double elevatorHeight = ((leftElevatorMotor.getPosition().getValue().baseUnitMagnitude()
+                / ArmConstants.RotationsPerElevatorInch) * 2)
+                + ArmConstants.StartingHeight;
+        return elevatorHeight;
     }
 
     public void setBasePosition(double height) {
@@ -173,12 +212,12 @@ public class Arm extends SubsystemBase {
     }
 
     public void setDesiredState(ArmState newState) {
-        if (newState == ArmState.Resting) {
+        if (newState == ArmState.Home) {
             // this desired state is invalid and will be ignored
             return;
         }
         if (newState != desiredState) {
-            actualState = ArmState.Resting;
+            actualState = ArmState.Home;
         }
         desiredState = newState;
     }
@@ -193,6 +232,40 @@ public class Arm extends SubsystemBase {
     }
 
     /* CONFIG */
+
+    private void applyElevatorMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
+        TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
+        talonConfigs.Slot0.kP = ArmConstants.ElevatorKP;
+        talonConfigs.Slot0.kI = ArmConstants.ElevatorKI;
+        talonConfigs.Slot0.kD = ArmConstants.ElevatorKD;
+        talonConfigs.Slot0.kV = ArmConstants.ElevatorFF;
+        talonConfigs.Slot0.kG = ArmConstants.ElevatorKG;
+        talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+
+        /*
+        talonConfigs.Slot1.kP = ShooterMountConstants.ClimbKP;
+        talonConfigs.Slot1.kI = ShooterMountConstants.ClimbKI;
+        talonConfigs.Slot1.kD = ShooterMountConstants.ClimbKD;
+        talonConfigs.Slot1.kV = ShooterMountConstants.ClimbFF;
+        talonConfigs.Slot1.kG = ShooterMountConstants.ClimbKG;\
+        */
+        talonConfigs.Slot1.GravityType = GravityTypeValue.Elevator_Static;
+
+        var motionMagicConfigs = talonConfigs.MotionMagic;
+
+        double rotationsPerSecond = ArmConstants.ElevatorCruiseInchesPerSec
+                * ArmConstants.RotationsPerElevatorInch;
+        motionMagicConfigs.MotionMagicCruiseVelocity = rotationsPerSecond;
+
+        double rotationsPerSecondPerSecond = (ArmConstants.ElevatorInchesPerSecPerSec
+                * ArmConstants.RotationsPerElevatorInch) / 0.25;
+        motionMagicConfigs.MotionMagicAcceleration = rotationsPerSecondPerSecond;
+
+        // motionMagicConfigs.MotionMagicJerk = ShooterMountConstants.ElevatorMMJerk;
+        motionMagicConfigs.MotionMagicJerk = rotationsPerSecondPerSecond / 0.1;
+
+        applyMotorConfigs(motor, motorName, talonConfigs, inversion);
+    }
 
     private void applyMotorConfigs(TalonFX motor, String motorName, TalonFXConfiguration configs,
             InvertedValue inversion) {
