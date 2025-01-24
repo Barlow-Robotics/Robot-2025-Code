@@ -88,6 +88,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     // System.err.println(robotContainer.getCoralVision());
+    boolean test = true;
     if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
       Command selectedAutoCommand = robotContainer.getVisionPathPlannerPathing();
 
@@ -102,7 +103,9 @@ public class Robot extends LoggedRobot {
       if (!currentlyFollowingAPath && selectedAutoCommand != null) {
           currentlyFollowingAPath = true;
           currentTeleopCommand = selectedAutoCommand;
-          selectedAutoCommand.schedule();
+          System.out.println("SCEDUAL PROBLEM");
+          CommandScheduler.getInstance().schedule(selectedAutoCommand);
+          System.out.println("SCEDUAL PROBLEM");
       }
     }
     if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 

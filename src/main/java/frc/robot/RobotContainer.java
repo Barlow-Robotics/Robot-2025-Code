@@ -9,7 +9,7 @@ import java.util.OptionalInt;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
-
+import java.util.*;
 import choreo.Choreo;
 // import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -20,12 +20,14 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 // import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.util.PathPlannerLogging;
 // import com.pathplanner.lib.config.ReplanningConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -65,6 +67,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.ObjectInputFilter.Config;
 import java.util.ArrayList;
 // import frc.robot.commands.DriveRobotWithAprilTagAlign;
 // import frc.robot.commands.DriveRobotWithNoteAlign;
@@ -156,7 +159,9 @@ public class RobotContainer {
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisY),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), true));
-    }
+
+        configurePathPlanner();
+                    }
 
     private void configureBindings() {
         driverController = new Joystick(ElectronicsIDs.DriverControllerPort);
@@ -320,6 +325,9 @@ public class RobotContainer {
 
     public Command getVisionPathPlannerPathing() {
         List<PhotonTrackedTarget> detectedTargets = visionSub.getAllDetectedTargets();
+        System.out.println(detectedTargets);
+        // System.out.println(detectedTargets.);
+
         double minDist = 10000000;
         int bestID;
         double targetX = -1000;
@@ -340,7 +348,9 @@ public class RobotContainer {
                 bestID = target.getFiducialId();
             }
         }
+
         if (targetX == -1000 || targetY == -1000 || targetZ == -1000) { // If you don't detect an ID, don't run a path
+            System.out.println("No best trackable");
             return null;
         }
         return setUpPathplannerOTF(drivePose, targetX, targetY, targetZ);
@@ -353,31 +363,67 @@ public class RobotContainer {
     }
 
     public Command setUpPathplannerOTF(Pose2d drivePose, double targetX, double targetY, double targetZ) {
-        double addAmount;
-        if (targetZ > 0) { // positive
-            addAmount = -180;
-        }
-        else {
-            addAmount = 180;
-        }
+        double addAmount = 0;
+        // if (targetZ > 0) { // positive
+        //     addAmount = -180;
+        // }
+        // else {
+        //     addAmount = 180;
+        // }
+        System.out.println("TEST");
+        System.out.println(drivePose.getRotation());
+        System.out.println(drivePose.getRotation().getDegrees());
+        Rotation2d test = new Rotation2d(Math.toRadians(drivePose.getRotation().getDegrees()+(targetZ+addAmount)));
+        Rotation2d test2 = Rotation2d.fromDegrees(drivePose.getRotation().getDegrees()+(targetZ+addAmount));
+        Rotation2d finalRotation = Rotation2d.fromDegrees(
+            MathUtil.inputModulus(drivePose.getRotation().getDegrees() + (targetZ + addAmount), 0, 360)
+        );
+
+        System.out.println(test.getDegrees());
         var waypoints = PathPlannerPath.waypointsFromPoses(
             new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
-            new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, Rotation2d.fromDegrees(drivePose.getRotation().getDegrees()+(targetZ+addAmount)))
+            // new Pose2d(drivePose.getX()+1, drivePose.getY(), drivePose.getRotation())
+
+            new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2)
         );
-        PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
-    
+
+        PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
+        System.out.println("TEST2");
+
         PathPlannerPath path = new PathPlannerPath(
                 waypoints,
                 constraints,
                 null,
-                new GoalEndState(0.0, Rotation2d.fromDegrees(drivePose.getRotation().getDegrees()+(targetZ+addAmount)))
+                new GoalEndState(0.0, test2)
         );
 
-        Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-            path,
-            constraints);
+        System.out.println("TES3T");
+
+        Command pathfindingCommand = AutoBuilder.followPath(path);
         return pathfindingCommand;
-        // path.preventFlipping = true;
     }
+
+    // public Command test() {
+    //     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+    //     new Pose2d(1.0, 1.0, Rotation2d.fromDegrees(0)),
+    //     new Pose2d(3.0, 1.0, Rotation2d.fromDegrees(0)),
+    //     new Pose2d(5.0, 3.0, Rotation2d.fromDegrees(90))
+    //     );
+
+    //     PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
+    //     // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
+
+    //     // Create the path using the waypoints created above
+    //     PathPlannerPath path = new PathPlannerPath(
+    //             waypoints,
+    //             constraints,
+    //             null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+    //             new GoalEndState(0.0, Rotation2d.fromDegrees(-90)) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+    //     );
+
+    //     // Prevent the path from being flipped if the coordinates are already correct
+    //     path.preventFlipping = true;
+
+    // }
 
 }
