@@ -73,14 +73,14 @@ public class Drive extends SubsystemBase {
 
     private SwerveModulePosition[] previousPositions = new SwerveModulePosition[4];
 
-//     private final Vision visionSub;
+    private final Vision visionSub;
 
     private Pose2d currPose2d;
     private Pose2d lastPose2d;
 
     // private final AprilTagFieldLayout aprilTagFieldLayout;
 
-    public Drive() {
+    public Drive(Vision visionSub) {
         navX = new AHRS(AHRS.NavXComType.kMXP_SPI, 100);
 
         // navX = new AHRS(Port.kMXP);
@@ -92,7 +92,7 @@ public class Drive extends SubsystemBase {
         // }
         // }).start();
 
-        // this.visionSub = visionSub;
+        this.visionSub = visionSub;
 
         odometry = new SwerveDriveOdometry(
                 DriveConstants.kinematics,
@@ -165,25 +165,20 @@ public class Drive extends SubsystemBase {
                         backRight.getPosition()
                 });
 
-        // var photonEstimate = visionSub.getEstimatedGlobalPose();
-
         // Vision estimate is not stable. Just use pure odometry for now
         // Don't re-enable until we have done more thorough testing of the
         // vision calibration and initialization.
+        var currentPose = getPose();
+        var photonEstimate = visionSub.getEstimatedGlobalPose(currentPose);
+        if (photonEstimate.isPresent()) {
+                poseEstimator.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(),
+                                                        photonEstimate.get().timestampSeconds);
+                Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
+        }
         
-        // if (photonEstimate.isPresent()) {
-        //     poseEstimator.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(),
-        //             photonEstimate.get().timestampSeconds);
-        // }
-        
-
-        Logger.recordOutput("Drive/PoseEstimate", poseEstimator.getEstimatedPosition());
-        // if (photonEstimate.isPresent()) {
-        //     Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
-        // }
-
         SwerveModuleState[] swerveModuleActualStates = new SwerveModuleState[] { frontLeft.getState(),
                 frontRight.getState(), backLeft.getState(), backRight.getState() };
+        
         logData(swerveModuleActualStates);
         if (currPose2d != null) {
                 lastPose2d = currPose2d;

@@ -52,11 +52,7 @@ public class Robot extends LoggedRobot {
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
     Logger.recordOutput("Controllers/Driver", currentDriverController);
     Logger.recordOutput("Controllers/Operator", currentOperatorController);
-    currentPose = robotContainer.driveSub.getPose();
-    var poseEstimate = robotContainer.visionSub.getEstimatedGlobalPose(currentPose);
-    if (poseEstimate.isPresent()) {
-        Logger.recordOutput("vision/estimatedPose", poseEstimate.get().estimatedPose);
-    }
+
     CommandScheduler.getInstance().run();
   }
 

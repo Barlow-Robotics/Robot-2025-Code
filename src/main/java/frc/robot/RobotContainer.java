@@ -139,8 +139,8 @@ public class RobotContainer {
         //     frame.add(robotController); frame.pack(); frame.setVisible(true); 
         // });
         moveToCoral = false; 
-        driveSub = new Drive();
         visionSub = new Vision();
+        driveSub = new Drive(visionSub);
         noteYawPID = new PIDController(
                 DriveConstants.YawOverrideAlignNoteKP,
                 DriveConstants.YawOverrideAlignNoteKI,
