@@ -11,7 +11,6 @@ import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import java.util.*;
 import choreo.Choreo;
-// import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -45,22 +44,15 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
+
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
-// import frc.robot.Constants.ShooterMountConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.autonomous.DynamicChoreoCommand;
 import frc.robot.autonomous.DynamicChoreo;
 import frc.robot.autonomous.DynamicPathPlanner;
 import frc.robot.commands.DriveRobot;
-// <<<<<<< Updated upstream
-// import edu.wpi.first.wpilibj2.command.Command; 
-// import javax.swing.SwingUtilities; 
-// // import frc.robot.RobotCommunicator;
-// =======
-// import edu.wpi.first.wpilibj2.command.Command;
-// import frc.robot.RobotCommunicator;
-// >>>>>>> Stashed changes
+import frc.robot.commands.SetArmPosition;
 import javax.swing.*;
 import java.awt.Point;
 import java.awt.Dimension;
@@ -69,24 +61,35 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.ObjectInputFilter.Config;
 import java.util.ArrayList;
-// import frc.robot.commands.DriveRobotWithAprilTagAlign;
-// import frc.robot.commands.DriveRobotWithNoteAlign;
-// import frc.robot.commands.PivotToPoint;
-// import frc.robot.commands.ReverseFloorIntake;
-// import frc.robot.commands.DriveRobotWithAlign;
-// import frc.robot.commands.SetShooterMountPosition;
-// import frc.robot.commands.StartClimbing;
-// import frc.robot.commands.StartShooterIntake;
-// import frc.robot.commands.StopShooterIntake;
 import frc.robot.subsystems.Drive;
-// import frc.robot.subsystems.FloorIntake;
-// import frc.robot.subsystems.Shooter;
-// import frc.robot.subsystems.ShooterMount;
-// import frc.robot.subsystems.ShooterMount.ShooterMountState;
-// import frc.robot.subsystems.Underglow;
+import frc.robot.subsystems.AlgaeIntake;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.Climb;
+import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
+    /* SUBSYSTEMS */
+public Drive driveSub = new Drive();
+public Vision visionSub = new Vision();
+public final Arm armSub = new Arm(visionSub, driveSub);
+public final Climb climbSub = new Climb();
+public final CoralIntake coralIntakeSub = new CoralIntake();
+public final AlgaeIntake algaeIntakeSub = new AlgaeIntake(visionSub, driveSub);
+
+
+    /* COMMANDS */
+private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub, ArmState.Home);
+private final SetArmPosition setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
+private final SetArmPosition setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
+private final SetArmPosition setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
+private final SetArmPosition setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
+private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
+private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaeLow);
+private final SetArmPosition setArmPosAlgaeHighCmd = new SetArmPosition(armSub, ArmState.AlgaeHigh);
+
 
     /* CONTROLLERS */
     private static Joystick driverController;
@@ -94,33 +97,32 @@ public class RobotContainer {
 
     /* BUTTONS */
 
-    private Trigger moveToSpeakerButton; // button x
-    private Trigger moveToAmpButton; // button y
-    private Trigger moveToSourceButton; // left stick
-    private Trigger moveToFloorButton; // left bumper
-    private Trigger moveToFerryButton; // hamburger
+    private Trigger thisIsAButton; // button x
 
-    private Trigger climbButton; // button a
-    private Trigger piviotToPoint;
+
     private Trigger moveToCoralButton;
-
-    // private Trigger climbAbortButton; // right stick
-
-    // private Trigger toggleLEDsButton; // hamburger
-    // private Trigger LEDHumanSourceButton;
-    // private Trigger LEDHumanFloorButton;
-
-    private Trigger shootIntakeButton; // trigger
-    private Trigger reverseFloorIntakeButton; // driver button 7
 
     private Trigger autoAlignButton; // driver button 11
     private Trigger restartGyroButton; // driver button 9
 
+    public Trigger moveToHomeButton;
+    public Trigger moveToLoadCoralButton;
+    public Trigger moveToLevel1Button;
+    public Trigger moveToLevel2Button;
+    public Trigger moveToLevel3Button;
+    public Trigger moveToLevel4Button;
+    public Trigger moveToAlgaeHighButton;
+    public Trigger moveToAlgaeLowButton;
+    
+    
+
     private PIDController noteYawPID;
     private PIDController targetYawPID;
 
-    public final Drive driveSub;
-    public final Vision visionSub;
+  
+   
+
+    
     /* AUTO */
 
     private SendableChooser<Command> autoChooser;
@@ -173,11 +175,36 @@ public class RobotContainer {
 
         restartGyroButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
-
+        
         moveToCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button8);
         moveToCoralButton.onTrue(new InstantCommand(() -> changeCoralVision(true))).onFalse(new InstantCommand(() -> changeCoralVision(false)));
 
+        /***************** POSITION *****************/
+        
+        moveToHomeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToHomeButton.onTrue(setArmPosHomeCmd);
+       
+        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
+        moveToAlgaeHighButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
+       
+        moveToAlgaeLowButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToHomeButton.onTrue(setArmPosAlgaeLowCmd);
+
+        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
+        
+        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToLevel2Button.onTrue(setArmPosLevel2Cmd);
+
+        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToLevel3Button.onTrue(setArmPosLevel3Cmd);
+
+        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle 
+        moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
+        
     }
 
     public void configurePathPlanner() {

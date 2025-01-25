@@ -116,6 +116,11 @@ public class Constants {
         public static final int CarriageMotorID = 45;
         public static final int WristEncoderID = 46;
         public static final int ShoulderEncoderID = 47; 
+
+        /***************************** ALGAE INTAKE *****************************/
+
+        public static final int LiftMotorID = 51;
+        public static final int LiftEncoderID = 52;
     }
 
     /***************************************************************************/
@@ -289,6 +294,13 @@ public class Constants {
         public static final double WristIZone = 0.15; // CHANGE
     }   
 
+    public static final class AlgaeConstants {
+        public static final double LiftKP = 32; // CHANGE
+        public static final double LiftKI = 0.001; // CHANGE
+        public static final double LiftKD = 0; // CHANGE
+        public static final double LiftFF = 0; // CHANGE
+        public static final double LiftIZone = 0.15; // CHANGE
+    }
 
     public static final class AutoConstants {
         public static TuneableParameter coralIsVisible = new TuneableParameter(0, 1, 0, true, "Auto/CoralIsVisible");
