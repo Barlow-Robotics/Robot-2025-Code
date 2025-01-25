@@ -4,14 +4,6 @@
 
 package frc.robot.subsystems;
 
-// import static edu.wpi.first.units.Units.Amp;
-
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
-
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.revrobotics.sim.SparkMaxSim;
@@ -20,30 +12,27 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-//import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.RobotController;
+
+// import static edu.wpi.first.units.Units.Amp;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 //import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-//import edu.wpi.first.wpilibj.simulation.DIOSim;
-//import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-//import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
-import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.AlgaeConstants;
-import frc.robot.Constants.ArmConstants;
-//import frc.robot.Constants.DriveConstants;
-import frc.robot.Robot;
-import frc.robot.sim.PhysicsSim;
 //import frc.robot.subsystems.Vision.TargetToAlign;
 import frc.robot.Constants;
+import frc.robot.Constants.AlgaeConstants;
+import frc.robot.Constants.ElectronicsIDs;
 
 
 public class AlgaeIntake extends SubsystemBase {
 
   SparkMax liftMotor;
   private final SparkMaxSim liftMotorSim;
+  
   SparkMaxConfig liftMotorConfig = new SparkMaxConfig();
   public final SparkClosedLoopController liftPidController;
   private final DCMotorSim liftMotorModel = new DCMotorSim(
@@ -52,12 +41,17 @@ public class AlgaeIntake extends SubsystemBase {
   private final CANcoder liftEncoder; 
   private final CANcoderSimState liftEncoderSim;
 
+  SparkMax intakeMotor; // NEED TO FIX: add config and sim for this- Ang 
+  SparkClosedLoopController intakeMotorPidController; // NEED TO FIX: intialize this
+
   private final Drive driveSub;
   private final Vision visionSub;
 
   private boolean simulationInitialized = false;
 
   public AlgaeIntake(Vision visionSub, Drive driveSub) {
+
+    intakeMotor = new SparkMax(ElectronicsIDs.AlgaeIntakeMotorID, MotorType.kBrushless);
 
     liftMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
     liftMotorSim = new SparkMaxSim(liftMotor, DCMotor.getNeo550((1)));
@@ -86,6 +80,19 @@ public class AlgaeIntake extends SubsystemBase {
   public double getLiftEncoderDegrees() {
     return Units.rotationsToDegrees(liftEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
   }
+
+  public void startIntaking() {
+    intakeMotorPidController.setReference(AlgaeConstants.IntakeSpeed, ControlType.kVelocity);
+  }
+
+  public void startEjecting() {
+    intakeMotorPidController.setReference(AlgaeConstants.EjectSpeed, ControlType.kVelocity);
+  }
+
+  public void stop() {
+    intakeMotor.stopMotor();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -95,7 +102,7 @@ public class AlgaeIntake extends SubsystemBase {
     // put logging in here
   }
 
-  // Can't figure out how to get this to return velocity, need to fix -Ang
+  // NEED TO FIX: Can't figure out how to get this to return velocity -Ang
   // public void setSpeed(double speed) {
   //   intakeMotor.set(speed);
   // }

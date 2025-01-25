@@ -5,11 +5,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.AlgaeIntake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class Intake extends Command {
-  /** Creates a new Intake. */
-  public Intake() {
+public class EjectAlgae extends Command {
+  /** Creates a new StartIntake. */
+
+   AlgaeIntake algaeIntakeSub;
+  
+  public EjectAlgae(AlgaeIntake algaeIntakeSub) {
+    this.algaeIntakeSub = algaeIntakeSub;
+
+    addRequirements(algaeIntakeSub);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -19,7 +26,9 @@ public class Intake extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    algaeIntakeSub.startEjecting();
+  }
 
   // Called once the command ends or is interrupted.
   @Override

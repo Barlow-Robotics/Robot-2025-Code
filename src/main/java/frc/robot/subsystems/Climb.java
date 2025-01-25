@@ -6,10 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import org.littletonrobotics.junction.Logger;
 
 public class Climb extends SubsystemBase {
   /** Creates a new Climb. */

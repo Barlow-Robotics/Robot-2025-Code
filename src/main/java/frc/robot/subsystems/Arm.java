@@ -87,7 +87,6 @@ public class Arm extends SubsystemBase {
     private final CANcoder wristEncoder; 
     private final CANcoderSimState wristEncoderSim;
 
-    // Need to add a shoulder encoder - A:)
     private final CANcoder shoulderEncoder;
     private final CANcoderSimState shoulderEncoderSim;
 

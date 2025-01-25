@@ -43,7 +43,7 @@ public class SwerveModule {
     private final SparkMax turnMotor;
     private final CANcoder turnEncoder;
     public final ProfiledPIDController turnPIDController;
-    private final SimpleMotorFeedforward TurnFF = new SimpleMotorFeedforward(0, 0.4); // Need to change these #'s
+    private final SimpleMotorFeedforward TurnFF = new SimpleMotorFeedforward(0, 0.4); // NEED TO FIX these #'s
     SimDeviceSim driveMotorSim;
     SimDeviceSim turnMotorSim;
     private String swerveName;
