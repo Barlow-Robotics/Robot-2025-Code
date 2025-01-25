@@ -110,6 +110,9 @@ public class Robot extends LoggedRobot {
     }
     if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
         currentlyFollowingAPath = false;
+        if (currentTeleopCommand != null) {
+          currentTeleopCommand.cancel();
+        }
         currentTeleopCommand = null;
     }
     if (currentlyFollowingAPath) {

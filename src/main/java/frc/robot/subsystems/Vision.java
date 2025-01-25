@@ -9,12 +9,14 @@ import static frc.robot.Constants.VisionConstants.FallbackVisionStrategy;
 import static frc.robot.Constants.VisionConstants.PoseCameraName;
 import static frc.robot.Constants.VisionConstants.PoseCameraToRobot;
 import static frc.robot.Constants.VisionConstants.RobotToTargetCam;
+import static frc.robot.Constants.VisionConstants.TargetCamToRobot;
 import static frc.robot.Constants.VisionConstants.FieldTagLayout;
 import static frc.robot.Constants.VisionConstants.TargetCameraName;
 import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
 
 import java.util.Hashtable;
 import java.io.IOException;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -102,9 +104,9 @@ public class Vision extends SubsystemBase {
     ByteBuffer buffer = ByteBuffer.allocate(1024);
 
     public Vision() /* throws IOException */ {
-        targetCamera = new PhotonCamera(TargetCameraName);
-        poseCamera = new PhotonCamera(PoseCameraName);
-        photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, PoseCameraToRobot);
+        targetCamera = new PhotonCamera(TargetCameraName); // left camera
+        poseCamera = new PhotonCamera(PoseCameraName); // right camera
+        photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, TargetCamToRobot);
         // photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, poseCamera, PoseCameraToRobot);
         photonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
 
@@ -259,8 +261,10 @@ public class Vision extends SubsystemBase {
     public void periodic() {
 
         // TODO: feed this pose estimate back to the combined pose estimator in drive
-        // var poseEstimate = getEstimatedGlobalPose();
-
+        var poseEstimate = getEstimatedGlobalPose();
+        if (poseEstimate.isPresent()) {
+            Logger.recordOutput("vision/estimatedPose", poseEstimate.get().estimatedPose);
+        }
         setLayoutOrigin();
 
         // Find all the results from the tracking camera
@@ -268,6 +272,7 @@ public class Vision extends SubsystemBase {
 
         // Update the current bestAlignTarget based on the chosen target
         currentBestAlignTarget = null;
+
 
         if (tracking_result.isPresent()) {
             allDetectedTargets = tracking_result.get().getTargets();
@@ -426,9 +431,9 @@ public class Vision extends SubsystemBase {
      *         used for estimation.
      */
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-        if (poseCamera.isConnected()) {
-            var visionEst = photonEstimator.update(poseCamera.getLatestResult());
-            double latestTimestamp = poseCamera.getLatestResult().getTimestampSeconds();
+        if (targetCamera.isConnected()) {
+            var visionEst = photonEstimator.update(targetCamera.getLatestResult());
+            double latestTimestamp = targetCamera.getLatestResult().getTimestampSeconds();
             boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
             if (Robot.isSimulation()) {
                 visionEst.ifPresentOrElse(
