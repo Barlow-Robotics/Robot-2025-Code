@@ -72,7 +72,7 @@ public class AlgaeIntake extends SubsystemBase {
             .outputRange(-1, 1); 
 
 
-    liftMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
+    liftMotor = new SparkMax(ElectronicsIDs.LiftMotorID, MotorType.kBrushless);
     liftMotorSim = new SparkMaxSim(liftMotor, DCMotor.getNeo550((1)));
     liftEncoder = new CANcoder(ElectronicsIDs.LiftEncoderID, "rio");
     liftEncoderSim = liftEncoder.getSimState();

@@ -173,44 +173,44 @@ public class RobotContainer {
 
         /***************** POSITION *****************/
 
-        moveToHomeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToHomeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
         moveToHomeButton.onTrue(setArmPosHomeCmd);
 
-        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonY); // CHANGE
         moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
-        moveToAlgaeHighButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToAlgaeHighButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonA); // CHANGE
         moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
 
-        moveToAlgaeLowButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToAlgaeLowButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonB); // CHANGE
         moveToAlgaeLowButton.onTrue(setArmPosAlgaeLowCmd);
 
-        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
 
-        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper); // CHANGE
         moveToLevel2Button.onTrue(setArmPosLevel2Cmd);
 
-        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton); // CHANGE
         moveToLevel3Button.onTrue(setArmPosLevel3Cmd);
 
-        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.LeftStick); // CHANGE
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
 
         /***************** ALGAE INTAKE *****************/
 
-        intakeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        intakeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        ejectAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        ejectAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
         /***************** CORAL INTAKE *****************/
 
-        ejectCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        ejectCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         ejectCoralButton.onTrue(ejectCoralCmd).onFalse(stopCoralIntakeCmd);
         
-        intakeCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        intakeCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         intakeCoralButton.onTrue(intakeCoralCmd).onFalse(stopCoralIntakeCmd);
  
     }
