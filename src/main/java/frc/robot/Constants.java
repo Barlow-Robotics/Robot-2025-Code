@@ -109,11 +109,13 @@ public class Constants {
 
         /***************************** ARM *****************************/
 
-        public static final int ArmDummyMotorID = 41;
-        public static final int WristDummyMotorID = 42;
-        public static final int LeftElevatorDummyMotorID = 43;
-        public static final int RightElevatorDummyMotorID = 44;
-        public static final int EncoderDummyID = 45;
+        public static final int ArmMotorID = 41;
+        public static final int WristMotorID = 42; // rev
+        public static final int LeftElevatorMotorID = 43;
+        public static final int RightElevatorMotorID = 44;
+        public static final int CarriageMotorID = 45;
+        public static final int WristEncoderID = 46;
+        public static final int ShoulderEncoderID = 47; 
     }
 
     /***************************************************************************/
@@ -208,9 +210,51 @@ public class Constants {
     /***************************************************************************/
 
     public static final class ArmConstants {
-        // placeholder.
+        // Arm and Wrist Angles
         public static final double SupplyCurrentLimit = 40;
         public static final double AngleCANCoderMagnetOffset = 0.48583;
+        public static final double Level1ArmAngle = 0;
+        public static final double Level2ArmAngle = 0;
+        public static final double Level3ArmAngle = 0; 
+        public static final double Level4ArmAngle = 0;  
+        public static final double Level1WristAngle = 0;
+        public static final double Level2WristAngle = 0;
+        public static final double Level3WristAngle = 0; 
+        public static final double Level4WristAngle = 0;
+      
+
+        public static final double Level1ElevatorHeight = 0;
+        public static final double Level2ElevatorHeight = 0;
+        public static final double Level3ElevatorHeight = 0; 
+        public static final double Level4ElevatorHeight = 0; 
+        public static final double Level1CarriageHeight = 0;
+        public static final double Level2CarriageHeight = 0;
+        public static final double Level3CarriageHeight = 0;
+        public static final double Level4CarriageHeight = 0;
+
+        public static final double AngleKP = 0;
+        public static final double AngleKI = 0;
+        public static final double AngleKD = 0;
+        public static final double AngleFF = 0;
+        public static final double AngleKG = 0;
+        public static final double AngleCruiseRotationsPerSec = 0;
+        
+        public static final double AngleAcceleration = 0;
+        public static final double AngleJerk = 0;
+
+        public static final double CoralWristAngle = 0;
+        public static final double CoralElevatorHeight = 0;
+        public static final double CoralCarriageHeight = 0;
+        public static final double CoralArmAngle = 0;
+        public static final double AlgaeHighArmAngle = 0;
+        public static final double AlgaeHighWristAngle = 0;
+        public static final double AlgaeHighElevatorHeight = 0;
+        public static final double AlgaeHighCarriageHeight = 0;
+      
+         public static final double AlgaeLowWristAngle = 0;
+        public static final double AlgaeLowArmAngle = 0;
+        public static final double AlgaeLowElevatorHeight = 0;
+        public static final double AlgaeLowCarriageHeight = 0;
 
         /* ELEVATOR */
 
