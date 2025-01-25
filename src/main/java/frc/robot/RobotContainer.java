@@ -64,7 +64,7 @@ public class RobotContainer {
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake(visionSub, driveSub);
 
     /* COMMANDS */
-    private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub, ArmState.Home);
+    // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub, ArmState.Home);
     private final SetArmPosition setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
     private final SetArmPosition setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
     private final SetArmPosition setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
@@ -93,7 +93,7 @@ public class RobotContainer {
     private Trigger autoAlignButton; // driver button 11
     private Trigger restartGyroButton; // driver button 9
 
-    private Trigger moveToHomeButton;
+    // private Trigger moveToHomeButton;
     private Trigger moveToLoadCoralButton;
     private Trigger moveToLevel1Button;
     private Trigger moveToLevel2Button;
@@ -130,8 +130,8 @@ public class RobotContainer {
         // frame.add(robotController); frame.pack(); frame.setVisible(true);
         // });
         moveToCoral = false;
-        driveSub = new Drive();
-        visionSub = new Vision();
+        // driveSub = new Drive();
+        // visionSub = new Vision();
         noteYawPID = new PIDController(
                 DriveConstants.YawOverrideAlignNoteKP,
                 DriveConstants.YawOverrideAlignNoteKI,
@@ -173,8 +173,8 @@ public class RobotContainer {
 
         /***************** POSITION *****************/
 
-        moveToHomeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
-        moveToHomeButton.onTrue(setArmPosHomeCmd);
+        // moveToHomeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
+        // moveToHomeButton.onTrue(setArmPosHomeCmd);
 
         moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonY); // CHANGE
         moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
