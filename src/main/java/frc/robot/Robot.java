@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ElectronicsIDs;
+import edu.wpi.first.math.geometry.Pose2d;
+
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -24,6 +26,7 @@ public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
   boolean pathPlannerConfigured = false ;
   boolean currentlyFollowingAPath = false;
+  Pose2d currentPose;
   public Robot() {
     robotContainer = new RobotContainer();
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
@@ -45,12 +48,15 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    robotContainer.visionSub.periodic();
     String currentDriverController = DriverStation.getJoystickName(ElectronicsIDs.DriverControllerPort);
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
     Logger.recordOutput("Controllers/Driver", currentDriverController);
     Logger.recordOutput("Controllers/Operator", currentOperatorController);
-
+    currentPose = robotContainer.driveSub.getPose();
+    var poseEstimate = robotContainer.visionSub.getEstimatedGlobalPose(currentPose);
+    if (poseEstimate.isPresent()) {
+        Logger.recordOutput("vision/estimatedPose", poseEstimate.get().estimatedPose);
+    }
     CommandScheduler.getInstance().run();
   }
 

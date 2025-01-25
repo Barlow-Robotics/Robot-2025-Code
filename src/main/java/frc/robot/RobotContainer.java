@@ -379,6 +379,10 @@ public class RobotContainer {
         // Rotation2d finalRotation = Rotation2d.fromDegrees(
         //     MathUtil.inputModulus(drivePose.getRotation().getDegrees() + (targetZ + addAmount), 0, 360)
         // );
+        double sideOfReef = -1;
+        // if (rightSide()) {
+        //     sideOfReef = 1;
+        // }
         Pose3d finalPoseOfAprilTagId = new Pose3d(driveSub.getPose());
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
@@ -394,7 +398,7 @@ public class RobotContainer {
         var waypoints = PathPlannerPath.waypointsFromPoses(
             new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
             // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) // vision AprilTag Detection
-            new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()-(0), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
+            new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()-(Constants.FieldConstants.reefOffsetMeters), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
         );
 
         PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
@@ -410,5 +414,6 @@ public class RobotContainer {
         Command pathfindingCommand = AutoBuilder.followPath(path);
         return pathfindingCommand;
     }
+
 
 }

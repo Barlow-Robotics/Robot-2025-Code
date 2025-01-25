@@ -46,6 +46,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -261,12 +262,7 @@ public class Vision extends SubsystemBase {
     public void periodic() {
 
         // TODO: feed this pose estimate back to the combined pose estimator in drive
-        var poseEstimate = getEstimatedGlobalPose();
-        if (poseEstimate.isPresent()) {
-            Logger.recordOutput("vision/estimatedPose", poseEstimate.get().estimatedPose);
-        }
         setLayoutOrigin();
-
         // Find all the results from the tracking camera
         var tracking_result = getLatestTrackingResult();
 
@@ -430,8 +426,9 @@ public class Vision extends SubsystemBase {
      *         timestamp, and targets
      *         used for estimation.
      */
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d robotPose) {
         if (targetCamera.isConnected()) {
+            photonEstimator.setReferencePose(robotPose);
             var visionEst = photonEstimator.update(targetCamera.getLatestResult());
             double latestTimestamp = targetCamera.getLatestResult().getTimestampSeconds();
             boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
