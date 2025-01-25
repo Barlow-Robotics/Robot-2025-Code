@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 //import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,8 +42,17 @@ public class AlgaeIntake extends SubsystemBase {
   private final CANcoder liftEncoder; 
   private final CANcoderSimState liftEncoderSim;
 
-  SparkMax intakeMotor; // NEED TO FIX: add config and sim for this- Ang 
-  SparkClosedLoopController intakeMotorPidController; // NEED TO FIX: intialize this
+  SparkMax intakeMotor;
+  private final SparkMaxSim intakeMotorSim;
+  
+  SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
+  public final SparkClosedLoopController intakePidController;
+  private final DCMotorSim intakeMotorModel = new DCMotorSim(
+      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+
+
+  private double desiredLiftAngle = 0;
+  private double desiredIntakeAngle = 0;
 
   private final Drive driveSub;
   private final Vision visionSub;
@@ -52,6 +62,15 @@ public class AlgaeIntake extends SubsystemBase {
   public AlgaeIntake(Vision visionSub, Drive driveSub) {
 
     intakeMotor = new SparkMax(ElectronicsIDs.AlgaeIntakeMotorID, MotorType.kBrushless);
+    intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNeo550((1)));
+
+    intakePidController = intakeMotor.getClosedLoopController();
+
+    intakeMotorConfig.closedLoop
+            .pidf(AlgaeConstants.IntakeKP, AlgaeConstants.IntakeKI, AlgaeConstants.IntakeKD, AlgaeConstants.IntakeFF)
+            .iZone(AlgaeConstants.IntakeIZone)
+            .outputRange(-1, 1); 
+
 
     liftMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
     liftMotorSim = new SparkMaxSim(liftMotor, DCMotor.getNeo550((1)));
@@ -82,11 +101,11 @@ public class AlgaeIntake extends SubsystemBase {
   }
 
   public void startIntaking() {
-    intakeMotorPidController.setReference(AlgaeConstants.IntakeSpeed, ControlType.kVelocity);
+    intakePidController.setReference(AlgaeConstants.IntakeSpeed, ControlType.kVelocity);
   }
 
   public void startEjecting() {
-    intakeMotorPidController.setReference(AlgaeConstants.EjectSpeed, ControlType.kVelocity);
+    intakePidController.setReference(AlgaeConstants.EjectSpeed, ControlType.kVelocity);
   }
 
   public void stop() {
@@ -95,13 +114,42 @@ public class AlgaeIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    logData();
   }
 
   private void logData() {
     // put logging in here
   }
 
+  /* SIMULATION */
+
+  public void simulationInit() {
+
+  }
+  @Override
+  public void simulationPeriodic() {
+      if (!simulationInitialized) {
+          simulationInit();
+          simulationInitialized = true;
+      }
+      intakeMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+      double intakeVoltage = intakeMotorSim.getBusVoltage();
+      intakeMotorModel.setInputVoltage(intakeVoltage);
+      intakeMotorModel.update(0.02);
+      intakeMotorSim.setVelocity(intakeMotorModel.getAngularVelocityRPM() / 60.0);
+
+      liftMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+      double liftVoltage = liftMotorSim.getBusVoltage();
+      liftMotorModel.setInputVoltage(liftVoltage);
+      liftMotorModel.update(0.02);
+      liftMotorSim.setVelocity(liftMotorModel.getAngularVelocityRPM() / 60.0);
+      
+      double currentLiftAngle = getLiftEncoderDegrees();
+      double delta = desiredLiftAngle - currentLiftAngle;
+      delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
+      liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
+  
+  }
   // NEED TO FIX: Can't figure out how to get this to return velocity -Ang
   // public void setSpeed(double speed) {
   //   intakeMotor.set(speed);

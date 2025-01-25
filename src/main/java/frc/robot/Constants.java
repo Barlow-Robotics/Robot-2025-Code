@@ -114,7 +114,7 @@ public class Constants {
         public static final int RightElevatorMotorID = 44;
         public static final int CarriageMotorID = 45;
         public static final int WristEncoderID = 46;
-        public static final int ShoulderEncoderID = 47; 
+        public static final int ArmEncoderID = 47; 
 
         /***************************** ALGAE INTAKE *****************************/
 
@@ -265,6 +265,7 @@ public class Constants {
 
         public static final double MaxHeightInches = 45; // CHANGE
         public static final double StartingHeight = 24.75; // CHANGE
+        public static final double StartingCarriageHeight = 24.75; // CHANGE
 
         public static final double ElevatorKP = 32; // CHANGE
         public static final double ElevatorKI = 0.001; // CHANGE
@@ -300,6 +301,12 @@ public class Constants {
         public static final double LiftKD = 0; // CHANGE
         public static final double LiftFF = 0; // CHANGE
         public static final double LiftIZone = 0.15; // CHANGE
+
+        public static final double IntakeKP = 32; // CHANGE
+        public static final double IntakeKI = 0.001; // CHANGE
+        public static final double IntakeKD = 0; // CHANGE
+        public static final double IntakeFF = 0; // CHANGE
+        public static final double IntakeIZone = 0.15; // CHANGE
 
         public static final double IntakeSpeed = 0; // CHANGE
         public static final double EjectSpeed = 0; // CHANGE
