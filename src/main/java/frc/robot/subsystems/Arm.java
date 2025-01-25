@@ -72,7 +72,7 @@ public class Arm extends SubsystemBase {
     SparkMaxConfig wristMotorConfig = new SparkMaxConfig();
     public final SparkClosedLoopController wristPidController;
     private final DCMotorSim wristMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+        LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
 
     TalonFX leftElevatorMotor;
     private final TalonFXSimState leftElevatorMotorSim;
@@ -87,7 +87,6 @@ public class Arm extends SubsystemBase {
     private final CANcoder wristEncoder; 
     private final CANcoderSimState wristEncoderSim;
 
-    // Need to add a shoulder encoder - A:)
     private final CANcoder shoulderEncoder;
     private final CANcoderSimState shoulderEncoderSim;
 
@@ -117,7 +116,7 @@ public class Arm extends SubsystemBase {
         carriageMotor = new TalonFX(ElectronicsIDs.CarriageMotorID);
         carriageMotorSim = armMotor.getSimState();
 
-        wristMotor = new SparkMax(1, MotorType.kBrushless);
+        wristMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
         wristMotorSim = new SparkMaxSim(wristMotor, DCMotor.getNeo550((1)));
         wristEncoder = new CANcoder(ElectronicsIDs.WristEncoderID, "rio");
         wristEncoderSim = wristEncoder.getSimState();
@@ -276,7 +275,6 @@ public class Arm extends SubsystemBase {
 
     public void setDesiredState(ArmState newState) {
         if (newState == ArmState.Home) {
-            // this desired state is invalid and will be ignored
             return;
         }
         if (newState != desiredState) {

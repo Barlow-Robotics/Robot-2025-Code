@@ -23,7 +23,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.commands.TuneableParameter;
 
 public class Constants {
@@ -42,7 +41,7 @@ public class Constants {
     /***************************************************************************/
     /***************************************************************************/
     public static final class VisionConstants {
-        public static final int CameraLightID = 0; // Need to change
+        public static final int CameraLightID = 0; // NEED TO FIX/CHANGE
         public static final String PoseCameraName = "Global_Shutter_Camera";
         public static final String TargetCameraName = "Arducam_OV9281_USB_Camera";
 
@@ -50,7 +49,7 @@ public class Constants {
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
 
         // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-        // wpk need to update these to be more exact.
+        // NEED TO FIX: wpk need to update these to be more exact.
         public static final Transform3d PoseCameraToRobot =
                 new Transform3d(
                     new Translation3d(0.0, -Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
@@ -79,7 +78,7 @@ public class Constants {
         public static final double InvalidAngle = -361; 
         public static final double NoTargetDistance = -1;
 
-        public static final double NoteAlignPixelTolerance = 250; // NEED TO CHANGE
+        public static final double NoteAlignPixelTolerance = 250; // NEED TO FIX/CHANGE
 
     }
     public static final class ElectronicsIDs {
@@ -116,6 +115,12 @@ public class Constants {
         public static final int CarriageMotorID = 45;
         public static final int WristEncoderID = 46;
         public static final int ShoulderEncoderID = 47; 
+
+        /***************************** ALGAE INTAKE *****************************/
+
+        public static final int LiftMotorID = 51;
+        public static final int LiftEncoderID = 52;
+        public static final int AlgaeIntakeMotorID = 53;
     }
 
     /***************************************************************************/
@@ -174,11 +179,11 @@ public class Constants {
         public static final double AutoAlignNoteKI = 0.0;
         public static final double AutoAlignNoteKD = 0;
 
-        public static final double YawOverrideAlignNoteKP = 0.0005; //CHANGE
+        public static final double YawOverrideAlignNoteKP = 0.0005; //NEED TO FIX
         public static final double YawOverrideAlignNoteKI = 0.0;
         public static final double YawOverrideAlignNoteKD = 0;
 
-        public static final double TargetYawOverrideAlignNoteKP = 0.004; //CHANGE
+        public static final double TargetYawOverrideAlignNoteKP = 0.004; //NEED TO FIX
         public static final double TargetYawOverrideAlignNoteKI = 0.0;
         public static final double TargetYawOverrideAlignNoteKD = 0;
 
@@ -186,7 +191,7 @@ public class Constants {
         /* TURN ENCODER */
         public static final int CANCoderResolution = 4096;
         public static final double PositionConversionFactor = WheelCircumference / GearRatio;
-        public static final double TurnKP = 1; // Need to change
+        public static final double TurnKP = 1; // NEED TO FIX
         public static final double TurnKI = 0;
         public static final double TurnKD = 0;
 
@@ -289,6 +294,16 @@ public class Constants {
         public static final double WristIZone = 0.15; // CHANGE
     }   
 
+    public static final class AlgaeConstants {
+        public static final double LiftKP = 32; // CHANGE
+        public static final double LiftKI = 0.001; // CHANGE
+        public static final double LiftKD = 0; // CHANGE
+        public static final double LiftFF = 0; // CHANGE
+        public static final double LiftIZone = 0.15; // CHANGE
+
+        public static final double IntakeSpeed = 0; // CHANGE
+        public static final double EjectSpeed = 0; // CHANGE
+    }
 
     public static final class AutoConstants {
         public static TuneableParameter coralIsVisible = new TuneableParameter(0, 1, 0, true, "Auto/CoralIsVisible");

@@ -1,29 +1,17 @@
 
 package frc.robot;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
-
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import java.util.*;
-import choreo.Choreo;
-// import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
 // import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.util.PathPlannerLogging;
 // import com.pathplanner.lib.config.ReplanningConfig;
 
@@ -36,109 +24,111 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
+
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
-// import frc.robot.Constants.ShooterMountConstants;
 import frc.robot.Constants.XboxControllerConstants;
-import frc.robot.autonomous.DynamicChoreoCommand;
-import frc.robot.autonomous.DynamicChoreo;
-import frc.robot.autonomous.DynamicPathPlanner;
 import frc.robot.commands.DriveRobot;
-// <<<<<<< Updated upstream
-// import edu.wpi.first.wpilibj2.command.Command; 
-// import javax.swing.SwingUtilities; 
-// // import frc.robot.RobotCommunicator;
-// =======
-// import edu.wpi.first.wpilibj2.command.Command;
-// import frc.robot.RobotCommunicator;
-// >>>>>>> Stashed changes
-import javax.swing.*;
-import java.awt.Point;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.ObjectInputFilter.Config;
-import java.util.ArrayList;
-// import frc.robot.commands.DriveRobotWithAprilTagAlign;
-// import frc.robot.commands.DriveRobotWithNoteAlign;
-// import frc.robot.commands.PivotToPoint;
-// import frc.robot.commands.ReverseFloorIntake;
-// import frc.robot.commands.DriveRobotWithAlign;
-// import frc.robot.commands.SetShooterMountPosition;
-// import frc.robot.commands.StartClimbing;
-// import frc.robot.commands.StartShooterIntake;
-// import frc.robot.commands.StopShooterIntake;
+import frc.robot.commands.EjectCoral;
+import frc.robot.commands.IntakeCoral;
+import frc.robot.commands.SetArmPosition;
+import frc.robot.commands.StopAlgaeIntake;
+import frc.robot.commands.StopCoralIntake;
+import frc.robot.commands.EjectAlgae;
+import frc.robot.commands.IntakeAlgae;
 import frc.robot.subsystems.Drive;
-// import frc.robot.subsystems.FloorIntake;
-// import frc.robot.subsystems.Shooter;
-// import frc.robot.subsystems.ShooterMount;
-// import frc.robot.subsystems.ShooterMount.ShooterMountState;
-// import frc.robot.subsystems.Underglow;
+import frc.robot.subsystems.AlgaeIntake;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.Climb;
+import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
+
+    /* SUBSYSTEMS */
+    public Drive driveSub = new Drive();
+    public Vision visionSub = new Vision();
+    public final Arm armSub = new Arm(visionSub, driveSub);
+    public final Climb climbSub = new Climb();
+    public final CoralIntake coralIntakeSub = new CoralIntake();
+    public final AlgaeIntake algaeIntakeSub = new AlgaeIntake(visionSub, driveSub);
+
+    /* COMMANDS */
+    private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub, ArmState.Home);
+    private final SetArmPosition setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
+    private final SetArmPosition setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
+    private final SetArmPosition setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
+    private final SetArmPosition setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
+    private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
+    private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaeLow);
+    private final SetArmPosition setArmPosAlgaeHighCmd = new SetArmPosition(armSub, ArmState.AlgaeHigh);
+
+  
+
+    private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
+    private final IntakeAlgae intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
+    private final StopAlgaeIntake stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
+    
+    private final IntakeCoral intakeCoralCmd = new IntakeCoral(coralIntakeSub);
+    private final EjectCoral ejectCoralCmd = new EjectCoral(coralIntakeSub);
+    private final StopCoralIntake stopCoralIntakeCmd = new StopCoralIntake(coralIntakeSub);
 
     /* CONTROLLERS */
     private static Joystick driverController;
     private static Joystick operatorController;
 
     /* BUTTONS */
-
-    private Trigger moveToSpeakerButton; // button x
-    private Trigger moveToAmpButton; // button y
-    private Trigger moveToSourceButton; // left stick
-    private Trigger moveToFloorButton; // left bumper
-    private Trigger moveToFerryButton; // hamburger
-
-    private Trigger climbButton; // button a
-    private Trigger piviotToPoint;
     private Trigger moveToCoralButton;
-
-    // private Trigger climbAbortButton; // right stick
-
-    // private Trigger toggleLEDsButton; // hamburger
-    // private Trigger LEDHumanSourceButton;
-    // private Trigger LEDHumanFloorButton;
-
-    private Trigger shootIntakeButton; // trigger
-    private Trigger reverseFloorIntakeButton; // driver button 7
 
     private Trigger autoAlignButton; // driver button 11
     private Trigger restartGyroButton; // driver button 9
 
+    private Trigger moveToHomeButton;
+    private Trigger moveToLoadCoralButton;
+    private Trigger moveToLevel1Button;
+    private Trigger moveToLevel2Button;
+    private Trigger moveToLevel3Button;
+    private Trigger moveToLevel4Button;
+    private Trigger moveToAlgaeHighButton;
+    private Trigger moveToAlgaeLowButton;
+
+    private Trigger intakeAlgaeButton;
+    private Trigger ejectAlgaeButton;    
+    
+    private Trigger intakeCoralButton;
+    private Trigger ejectCoralButton;
+    
+    /* PID */
     private PIDController noteYawPID;
     private PIDController targetYawPID;
 
-    public final Drive driveSub;
-    public final Vision visionSub;
     /* AUTO */
-
     private SendableChooser<Command> autoChooser;
     boolean moveToCoral;
-    // private final RobotCommunicator communicator; 
+
+    // private final RobotCommunicator communicator;
     // private RobotController robotController;
     public RobotContainer() {
-        // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event Dispatch Thread 
-        // SwingUtilities.invokeLater(() -> { robotController = new RobotController(communicator); 
-        // SwingUtilities.invokeLater(() -> { 
-        //     robotController = new RobotController(communicator); 
-        //     JFrame frame = new JFrame("Robot Controller"); 
-        //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        //     frame.add(robotController); frame.pack(); frame.setVisible(true); 
+        // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
+        // Dispatch Thread
+        // SwingUtilities.invokeLater(() -> { robotController = new
+        // RobotController(communicator);
+        // SwingUtilities.invokeLater(() -> {
+        // robotController = new RobotController(communicator);
+        // JFrame frame = new JFrame("Robot Controller");
+        // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // frame.add(robotController); frame.pack(); frame.setVisible(true);
         // });
-        moveToCoral = false; 
+        moveToCoral = false;
         driveSub = new Drive();
         visionSub = new Vision();
         noteYawPID = new PIDController(
@@ -163,7 +153,7 @@ public class RobotContainer {
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), true));
 
         configurePathPlanner();
-                    }
+    }
 
     private void configureBindings() {
         driverController = new Joystick(ElectronicsIDs.DriverControllerPort);
@@ -177,29 +167,72 @@ public class RobotContainer {
         restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
 
         moveToCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button8);
-        moveToCoralButton.onTrue(new InstantCommand(() -> changeCoralVision(true))).onFalse(new InstantCommand(() -> changeCoralVision(false)));
+        moveToCoralButton.onTrue(new InstantCommand(() -> changeCoralVision(true)))
+                .onFalse(new InstantCommand(() -> changeCoralVision(false)));
 
+        /***************** POSITION *****************/
 
+        moveToHomeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToHomeButton.onTrue(setArmPosHomeCmd);
+
+        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
+
+        moveToAlgaeHighButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
+
+        moveToAlgaeLowButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToAlgaeLowButton.onTrue(setArmPosAlgaeLowCmd);
+
+        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
+
+        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel2Button.onTrue(setArmPosLevel2Cmd);
+
+        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel3Button.onTrue(setArmPosLevel3Cmd);
+
+        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
+
+        /***************** ALGAE INTAKE *****************/
+
+        intakeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+
+        ejectAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+
+        /***************** CORAL INTAKE *****************/
+
+        ejectCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        ejectCoralButton.onTrue(ejectCoralCmd).onFalse(stopCoralIntakeCmd);
+        
+        intakeCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // middle
+        intakeCoralButton.onTrue(intakeCoralCmd).onFalse(stopCoralIntakeCmd);
+ 
     }
 
     public void configurePathPlanner() {
-        
+
         RobotConfig config;
 
-        try{
+        try {
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
             // Handle exception as needed
             e.printStackTrace();
             config = null;
         }
-            
+
         /* PATHPLANNER INIT */
         AutoBuilder.configure(
                 driveSub::getPose, // Robot pose supplier
                 driveSub::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
                 driveSub::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> driveSub.driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                (speeds, feedforwards) -> driveSub.driveRobotRelative(speeds), // Method that will drive the robot given
+                                                                               // ROBOT RELATIVE ChassisSpeeds
                 new PPHolonomicDriveController(
                         new PIDConstants(5, 0.0, 0.0), // Translation PID constants
                         new PIDConstants(5, 0.0, 0.5) // Rotation PID constants
@@ -216,27 +249,32 @@ public class RobotContainer {
 
         // NamedCommands.registerCommand("StartShooterIntake", startShooterIntakeCmd);
         // NamedCommands.registerCommand("StopShooterIntake", stopShooterIntakeCmd);
-        // NamedCommands.registerCommand("SetShooterMountPositionAmp", setShooterPosAmpCmd);
-        // NamedCommands.registerCommand("SetShooterMountPositionSpeaker", setShooterPosSpeakerCmd);
-        // NamedCommands.registerCommand("SetShooterMountPositionFloor", setShooterPosFloorCmd);
-        // NamedCommands.registerCommand("start_intake_shoot", new SequentialCommandGroup(setShooterPosSpeakerCmd, startShooterIntakeCmd));
+        // NamedCommands.registerCommand("SetShooterMountPositionAmp",
+        // setShooterPosAmpCmd);
+        // NamedCommands.registerCommand("SetShooterMountPositionSpeaker",
+        // setShooterPosSpeakerCmd);
+        // NamedCommands.registerCommand("SetShooterMountPositionFloor",
+        // setShooterPosFloorCmd);
+        // NamedCommands.registerCommand("start_intake_shoot", new
+        // SequentialCommandGroup(setShooterPosSpeakerCmd, startShooterIntakeCmd));
 
         // var alliance = DriverStation.getAlliance();
         // if (alliance.isPresent()) {
-        //     if (alliance.get() == DriverStation.Alliance.Red) {
-        //         NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommandRED);
-        //         NamedCommands.registerCommand("PivotToCenterNote", piviotToCenterNoteCommandRED);
-        //         NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommandRED);
-        //         NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommandRED);
-        //     } else {
-        //         NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommand);
-        //         NamedCommands.registerCommand("PivotToCenterNote", piviotToCenterNoteCommand);
-        //         NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommand);
-        //         NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommand);
-        //     }
+        // if (alliance.get() == DriverStation.Alliance.Red) {
+        // NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommandRED);
+        // NamedCommands.registerCommand("PivotToCenterNote",
+        // piviotToCenterNoteCommandRED);
+        // NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommandRED);
+        // NamedCommands.registerCommand("PivotToStageNote",
+        // piviotToStageNoteCommandRED);
+        // } else {
+        // NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommand);
+        // NamedCommands.registerCommand("PivotToCenterNote",
+        // piviotToCenterNoteCommand);
+        // NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommand);
+        // NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommand);
         // }
-
-
+        // }
 
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
@@ -255,7 +293,6 @@ public class RobotContainer {
         // autoChooser.addOption("Test4", driveSub.ChoreoAuto("Test4"));
         // autoChooser.addOption("Test5", driveSub.ChoreoAuto("Test5"));
         // autoChooser.addOption("Test6", driveSub.ChoreoAuto("Test6"));
-
 
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);
 
@@ -279,41 +316,46 @@ public class RobotContainer {
 
     // public Optional<Rotation2d> getRotationTargetOverride(){
 
-    //     Optional<Rotation2d> result = Optional.empty() ;
+    // Optional<Rotation2d> result = Optional.empty() ;
 
-    //     // if (RobotState.isAutonomous()) {
+    // // if (RobotState.isAutonomous()) {
 
-    //     //     // if ( shooterMountSub.getShooterMountState() == ShooterMountState.FloorIntake ) {
-    //     //     //     if (visionSub.noteIsVisible() && Math.abs(visionSub.getNoteDistanceFromCenter()) < Constants.VisionConstants.NoteAlignPixelTolerance) {
-    //     //     //         double yaw = visionSub.getNoteDistanceFromCenter();
-    //     //     //         double rotDelta = noteYawPID.calculate(yaw);
-    //     //     //         result = Optional.of( driveSub.getPose().getRotation().plus(new Rotation2d(rotDelta)) ) ;
-    //     //     //     } else {
-    //     //     //         noteYawPID.reset();
-    //     //     //     }
-    //     //     // } else if (shooterMountSub.getShooterMountState() == ShooterMountState.Speaker && !visionSub.allDetectedTargets.isEmpty()) {
-    //     //     //     var bestTarget = visionSub.getBestTrackableTarget() ;
-    //     //     //     if (bestTarget.isPresent()) {
-    //     //     //         var rotOffset = bestTarget.get().getYaw();
-    //     //     //         rotOffset = targetYawPID.calculate(rotOffset);
-    //     //     //         result = Optional.of( driveSub.getPose().getRotation().plus(new Rotation2d(rotOffset)) ) ;
-    //     //     //         result = Optional.empty() ;
+    // // // if ( shooterMountSub.getShooterMountState() ==
+    // ShooterMountState.FloorIntake ) {
+    // // // if (visionSub.noteIsVisible() &&
+    // Math.abs(visionSub.getNoteDistanceFromCenter()) <
+    // Constants.VisionConstants.NoteAlignPixelTolerance) {
+    // // // double yaw = visionSub.getNoteDistanceFromCenter();
+    // // // double rotDelta = noteYawPID.calculate(yaw);
+    // // // result = Optional.of( driveSub.getPose().getRotation().plus(new
+    // Rotation2d(rotDelta)) ) ;
+    // // // } else {
+    // // // noteYawPID.reset();
+    // // // }
+    // // // } else if (shooterMountSub.getShooterMountState() ==
+    // ShooterMountState.Speaker && !visionSub.allDetectedTargets.isEmpty()) {
+    // // // var bestTarget = visionSub.getBestTrackableTarget() ;
+    // // // if (bestTarget.isPresent()) {
+    // // // var rotOffset = bestTarget.get().getYaw();
+    // // // rotOffset = targetYawPID.calculate(rotOffset);
+    // // // result = Optional.of( driveSub.getPose().getRotation().plus(new
+    // Rotation2d(rotOffset)) ) ;
+    // // // result = Optional.empty() ;
 
-    //     //     //         // Logger.recordOutput("YawOverrideAlign/targetYaw", bestTarget.get().getYaw());
-    //     //     //         // Logger.recordOutput("YawOverrideAlign/proposed rot", result.get());
-    //     //     //         // Logger.recordOutput("YawOverrideAlign/rot offset", result.get());
-    //     //     //     } else {
+    // // // // Logger.recordOutput("YawOverrideAlign/targetYaw",
+    // bestTarget.get().getYaw());
+    // // // // Logger.recordOutput("YawOverrideAlign/proposed rot", result.get());
+    // // // // Logger.recordOutput("YawOverrideAlign/rot offset", result.get());
+    // // // } else {
 
-    //     //     //     }
-    //     //     //     noteYawPID.reset();
+    // // // }
+    // // // noteYawPID.reset();
 
-    //     //     }
-    //     }
-
-    //     return result;
+    // // }
     // }
 
-
+    // return result;
+    // }
 
     public Command getAutonomousCommand() {
         if (autoChooser != null) {
@@ -321,9 +363,6 @@ public class RobotContainer {
         }
         return null;
     }
-
-
-
 
     public Command getVisionPathPlannerPathing() {
         // List<PhotonTrackedTarget> detectedTargets = visionSub.getAllDetectedTargets();
@@ -357,9 +396,11 @@ public class RobotContainer {
         // }
         return setUpPathplannerOTF(drivePose);
     }
+
     public void changeCoralVision(boolean val) {
         this.moveToCoral = val;
     }
+
     public boolean getCoralVision() {
         return this.moveToCoral;
     }
@@ -367,10 +408,10 @@ public class RobotContainer {
     public Command setUpPathplannerOTF(Pose2d drivePose) {
         double addAmount = 0;
         // if (targetZ > 0) { // positive
-        //     addAmount = -180;
+        // addAmount = -180;
         // }
         // else {
-        //     addAmount = 180;
+        // addAmount = 180;
         // }
         System.out.println(drivePose.getRotation());
         System.out.println(drivePose.getRotation().getDegrees());
@@ -397,7 +438,9 @@ public class RobotContainer {
             new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()-(0), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
         );
 
-        PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
+        PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for
+                                                                                               // this path.
+        System.out.println("TEST2");
 
         PathPlannerPath path = new PathPlannerPath(
                 waypoints,
