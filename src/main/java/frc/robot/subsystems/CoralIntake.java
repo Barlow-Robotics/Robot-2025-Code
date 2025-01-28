@@ -89,10 +89,10 @@ public class CoralIntake extends SubsystemBase {
       intakeMotorModel.update(0.02);
       intakeMotorSim.setVelocity(intakeMotorModel.getAngularVelocityRPM() / 60.0);
       
-      double currentLiftAngle = getLiftEncoderDegrees();
-      double delta = desiredLiftAngle - currentLiftAngle;
-      delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
-      liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
+      //double currentLiftAngle = getLiftEncoderDegrees();
+      //double delta = desiredLiftAngle - currentLiftAngle;
+      //delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
+      //liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
   
   }
   // NEED TO FIX: Can't figure out how to get this to return velocity -Ang
