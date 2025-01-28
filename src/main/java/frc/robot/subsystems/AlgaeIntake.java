@@ -35,9 +35,7 @@ public class AlgaeIntake extends SubsystemBase {
   private final SparkMaxSim liftMotorSim;
   
   SparkMaxConfig liftMotorConfig = new SparkMaxConfig();
-  public final SparkClosedLoopController liftPidController;
-  private final DCMotorSim liftMotorModel = new DCMotorSim(
-      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+  private final DCMotorSim liftMotorModel;
     
   private final CANcoder liftEncoder; 
   private final CANcoderSimState liftEncoderSim;
@@ -47,8 +45,7 @@ public class AlgaeIntake extends SubsystemBase {
   
   SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
   public final SparkClosedLoopController intakePidController;
-  private final DCMotorSim intakeMotorModel = new DCMotorSim(
-      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+  private final DCMotorSim intakeMotorModel;
 
 
   private double desiredLiftAngle = 0;
@@ -63,8 +60,13 @@ public class AlgaeIntake extends SubsystemBase {
 
     intakeMotor = new SparkMax(ElectronicsIDs.AlgaeIntakeMotorID, MotorType.kBrushless);
     intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNeo550((1)));
+    liftMotorModel = new DCMotorSim(
+      LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
 
+    intakeMotorConfig = new SparkMaxConfig();
     intakePidController = intakeMotor.getClosedLoopController();
+    intakeMotorModel = new DCMotorSim(
+      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
 
     intakeMotorConfig.closedLoop
             .pidf(AlgaeConstants.IntakeKP, AlgaeConstants.IntakeKI, AlgaeConstants.IntakeKD, AlgaeConstants.IntakeFF)
@@ -77,8 +79,6 @@ public class AlgaeIntake extends SubsystemBase {
     liftEncoder = new CANcoder(ElectronicsIDs.LiftEncoderID, "rio");
     liftEncoderSim = liftEncoder.getSimState();
 
-    liftPidController = liftMotor.getClosedLoopController();
-
     liftMotorConfig.closedLoop
             .pidf(AlgaeConstants.LiftKP, AlgaeConstants.LiftKI, AlgaeConstants.LiftKD, AlgaeConstants.LiftFF)
             .iZone(AlgaeConstants.LiftIZone)
@@ -89,7 +89,7 @@ public class AlgaeIntake extends SubsystemBase {
   }
 
   public void setLiftAngle(double desiredDegrees) {
-    liftPidController.setReference(desiredDegrees, ControlType.kPosition);
+    liftMotor.getClosedLoopController().setReference(desiredDegrees, ControlType.kPosition);
   }
 
   public void stopLiftMotor() {
