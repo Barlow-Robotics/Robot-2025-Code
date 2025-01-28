@@ -105,6 +105,7 @@ public class RobotContainer {
     private Trigger climbButton; // button a
     private Trigger piviotToPoint;
     private Trigger moveToCoralButton;
+    private Trigger moveToRightButton;
 
     // private Trigger climbAbortButton; // right stick
 
@@ -127,9 +128,12 @@ public class RobotContainer {
 
     private SendableChooser<Command> autoChooser;
     boolean moveToCoral;
+    boolean goToRight;
+
     // private final RobotCommunicator communicator; 
     // private RobotController robotController;
     public RobotContainer() {
+        goToRight = false;
         // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event Dispatch Thread 
         // SwingUtilities.invokeLater(() -> { robotController = new RobotController(communicator); 
         // SwingUtilities.invokeLater(() -> { 
@@ -179,7 +183,8 @@ public class RobotContainer {
         moveToCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button8);
         moveToCoralButton.onTrue(new InstantCommand(() -> changeCoralVision(true))).onFalse(new InstantCommand(() -> changeCoralVision(false)));
 
-
+        moveToRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
+        moveToRightButton.onTrue(new InstantCommand(() -> changeToRight(true))).onFalse(new InstantCommand(() -> changeToRight(false)));
     }
 
     public void configurePathPlanner() {
@@ -190,7 +195,7 @@ public class RobotContainer {
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
             // Handle exception as needed
-            e.printStackTrace();
+            e.printStackTrace(); 
             config = null;
         }
             
@@ -210,7 +215,7 @@ public class RobotContainer {
                     if (alliance.isPresent()) {
                         return alliance.get() == DriverStation.Alliance.Red;
                     }
-                    return false;
+                    return false; 
                 },
                 driveSub);
 
@@ -360,6 +365,15 @@ public class RobotContainer {
     public void changeCoralVision(boolean val) {
         this.moveToCoral = val;
     }
+    public void changeToRight(boolean val) { 
+        this.goToRight = val;
+    }
+
+    public boolean getChangeToRight() {
+        return this.goToRight;
+    }
+
+    
     public boolean getCoralVision() {
         return this.moveToCoral;
     }
@@ -380,9 +394,9 @@ public class RobotContainer {
         //     MathUtil.inputModulus(drivePose.getRotation().getDegrees() + (targetZ + addAmount), 0, 360)
         // );
         double sideOfReef = -1;
-        // if (rightSide()) {
-        //     sideOfReef = 1;
-        // }
+        if (getChangeToRight()) {
+            sideOfReef = 1;
+        }
         Pose3d finalPoseOfAprilTagId = new Pose3d(driveSub.getPose());
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
@@ -398,7 +412,7 @@ public class RobotContainer {
         var waypoints = PathPlannerPath.waypointsFromPoses(
             new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
             // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) // vision AprilTag Detection
-            new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()-(Constants.FieldConstants.reefOffsetMeters), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
+            new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
         );
 
         PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
