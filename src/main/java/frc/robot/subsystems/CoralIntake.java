@@ -63,7 +63,9 @@ public class CoralIntake extends SubsystemBase {
   public void startEjecting() {
     // NEED TO FIX // should be differents speed (need to make new constant)
     intakeMotor.getClosedLoopController().setReference(CoralConstants.EjectSpeed, ControlType.kVelocity);
-
+  }
+  public double getIntakeMotorDegrees() {
+    return Units.rotationsToDegrees(intakeMotor.getAbsoluteEncoder().getPosition());
   }
 
   public void stop() {

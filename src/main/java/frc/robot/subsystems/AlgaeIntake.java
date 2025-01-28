@@ -36,9 +36,6 @@ public class AlgaeIntake extends SubsystemBase {
   
   SparkMaxConfig liftMotorConfig = new SparkMaxConfig();
   private final DCMotorSim liftMotorModel;
-    
-  private final CANcoder liftEncoder; 
-  private final CANcoderSimState liftEncoderSim;
 
   SparkMax intakeMotor;
   private final SparkMaxSim intakeMotorSim;
@@ -76,8 +73,6 @@ public class AlgaeIntake extends SubsystemBase {
 
     liftMotor = new SparkMax(ElectronicsIDs.LiftMotorID, MotorType.kBrushless);
     liftMotorSim = new SparkMaxSim(liftMotor, DCMotor.getNeo550((1)));
-    liftEncoder = new CANcoder(ElectronicsIDs.LiftEncoderID, "rio");
-    liftEncoderSim = liftEncoder.getSimState();
 
     liftMotorConfig.closedLoop
             .pidf(AlgaeConstants.LiftKP, AlgaeConstants.LiftKI, AlgaeConstants.LiftKD, AlgaeConstants.LiftFF)
@@ -97,7 +92,7 @@ public class AlgaeIntake extends SubsystemBase {
 }
 
   public double getLiftEncoderDegrees() {
-    return Units.rotationsToDegrees(liftEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
+    return Units.rotationsToDegrees(liftMotor.getAbsoluteEncoder().getPosition());
   }
 
   public void startIntaking() {
@@ -144,10 +139,10 @@ public class AlgaeIntake extends SubsystemBase {
       liftMotorModel.update(0.02);
       liftMotorSim.setVelocity(liftMotorModel.getAngularVelocityRPM() / 60.0);
       
-      double currentLiftAngle = getLiftEncoderDegrees();
-      double delta = desiredLiftAngle - currentLiftAngle;
-      delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
-      liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
+      //double currentLiftAngle = getLiftEncoderDegrees();
+      //double delta = desiredLiftAngle - currentLiftAngle;
+      //delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
+      //liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
   
   }
   // NEED TO FIX: Can't figure out how to get this to return velocity -Ang
