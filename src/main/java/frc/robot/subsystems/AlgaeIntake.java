@@ -4,14 +4,6 @@
 
 package frc.robot.subsystems;
 
-// import static edu.wpi.first.units.Units.Amp;
-
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
-
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.revrobotics.sim.SparkMaxSim;
@@ -20,30 +12,28 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-//import edu.wpi.first.wpilibj.DigitalInput;
+
+// import static edu.wpi.first.units.Units.Amp;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 //import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-//import edu.wpi.first.wpilibj.simulation.DIOSim;
-//import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-//import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
-import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.AlgaeConstants;
-import frc.robot.Constants.ArmConstants;
-//import frc.robot.Constants.DriveConstants;
-import frc.robot.Robot;
-import frc.robot.sim.PhysicsSim;
 //import frc.robot.subsystems.Vision.TargetToAlign;
 import frc.robot.Constants;
+import frc.robot.Constants.AlgaeConstants;
+import frc.robot.Constants.ElectronicsIDs;
 
 
 public class AlgaeIntake extends SubsystemBase {
 
   SparkMax liftMotor;
   private final SparkMaxSim liftMotorSim;
+  
   SparkMaxConfig liftMotorConfig = new SparkMaxConfig();
   public final SparkClosedLoopController liftPidController;
   private final DCMotorSim liftMotorModel = new DCMotorSim(
@@ -52,6 +42,18 @@ public class AlgaeIntake extends SubsystemBase {
   private final CANcoder liftEncoder; 
   private final CANcoderSimState liftEncoderSim;
 
+  SparkMax intakeMotor;
+  private final SparkMaxSim intakeMotorSim;
+  
+  SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
+  public final SparkClosedLoopController intakePidController;
+  private final DCMotorSim intakeMotorModel = new DCMotorSim(
+      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+
+
+  private double desiredLiftAngle = 0;
+  private double desiredIntakeAngle = 0;
+
   private final Drive driveSub;
   private final Vision visionSub;
 
@@ -59,7 +61,18 @@ public class AlgaeIntake extends SubsystemBase {
 
   public AlgaeIntake(Vision visionSub, Drive driveSub) {
 
-    liftMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
+    intakeMotor = new SparkMax(ElectronicsIDs.AlgaeIntakeMotorID, MotorType.kBrushless);
+    intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNeo550((1)));
+
+    intakePidController = intakeMotor.getClosedLoopController();
+
+    intakeMotorConfig.closedLoop
+            .pidf(AlgaeConstants.IntakeKP, AlgaeConstants.IntakeKI, AlgaeConstants.IntakeKD, AlgaeConstants.IntakeFF)
+            .iZone(AlgaeConstants.IntakeIZone)
+            .outputRange(-1, 1); 
+
+
+    liftMotor = new SparkMax(ElectronicsIDs.LiftMotorID, MotorType.kBrushless);
     liftMotorSim = new SparkMaxSim(liftMotor, DCMotor.getNeo550((1)));
     liftEncoder = new CANcoder(ElectronicsIDs.LiftEncoderID, "rio");
     liftEncoderSim = liftEncoder.getSimState();
@@ -86,16 +99,58 @@ public class AlgaeIntake extends SubsystemBase {
   public double getLiftEncoderDegrees() {
     return Units.rotationsToDegrees(liftEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
   }
+
+  public void startIntaking() {
+    intakePidController.setReference(AlgaeConstants.IntakeSpeed, ControlType.kVelocity);
+  }
+
+  public void startEjecting() {
+    intakePidController.setReference(AlgaeConstants.EjectSpeed, ControlType.kVelocity);
+  }
+
+  public void stop() {
+    intakeMotor.stopMotor();
+  }
+
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    logData();
   }
 
   private void logData() {
     // put logging in here
   }
 
-  // Can't figure out how to get this to return velocity, need to fix -Ang
+  /* SIMULATION */
+
+  public void simulationInit() {
+
+  }
+  @Override
+  public void simulationPeriodic() {
+      if (!simulationInitialized) {
+          simulationInit();
+          simulationInitialized = true;
+      }
+      intakeMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+      double intakeVoltage = intakeMotorSim.getBusVoltage();
+      intakeMotorModel.setInputVoltage(intakeVoltage);
+      intakeMotorModel.update(0.02);
+      intakeMotorSim.setVelocity(intakeMotorModel.getAngularVelocityRPM() / 60.0);
+
+      liftMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+      double liftVoltage = liftMotorSim.getBusVoltage();
+      liftMotorModel.setInputVoltage(liftVoltage);
+      liftMotorModel.update(0.02);
+      liftMotorSim.setVelocity(liftMotorModel.getAngularVelocityRPM() / 60.0);
+      
+      double currentLiftAngle = getLiftEncoderDegrees();
+      double delta = desiredLiftAngle - currentLiftAngle;
+      delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
+      liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
+  
+  }
+  // NEED TO FIX: Can't figure out how to get this to return velocity -Ang
   // public void setSpeed(double speed) {
   //   intakeMotor.set(speed);
   // }

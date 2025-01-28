@@ -16,4 +16,16 @@ public class CoralIntake extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  public void startIntaking() {
+    // NEED TO FIX
+  }
+
+  public void startEjecting() {
+    // NEED TO FIX
+  }
+
+  public void stop() {
+
+  }
 }

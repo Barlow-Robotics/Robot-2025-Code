@@ -1,4 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
+ // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -87,9 +87,8 @@ public class Arm extends SubsystemBase {
     private final CANcoder wristEncoder; 
     private final CANcoderSimState wristEncoderSim;
 
-    // Need to add a shoulder encoder - A:)
-    private final CANcoder shoulderEncoder;
-    private final CANcoderSimState shoulderEncoderSim;
+    private final CANcoder armEncoder;
+    private final CANcoderSimState armEncoderSim;
 
     public enum ArmState {
         Home, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow
@@ -122,8 +121,8 @@ public class Arm extends SubsystemBase {
         wristEncoder = new CANcoder(ElectronicsIDs.WristEncoderID, "rio");
         wristEncoderSim = wristEncoder.getSimState();
 
-        shoulderEncoder = new CANcoder(ElectronicsIDs.ShoulderEncoderID);
-        shoulderEncoderSim = shoulderEncoder.getSimState();
+        armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
+        armEncoderSim = armEncoder.getSimState();
         
         wristPidController = wristMotor.getClosedLoopController();
 
@@ -225,7 +224,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void stopWristMotor() {
-        wristMotor.set(0);
+        wristMotor.stopMotor();
     }
     
     public void setArmAngle(double desiredDegrees) {
@@ -242,8 +241,12 @@ public class Arm extends SubsystemBase {
         return Units.rotationsToDegrees(wristEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
     }
 
-    public double getShoulderEncoderDegrees() {
-        return Units.rotationsToDegrees(shoulderEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
+    public double getArmEncoderDegrees() {
+        return Units.rotationsToDegrees(armEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
+    }
+
+    public double getArmTalonEncoderDegrees() {
+        return Units.rotationsToDegrees(armMotor.getPosition().getValue().baseUnitMagnitude());
     }
 
     /* private double getArmEncoderDegrees() {
@@ -262,6 +265,12 @@ public class Arm extends SubsystemBase {
                 / ArmConstants.RotationsPerElevatorInch) * 2)
                 + ArmConstants.StartingHeight;
         return elevatorHeight;
+    }
+    public double getCarriageHeightInches() {
+        double carriageHeight = ((carriageMotor.getPosition().getValue().baseUnitMagnitude()
+                / ArmConstants.RotationsPerElevatorInch) * 2)
+                + ArmConstants.StartingCarriageHeight;
+        return carriageHeight;
     }
 
     public void setBasePosition(double height) {
@@ -291,6 +300,62 @@ public class Arm extends SubsystemBase {
     private void logData() {
         Logger.recordOutput("Arm/StateActual", actualState);
         Logger.recordOutput("Arm/StateDesired", desiredState);
+
+        Logger.recordOutput("Arm/WristAngle/DegreesDesired", desiredWristAngle);
+        Logger.recordOutput("Arm/WristAngle/DegreesCANCoder", getWristEncoderDegrees());
+        Logger.recordOutput("Arm/WristAngle/RotationsCANCoder", wristEncoder.getAbsolutePosition().getValue());
+        // Logger.recordOutput("Arm/WristAngle/DegreesTalon", getTalonEncoderDegrees());
+        // Logger.recordOutput("Arm/WristAngle/MissedSpeakerTargetFrameCount", missedSpeakerTargetFrameCount);
+        Logger.recordOutput("Arm/WristAngle/VoltageActual", wristMotor.getEncoder().getVelocity());
+        // Logger.recordOutput("Arm/WristAngle/ClosedLoopError", wristMotor.get
+        // Logger.recordOutput("Arm/WristAngle/SupplyCurrent", wristMotor.get
+        Logger.recordOutput("Arm/WristAngle/RPSActual", wristMotor.getEncoder().getVelocity());
+        // Logger.recordOutput("Arm/WristAngle/AccelerationActual", wristMotor.getEncoder().get
+
+        Logger.recordOutput("ShooterMount/ArmAngle/DegreesDesired", desiredArmAngle);
+        Logger.recordOutput("ShooterMount/ArmAngle/DegreesCANCoder", getArmEncoderDegrees());
+        Logger.recordOutput("ShooterMount/ArmAngle/RotationsCANCoder", armEncoder.getAbsolutePosition().getValue());
+        Logger.recordOutput("ShooterMount/ArmAngle/DegreesTalon", getArmTalonEncoderDegrees());
+        // Logger.recordOutput("ShooterMount/ArmAngle/MissedSpeakerTargetFrameCount", missedSpeakerTargetFrameCount);
+        Logger.recordOutput("ShooterMount/ArmAngle/VoltageActual", armMotor.getMotorVoltage().getValue());
+        Logger.recordOutput("ShooterMount/ArmAngle/ClosedLoopError", armMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("ShooterMount/ArmAngle/SupplyCurrent", armMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("ShooterMount/ArmAngle/RPSActual", armMotor.getVelocity().getValue());
+        Logger.recordOutput("ShooterMount/ArmAngle/AccelerationActual", armMotor.getAcceleration().getValue());
+
+        Logger.recordOutput("Arm/ElevatorHeight/InchesDesired", desiredElevatorHeight);
+        Logger.recordOutput("Arm/ElevatorHeight/InchesActual", getElevatorHeightInches());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/VoltageActual", leftElevatorMotor.getMotorVoltage().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/ClosedLoopError", leftElevatorMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/SupplyCurrent", leftElevatorMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/TempC", leftElevatorMotor.getDeviceTemp().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/ControlMode", leftElevatorMotor.getControlMode().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsActual", leftElevatorMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsDesired", leftElevatorMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/RPSActual", leftElevatorMotor.getVelocity().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/AccelerationActual", leftElevatorMotor.getAcceleration().getValue());
+        
+        Logger.recordOutput("Arm/ElevatorHeight/Right/VoltageActual", rightElevatorMotor.getMotorVoltage().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/ClosedLoopError", rightElevatorMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/SupplyCurrent", rightElevatorMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/TempC", rightElevatorMotor.getDeviceTemp().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsActual", rightElevatorMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsDesired", rightElevatorMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/RPSActual", rightElevatorMotor.getVelocity().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/AccelerationActual", rightElevatorMotor.getAcceleration().getValue());
+        
+        Logger.recordOutput("Arm/CarriageHeight/InchesDesired", desiredCarriageHeight);
+        Logger.recordOutput("Arm/CarriageHeight/InchesActual", getCarriageHeightInches());
+        Logger.recordOutput("Arm/CarriageHeight/VoltageActual", carriageMotor.getMotorVoltage().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/ClosedLoopError", carriageMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/SupplyCurrent", carriageMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/TempC", carriageMotor.getDeviceTemp().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/ControlMode", carriageMotor.getControlMode().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/RotationsActual", carriageMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Arm/CarriageHeight/RotationsDesired", carriageMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/RPSActual", carriageMotor.getVelocity().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/AccelerationActual", carriageMotor.getAcceleration().getValue());
+
     }
 
     /* CONFIG */
@@ -493,7 +558,6 @@ public class Arm extends SubsystemBase {
         wristMotorModel.setInputVoltage(wristVoltage);
         wristMotorModel.update(0.02);
         wristMotorSim.setVelocity(wristMotorModel.getAngularVelocityRPM() / 60.0);
-
 
         double currentWristAngle = getWristEncoderDegrees();
         double delta = desiredWristAngle - currentWristAngle;
