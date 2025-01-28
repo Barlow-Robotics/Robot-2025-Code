@@ -60,7 +60,7 @@ public class RobotContainer {
     public Vision visionSub = new Vision();
     public final Arm armSub = new Arm(visionSub, driveSub);
     public final Climb climbSub = new Climb();
-    public final CoralIntake coralIntakeSub = new CoralIntake();
+    public final CoralIntake coralIntakeSub = new CoralIntake(visionSub, driveSub);
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake(visionSub, driveSub);
 
     /* COMMANDS */
