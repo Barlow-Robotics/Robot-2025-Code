@@ -105,6 +105,8 @@ public class Constants {
         public static final int BackLeftTurnMotorID = 33;
         public static final int BackRightTurnMotorID = 34;
 
+        public static final int PigeonID = 1;
+
         /***************************** ARM *****************************/
         public static final int ArmMotorID = 41;
         public static final int WristMotorID = 42; // rev
