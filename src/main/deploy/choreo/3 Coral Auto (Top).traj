@@ -211,5 +211,21 @@
     {"t":5.91234, "x":3.6836, "y":5.44801, "heading":-1.0472, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0]
  },
- "events":[]
+ "events":[
+   {"name":"Marker", "from":{"target":0, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+   {"name":"Marker", "from":{"target":1, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+       {"type":"named", "data":{"name":"startOuttake"}},
+       {"type":"named", "data":{"name":"setPositionHPS"}}]}}},
+   {"name":"Marker", "from":{"target":3, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+       {"type":"named", "data":{"name":"startIntake"}},
+       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+   {"name":"Marker", "from":{"target":4, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+       {"type":"named", "data":{"name":"startOuttake"}},
+       {"type":"named", "data":{"name":"setPositionHPS"}}]}}},
+   {"name":"Marker", "from":{"target":5, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+       {"type":"named", "data":{"name":"startIntake"}},
+       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+   {"name":"Marker", "from":{"target":6, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"setOuttake"}}]}}}]
 }
