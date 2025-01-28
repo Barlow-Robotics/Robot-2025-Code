@@ -35,20 +35,14 @@ public class AlgaeIntake extends SubsystemBase {
   private final SparkMaxSim liftMotorSim;
   
   SparkMaxConfig liftMotorConfig = new SparkMaxConfig();
-  public final SparkClosedLoopController liftPidController;
-  private final DCMotorSim liftMotorModel = new DCMotorSim(
-      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
-    
-  private final CANcoder liftEncoder; 
-  private final CANcoderSimState liftEncoderSim;
+  private final DCMotorSim liftMotorModel;
 
   SparkMax intakeMotor;
   private final SparkMaxSim intakeMotorSim;
   
   SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
   public final SparkClosedLoopController intakePidController;
-  private final DCMotorSim intakeMotorModel = new DCMotorSim(
-      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+  private final DCMotorSim intakeMotorModel;
 
 
   private double desiredLiftAngle = 0;
@@ -63,8 +57,13 @@ public class AlgaeIntake extends SubsystemBase {
 
     intakeMotor = new SparkMax(ElectronicsIDs.AlgaeIntakeMotorID, MotorType.kBrushless);
     intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNeo550((1)));
+    liftMotorModel = new DCMotorSim(
+      LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
 
+    intakeMotorConfig = new SparkMaxConfig();
     intakePidController = intakeMotor.getClosedLoopController();
+    intakeMotorModel = new DCMotorSim(
+      LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
 
     intakeMotorConfig.closedLoop
             .pidf(AlgaeConstants.IntakeKP, AlgaeConstants.IntakeKI, AlgaeConstants.IntakeKD, AlgaeConstants.IntakeFF)
@@ -74,10 +73,6 @@ public class AlgaeIntake extends SubsystemBase {
 
     liftMotor = new SparkMax(ElectronicsIDs.LiftMotorID, MotorType.kBrushless);
     liftMotorSim = new SparkMaxSim(liftMotor, DCMotor.getNeo550((1)));
-    liftEncoder = new CANcoder(ElectronicsIDs.LiftEncoderID, "rio");
-    liftEncoderSim = liftEncoder.getSimState();
-
-    liftPidController = liftMotor.getClosedLoopController();
 
     liftMotorConfig.closedLoop
             .pidf(AlgaeConstants.LiftKP, AlgaeConstants.LiftKI, AlgaeConstants.LiftKD, AlgaeConstants.LiftFF)
@@ -89,7 +84,7 @@ public class AlgaeIntake extends SubsystemBase {
   }
 
   public void setLiftAngle(double desiredDegrees) {
-    liftPidController.setReference(desiredDegrees, ControlType.kPosition);
+    liftMotor.getClosedLoopController().setReference(desiredDegrees, ControlType.kPosition);
   }
 
   public void stopLiftMotor() {
@@ -97,7 +92,7 @@ public class AlgaeIntake extends SubsystemBase {
 }
 
   public double getLiftEncoderDegrees() {
-    return Units.rotationsToDegrees(liftEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
+    return Units.rotationsToDegrees(liftMotor.getAbsoluteEncoder().getPosition());
   }
 
   public void startIntaking() {
@@ -144,10 +139,10 @@ public class AlgaeIntake extends SubsystemBase {
       liftMotorModel.update(0.02);
       liftMotorSim.setVelocity(liftMotorModel.getAngularVelocityRPM() / 60.0);
       
-      double currentLiftAngle = getLiftEncoderDegrees();
-      double delta = desiredLiftAngle - currentLiftAngle;
-      delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
-      liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
+      //double currentLiftAngle = getLiftEncoderDegrees();
+      //double delta = desiredLiftAngle - currentLiftAngle;
+      //delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
+      //liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
   
   }
   // NEED TO FIX: Can't figure out how to get this to return velocity -Ang

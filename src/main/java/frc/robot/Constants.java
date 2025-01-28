@@ -87,7 +87,6 @@ public class Constants {
         public static final int OperatorControllerPort = 2;
 
         /***************************** DRIVE *****************************/
-
         // CANCoder = 1{locationOnBot}
         public static final int FrontLeftTurnEncoderID = 11;
         public static final int FrontRightTurnEncoderID = 12;
@@ -106,8 +105,9 @@ public class Constants {
         public static final int BackLeftTurnMotorID = 33;
         public static final int BackRightTurnMotorID = 34;
 
-        /***************************** ARM *****************************/
+        public static final int PigeonID = 1;
 
+        /***************************** ARM *****************************/
         public static final int ArmMotorID = 41;
         public static final int WristMotorID = 42; // rev
         public static final int LeftElevatorMotorID = 43;
@@ -117,10 +117,12 @@ public class Constants {
         public static final int ArmEncoderID = 47; 
 
         /***************************** ALGAE INTAKE *****************************/
-
         public static final int LiftMotorID = 51;
         public static final int LiftEncoderID = 52;
         public static final int AlgaeIntakeMotorID = 53;
+
+        /***************************** CORAL INTAKE *****************************/
+        public static final int CoralIntakeMotorID = 0;
     }
 
     /***************************************************************************/
@@ -294,6 +296,17 @@ public class Constants {
         public static final double WristFF = 0.0; // CHANGE
         public static final double WristIZone = 0.15; // CHANGE
     }   
+
+    public static final class CoralConstants {
+        public static final double IntakeKP = 32; // CHANGE
+        public static final double IntakeKI = 0.001; // CHANGE
+        public static final double IntakeKD = 0; // CHANGE
+        public static final double IntakeFF = 0; // CHANGE
+        public static final double IntakeIZone = 0.15; // CHANGE
+
+        public static final double IntakeSpeed = 0; // CHANGE
+        public static final double EjectSpeed = 0; // CHANGE
+    }
 
     public static final class AlgaeConstants {
         public static final double LiftKP = 32; // CHANGE
