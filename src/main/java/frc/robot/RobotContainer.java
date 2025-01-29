@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.DriveRobot;
@@ -176,25 +177,25 @@ public class RobotContainer {
         // moveToHomeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
         // moveToHomeButton.onTrue(setArmPosHomeCmd);
 
-        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonY); // CHANGE
+        moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
         moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
-        moveToAlgaeHighButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonA); // CHANGE
+        moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
         moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
 
-        moveToAlgaeLowButton = new JoystickButton(operatorController, XboxControllerConstants.ButtonB); // CHANGE
+        moveToAlgaeLowButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
         moveToAlgaeLowButton.onTrue(setArmPosAlgaeLowCmd);
 
-        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
+        moveToLevel1Button = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
 
-        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper); // CHANGE
+        moveToLevel2Button = new JoystickButton(operatorController, LogitechDAConstants.LeftBumper); // CHANGE
         moveToLevel2Button.onTrue(setArmPosLevel2Cmd);
 
-        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton); // CHANGE
+        moveToLevel3Button = new JoystickButton(operatorController, LogitechDAConstants.ButtonX); // CHANGE
         moveToLevel3Button.onTrue(setArmPosLevel3Cmd);
 
-        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.LeftStick); // CHANGE
+        moveToLevel4Button = new JoystickButton(operatorController, LogitechDAConstants.LeftStick); // CHANGE
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
 
         /***************** ALGAE INTAKE *****************/

@@ -43,6 +43,7 @@ public class CoralIntake extends SubsystemBase {
     intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNeo550((1)));
     intakeMotorModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
     intakePidController = intakeMotor.getClosedLoopController();
+    intakeMotorConfig = new SparkMaxConfig();
     intakeMotorConfig.closedLoop
             .pidf(CoralConstants.IntakeKP, CoralConstants.IntakeKI, CoralConstants.IntakeKD, CoralConstants.IntakeFF)
             .iZone(CoralConstants.IntakeIZone)

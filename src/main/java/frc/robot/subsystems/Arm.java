@@ -91,14 +91,14 @@ public class Arm extends SubsystemBase {
     private final CANcoderSimState armEncoderSim;
 
     public enum ArmState {
-        Home, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow
+        MovingToPos, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow
     }
 
     private final Drive driveSub;
     private final Vision visionSub;
 
-    private ArmState actualState = ArmState.Home;
-    public ArmState desiredState = ArmState.Home;
+    private ArmState actualState = ArmState.MovingToPos;
+    public ArmState desiredState = ArmState.MovingToPos;
 
     private double desiredWristAngle = 0; // CHANGE PLACEHOLDER
     private double desiredCarriageHeight = 0;
@@ -149,10 +149,10 @@ public class Arm extends SubsystemBase {
             .outputRange(-1, 1);        
     }
 
-    private void setDesiredAngleAndHeight() {
+    private void setDesiredAnglesAndHeights() {
 
         switch (desiredState) {
-            case Home: 
+            case MovingToPos: 
                 break;
             case LoadCoral: 
                 desiredWristAngle = ArmConstants.CoralWristAngle;
@@ -199,7 +199,7 @@ public class Arm extends SubsystemBase {
         }
         setWristAngle(desiredWristAngle);
         setElevatorHeightInches(leftElevatorMotor, desiredElevatorHeight);
-        setElevatorHeightInches(carriageMotor, desiredCarriageHeight);
+        setCarriageHeightInches(/*carriageMotor,*/desiredCarriageHeight);
         setArmAngle(desiredArmAngle);
     }
 
@@ -210,7 +210,10 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
 
-        setDesiredAngleAndHeight();
+        setDesiredAnglesAndHeights();
+        if (isAtDesiredState()) {
+            actualState = desiredState;
+        }
 
 
         logData();
@@ -249,21 +252,24 @@ public class Arm extends SubsystemBase {
         return Units.rotationsToDegrees(armMotor.getPosition().getValue().baseUnitMagnitude());
     }
 
-    /* private double getArmEncoderDegrees() {
-        return Units.rotationsToDegrees(armMotor.getPosition().getValue().baseUnitMagnitude());
-    } */
-
     public void setElevatorHeightInches(TalonFX motor, double desiredInches) {
-        double rotations = ((desiredInches - ArmConstants.StartingHeight) / 2)
+        double rotations = ((desiredInches - ArmConstants.StartingElevatorHeight) / 2)
         * ArmConstants.RotationsPerElevatorInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
         motor.setControl(request.withSlot(0));
     }
 
+    public void setCarriageHeightInches(/*TalonFX motor, */double desiredInches) {
+        double rotations = ((desiredInches - ArmConstants.StartingCarriageHeight) / 2)
+        * ArmConstants.RotationsPerCarriageInch;
+        MotionMagicVoltage request = new MotionMagicVoltage(rotations);
+        carriageMotor.setControl(request.withSlot(0));
+    }
+
     public double getElevatorHeightInches() {
         double elevatorHeight = ((leftElevatorMotor.getPosition().getValue().baseUnitMagnitude()
                 / ArmConstants.RotationsPerElevatorInch) * 2)
-                + ArmConstants.StartingHeight;
+                + ArmConstants.StartingElevatorHeight;
         return elevatorHeight;
     }
     public double getCarriageHeightInches() {
@@ -284,17 +290,51 @@ public class Arm extends SubsystemBase {
     }
 
     public void setDesiredState(ArmState newState) {
-        if (newState == ArmState.Home) {
+        if (newState == ArmState.MovingToPos) {
             return;
         }
         if (newState != desiredState) {
-            actualState = ArmState.Home;
+            actualState = ArmState.MovingToPos;
         }
         desiredState = newState;
     }
 
     public ArmState getArmState() {
         return actualState;
+    }
+
+    private boolean isAtDesiredState() {
+        if (isWithinWristAngleTolerance() && isWithinArmAngleTolerance() && isWithinElevatorHeightTolerance() && isWithinCarriageHeightTolerance()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /* TOLERANCES */
+
+    private boolean isWithinWristAngleTolerance() {
+        boolean withinTolerence = (getWristEncoderDegrees() >= desiredWristAngle - ArmConstants.WristAngleTolerance)
+                && (getWristEncoderDegrees() <= desiredWristAngle + ArmConstants.WristAngleTolerance);
+        return withinTolerence;
+    }
+
+    private boolean isWithinArmAngleTolerance() {
+        boolean withinTolerence = (getArmEncoderDegrees() >= desiredArmAngle - ArmConstants.ArmAngleTolerance)
+                && (getArmEncoderDegrees() <= desiredArmAngle + ArmConstants.ArmAngleTolerance);
+        return withinTolerence;
+    }
+
+    private boolean isWithinElevatorHeightTolerance() {
+        boolean withinTolerence = (getElevatorHeightInches() >= desiredElevatorHeight - ArmConstants.ElevatorHeightTolerance) &&
+                (getElevatorHeightInches() <= desiredElevatorHeight + ArmConstants.ElevatorHeightTolerance);
+        return withinTolerence;
+    }
+
+    private boolean isWithinCarriageHeightTolerance() {
+        boolean withinTolerence = (getCarriageHeightInches() >= desiredCarriageHeight - ArmConstants.CarriageHeightTolerance) &&
+                (getCarriageHeightInches() <= desiredCarriageHeight + ArmConstants.CarriageHeightTolerance);
+        return withinTolerence;
     }
 
     private void logData() {
@@ -563,14 +603,6 @@ public class Arm extends SubsystemBase {
         double delta = desiredWristAngle - currentWristAngle;
         delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
         wristEncoder.setPosition(Units.degreesToRotations(currentWristAngle + delta));
-
-       /*  // Only set the hall effect if we are moving down
-        if (desiredHeight == ShooterMountConstants.FloorIntakeHeight && isWithinHeightTolerance()) {
-            // The bottom hall effect returns false when at bottom and true otherwise
-            bottomHallEffectSim.setValue(false);
-        } else {
-            bottomHallEffectSim.setValue(true);
-        } */
 
     }
 }
