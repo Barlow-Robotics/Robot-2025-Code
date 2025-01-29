@@ -91,7 +91,7 @@ import frc.robot.subsystems.Vision;
 public class RobotContainer {
 
     /* CONTROLLERS */
-    private static Joystick driverController;
+    public static Joystick driverController;
     private static Joystick operatorController;
 
     /* BUTTONS */
@@ -188,6 +188,8 @@ public class RobotContainer {
         moveToRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         moveToRightButton.onTrue(new InstantCommand(() -> changeToRight(true))).onFalse(new InstantCommand(() -> changeToRight(false)));
     }
+
+
     public void configureTeleOpPathPlanner() {
         RobotConfig config;
 

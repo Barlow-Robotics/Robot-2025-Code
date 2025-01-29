@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechExtreme3DConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 
 
@@ -114,9 +115,13 @@ public class Robot extends LoggedRobot {
         currentTeleopCommand = null;
     }
     if (currentlyFollowingAPath) {
-        // TODO: check the driver controller that it hasnt moved too much. 
-   }
-  }
+      if (Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisX)) > 0.5 ||Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisY )) > 0.5  ) {
+        if (currentTeleopCommand != null) {
+          currentTeleopCommand.cancel();
+        }
+      }
+    }
+}
 
   @Override
   public void teleopExit() {}
