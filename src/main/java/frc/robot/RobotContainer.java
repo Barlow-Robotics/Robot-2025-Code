@@ -130,6 +130,8 @@ public class RobotContainer {
     boolean moveToCoral;
     boolean goToRight;
 
+
+    public Pose2d reefAutoTargetPose = new Pose2d();
     // private final RobotCommunicator communicator; 
     // private RobotController robotController;
     public RobotContainer() {
@@ -186,6 +188,37 @@ public class RobotContainer {
         moveToRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         moveToRightButton.onTrue(new InstantCommand(() -> changeToRight(true))).onFalse(new InstantCommand(() -> changeToRight(false)));
     }
+    public void configureTeleOpPathPlanner() {
+        RobotConfig config;
+
+        try{
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+            config = null;
+        }
+            
+        AutoBuilder.configure(
+                driveSub::getPose, // Robot pose supplier
+                driveSub::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+                driveSub::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> driveSub.driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                new PPHolonomicDriveController(
+                        new PIDConstants(5, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5, 0.0, 0.5) // Rotation PID constants
+                ),
+                config,
+                () -> {
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return false;
+                    }
+                    return false;
+                },
+                driveSub);
+    }
+
 
     public void configurePathPlanner() {
         
@@ -212,7 +245,7 @@ public class RobotContainer {
                 config,
                 () -> {
                     var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
+                    if (alliance.isPresent() && DriverStation.isAutonomous()) {
                         return alliance.get() == DriverStation.Alliance.Red;
                     }
                     return false; 
@@ -379,15 +412,15 @@ public class RobotContainer {
     }
 
     public Command setUpPathplannerOTF(Pose2d drivePose) {
-        double addAmount = 0;
+        // double addAmount = 0;
         // if (targetZ > 0) { // positive
         //     addAmount = -180;
         // }
         // else {
         //     addAmount = 180;
-        // }
-        System.out.println(drivePose.getRotation());
-        System.out.println(drivePose.getRotation().getDegrees());
+        // // }
+        // System.out.println(drivePose.getRotation());
+        // System.out.println(drivePose.getRotation().getDegrees());
         // Rotation2d test = new Rotation2d(Math.toRadians(drivePose.getRotation().getDegrees()+(targetZ+addAmount)));
         // Rotation2d test2 = Rotation2d.fromDegrees(drivePose.getRotation().getDegrees()+(targetZ+addAmount));
         // Rotation2d finalRotation = Rotation2d.fromDegrees(
@@ -399,6 +432,7 @@ public class RobotContainer {
         }
         Pose3d finalPoseOfAprilTagId = new Pose3d(driveSub.getPose());
         var alliance = DriverStation.getAlliance();
+        Logger.recordOutput("alliance", alliance.get());
         if (alliance.isPresent()) {
             if (alliance.get() == DriverStation.Alliance.Blue) {
                 finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(21).get();
@@ -408,11 +442,14 @@ public class RobotContainer {
             }
 
         }
+        Logger.recordOutput("finalPoseOfTargetAprilTag", finalPoseOfAprilTagId);
+        reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI));
         // System.out.println(test.getDegrees());
         var waypoints = PathPlannerPath.waypointsFromPoses(
             new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
             // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) // vision AprilTag Detection
-            new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
+            reefAutoTargetPose
+            // new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 * (Constants.DriveConstants.WheelBase), finalPose?OfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
         );
 
         PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
@@ -421,7 +458,7 @@ public class RobotContainer {
                 waypoints,
                 constraints,
                 null,
-                new GoalEndState(0.0, new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
+                new GoalEndState(0.0, reefAutoTargetPose.getRotation())
         );
 
 

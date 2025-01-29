@@ -262,7 +262,7 @@ public class Vision extends SubsystemBase {
     public void periodic() {
 
         // TODO: feed this pose estimate back to the combined pose estimator in drive
-        setLayoutOrigin();
+        // setLayoutOrigin();
         // Find all the results from the tracking camera
         var tracking_result = getLatestTrackingResult();
 

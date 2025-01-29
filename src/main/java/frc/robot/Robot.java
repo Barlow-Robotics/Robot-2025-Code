@@ -27,6 +27,7 @@ public class Robot extends LoggedRobot {
   boolean pathPlannerConfigured = false ;
   boolean currentlyFollowingAPath = false;
   Pose2d currentPose;
+  Command selectedAutoCommand;
   public Robot() {
     robotContainer = new RobotContainer();
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
@@ -52,6 +53,7 @@ public class Robot extends LoggedRobot {
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
     Logger.recordOutput("Controllers/Driver", currentDriverController);
     Logger.recordOutput("Controllers/Operator", currentOperatorController);
+    Logger.recordOutput("vision/reefAutoTargetPose", robotContainer.reefAutoTargetPose);
 
     CommandScheduler.getInstance().run();
   }
@@ -67,6 +69,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
+    // robotContainer.configurePathPlanner();
     m_autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -85,29 +88,22 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    if (selectedAutoCommand != null) {
+      selectedAutoCommand.cancel();
+      currentlyFollowingAPath = false;
+      selectedAutoCommand = null;
+    }
   }
 
   @Override
-  public void teleopPeriodic() {
-    // System.err.println(robotContainer.getCoralVision());
-    boolean test = true;
+  public void teleopPeriodic() {    
     if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-      Command selectedAutoCommand = robotContainer.getVisionPathPlannerPathing();
-
-      if (selectedAutoCommand != null) {
-        System.out.println("PATH");
-      }
-      else {
-        System.out.println("NO PATH");
-        System.out.println(robotContainer.visionSub.getBestTrackableTarget());
-      }
+      selectedAutoCommand = robotContainer.getVisionPathPlannerPathing();
 
       if (!currentlyFollowingAPath && selectedAutoCommand != null) {
           currentlyFollowingAPath = true;
           currentTeleopCommand = selectedAutoCommand;
-          System.out.println("SCEDUAL PROBLEM");
           CommandScheduler.getInstance().schedule(selectedAutoCommand);
-          System.out.println("SCEDUAL PROBLEM");
       }
     }
     if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
@@ -118,8 +114,7 @@ public class Robot extends LoggedRobot {
         currentTeleopCommand = null;
     }
     if (currentlyFollowingAPath) {
-        
-        // check the driver controller that it hasnt moved too much. 
+        // TODO: check the driver controller that it hasnt moved too much. 
    }
   }
 
