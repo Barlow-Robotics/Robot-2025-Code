@@ -48,25 +48,25 @@ public class Constants {
         public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
 
-        // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+        // Cam mounted facing forward, half a meter forward of center, half a meter up
+        // from center.
         // NEED TO FIX: wpk need to update these to be more exact.
-        public static final Transform3d PoseCameraToRobot =
-                new Transform3d(
-                    new Translation3d(0.0, -Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
-                    new Rotation3d(0, Units.degreesToRadians(5), 0));
+        public static final Transform3d PoseCameraToRobot = new Transform3d(
+                new Translation3d(0.0, -Units.inchesToMeters(DriveConstants.TrackWidth / 2), Units.inchesToMeters(23)),
+                new Rotation3d(0, Units.degreesToRadians(5), 0));
         public static final Transform3d RobotToPoseCamera = PoseCameraToRobot.inverse();
 
-        public static final Transform3d TargetCamToRobot =
-                new Transform3d(
-                    new Translation3d(0.0, Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
-                    new Rotation3d(0, Units.degreesToRadians(5), 0));
+        public static final Transform3d TargetCamToRobot = new Transform3d(
+                new Translation3d(0.0, Units.inchesToMeters(DriveConstants.TrackWidth / 2), Units.inchesToMeters(23)),
+                new Rotation3d(0, Units.degreesToRadians(5), 0));
         public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
 
         // // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout FieldTagLayout =
-                AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025Reefscape
+                .loadAprilTagLayoutField();
 
-        // The standard deviations of our vision estimated poses, which affect correction rate
+        // The standard deviations of our vision estimated poses, which affect
+        // correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
         public static final Matrix<N3, N1> SingleTagStdDevs = VecBuilder.fill(4, 4, 8);
         public static final Matrix<N3, N1> MultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
@@ -75,12 +75,11 @@ public class Constants {
         public static final int RedSpeakerCenterAprilTagID = 4;
         public static final int BlueSpeakerCenterAprilTagID = 7;
         public static final int NullAprilTagID = -1;
-        public static final double InvalidAngle = -361; 
+        public static final double InvalidAngle = -361;
         public static final double NoTargetDistance = -1;
 
-        public static final double NoteAlignPixelTolerance = 250; // NEED TO FIX/CHANGE
-
     }
+
     public static final class ElectronicsIDs {
 
         public static final int DriverControllerPort = 1;
@@ -114,7 +113,7 @@ public class Constants {
         public static final int RightElevatorMotorID = 44;
         public static final int CarriageMotorID = 45;
         public static final int WristEncoderID = 46;
-        public static final int ArmEncoderID = 47; 
+        public static final int ArmEncoderID = 47;
 
         /***************************** ALGAE INTAKE *****************************/
         public static final int LiftMotorID = 51;
@@ -146,15 +145,16 @@ public class Constants {
         public static final double WheelCircumference = 2.0 * WheelRadius * Math.PI;
         public static final double GearRatio = 6.12;
 
-        public static final double VelocityConversionFactor = WheelCircumference / Constants.SecondsPerMinute / GearRatio;
+        public static final double VelocityConversionFactor = WheelCircumference / Constants.SecondsPerMinute
+                / GearRatio;
 
         public static final double MaxAngularRadiansPerSecond = Math.PI; // 1/2 rotation per second
         public static final double PhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI; // CHANGE
 
         public static final double MaxAcceleration = Units.feetToMeters(36.24); // m/sec^2 from Mr. K's spreadsheet
         public static final double MaxDriveableVelocity = 4.5; // m/s
-        public static final double PhysicalMaxMetersPerSecond =  NeoMaxRPM * VelocityConversionFactor;
- 
+        public static final double PhysicalMaxMetersPerSecond = NeoMaxRPM * VelocityConversionFactor;
+
         public static final double FrontLeftMagnetOffsetInRadians = 1.5171039327979088;
         public static final double FrontRightMagnetOffsetInRadians = 1.7456666082143784;
         public static final double BackLeftMagnetOffsetInRadians = -2.7626938149333;
@@ -173,22 +173,21 @@ public class Constants {
         public static final double DriveIZone = 0.15;
         public static final double DriveFF = 1.0 / PhysicalMaxMetersPerSecond;
 
-        public static final double AutoAlignRotKP = 0.08; //CHANGE
+        public static final double AutoAlignRotKP = 0.08; // CHANGE
         public static final double AutoAlignRotKI = 0.0;
         public static final double AutoAlignRotKD = 0.0;
 
-        public static final double AutoAlignNoteKP = 0.005; //CHANGE
+        public static final double AutoAlignNoteKP = 0.005; // CHANGE
         public static final double AutoAlignNoteKI = 0.0;
         public static final double AutoAlignNoteKD = 0;
 
-        public static final double YawOverrideAlignNoteKP = 0.0005; //NEED TO FIX
+        public static final double YawOverrideAlignNoteKP = 0.0005; // NEED TO FIX
         public static final double YawOverrideAlignNoteKI = 0.0;
         public static final double YawOverrideAlignNoteKD = 0;
 
-        public static final double TargetYawOverrideAlignNoteKP = 0.004; //NEED TO FIX
+        public static final double TargetYawOverrideAlignNoteKP = 0.004; // NEED TO FIX
         public static final double TargetYawOverrideAlignNoteKI = 0.0;
         public static final double TargetYawOverrideAlignNoteKD = 0;
-
 
         /* TURN ENCODER */
         public static final int CANCoderResolution = 4096;
@@ -197,19 +196,22 @@ public class Constants {
         public static final double TurnKI = 0;
         public static final double TurnKD = 0;
 
-        public static final double ModuleMaxAngularVelocity = 3.0 * 2.0 * Math.PI; // #revolutions * radians per revolution (rad/sec)
+        public static final double ModuleMaxAngularVelocity = 3.0 * 2.0 * Math.PI; // #revolutions * radians per
+                                                                                   // revolution (rad/sec)
         public static final double ModuleMaxAngularAcceleration = 12 * Math.PI; // radians per second squared
         public static final double MaxModuleMetersPerSecond = 4.5;
 
         public static final int StallLimit = 40;
         public static final int FreeLimit = 40;
 
-        // public static final HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-        //     new PIDConstants(5.0, 0, 0), // Translation constants
-        //     new PIDConstants(5.0, 0, 0), // Rotation constants
-        //     MaxModuleMetersPerSecond,
-        //     flModuleOffset.getNorm(), // Drive base radius (distance from center to furthest module)
-        //     new ReplanningConfig());
+        // public static final HolonomicPathFollowerConfig pathFollowerConfig = new
+        // HolonomicPathFollowerConfig(
+        // new PIDConstants(5.0, 0, 0), // Translation constants
+        // new PIDConstants(5.0, 0, 0), // Rotation constants
+        // MaxModuleMetersPerSecond,
+        // flModuleOffset.getNorm(), // Drive base radius (distance from center to
+        // furthest module)
+        // new ReplanningConfig());
     }
 
     /***************************************************************************/
@@ -222,18 +224,17 @@ public class Constants {
         public static final double AngleCANCoderMagnetOffset = 0.48583;
         public static final double Level1ArmAngle = 0;
         public static final double Level2ArmAngle = 0;
-        public static final double Level3ArmAngle = 0; 
-        public static final double Level4ArmAngle = 0;  
+        public static final double Level3ArmAngle = 0;
+        public static final double Level4ArmAngle = 0;
         public static final double Level1WristAngle = 0;
         public static final double Level2WristAngle = 0;
-        public static final double Level3WristAngle = 0; 
+        public static final double Level3WristAngle = 0;
         public static final double Level4WristAngle = 0;
-      
 
         public static final double Level1ElevatorHeight = 0;
         public static final double Level2ElevatorHeight = 0;
-        public static final double Level3ElevatorHeight = 0; 
-        public static final double Level4ElevatorHeight = 0; 
+        public static final double Level3ElevatorHeight = 0;
+        public static final double Level4ElevatorHeight = 0;
         public static final double Level1CarriageHeight = 0;
         public static final double Level2CarriageHeight = 0;
         public static final double Level3CarriageHeight = 0;
@@ -245,7 +246,7 @@ public class Constants {
         public static final double AngleFF = 0;
         public static final double AngleKG = 0;
         public static final double AngleCruiseRotationsPerSec = 0;
-        
+
         public static final double AngleAcceleration = 0;
         public static final double AngleJerk = 0;
 
@@ -253,20 +254,26 @@ public class Constants {
         public static final double CoralElevatorHeight = 0;
         public static final double CoralCarriageHeight = 0;
         public static final double CoralArmAngle = 0;
+        
         public static final double AlgaeHighArmAngle = 0;
         public static final double AlgaeHighWristAngle = 0;
         public static final double AlgaeHighElevatorHeight = 0;
         public static final double AlgaeHighCarriageHeight = 0;
-      
-         public static final double AlgaeLowWristAngle = 0;
+
+        public static final double AlgaeLowWristAngle = 0;
         public static final double AlgaeLowArmAngle = 0;
         public static final double AlgaeLowElevatorHeight = 0;
         public static final double AlgaeLowCarriageHeight = 0;
 
+        public static final double WristAngleTolerance = 1.5; // CHANGE
+        public static final double ArmAngleTolerance = 1.5; // CHANGE
+        public static final double ElevatorHeightTolerance = 0.25;// CHANGE
+        public static final double CarriageHeightTolerance = 0.25;// CHANGE
+
         /* ELEVATOR */
 
         public static final double MaxHeightInches = 45; // CHANGE
-        public static final double StartingHeight = 24.75; // CHANGE
+        public static final double StartingElevatorHeight = 24.75; // CHANGE
         public static final double StartingCarriageHeight = 24.75; // CHANGE
 
         public static final double ElevatorKP = 32; // CHANGE
@@ -277,25 +284,30 @@ public class Constants {
         public static final double ElevatorKG = 2.7; // CHANGE
         public static final double ElevatorKS = 0; // CHANGE
         public static final double ElevatorGearRatio = 15;
-//      public static final double ElevatorSprocketDiameter = 2.36;  // inches // CHANGE
-        public static final double ElevatorSprocketDiameter = 2.16;  // inches // CHANGE
+        // public static final double ElevatorSprocketDiameter = 2.36; // inches //
+        // CHANGE
+        public static final double ElevatorSprocketDiameter = 2.16; // inches // CHANGE
         public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
         public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
-        // public static final double RotationsPerElevatorInch = 
+
+        public static final double RotationsPerCarriageInch = 2.2; // CHANGE (set this ~equal to rpElevatorIn for testing
+                                                                   // purposes, but need the gear ratios and whatnot)
+
+        // public static final double RotationsPerElevatorInch =
         // ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
 
-        public static final double ElevatorMaxInchesPerSec = 
-                Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio * ElevatorSprocketCircumference;
+        public static final double ElevatorMaxInchesPerSec = Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio
+                * ElevatorSprocketCircumference;
         public static final double ElevatorCruiseInchesPerSec = 10; // CHANGE
         public static final double ElevatorInchesPerSecPerSec = 10; // CHANGE
         public static final double ElevatorJerk = 800; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
-    
+
         public static final double WristKP = 32; // CHANGE
         public static final double WristKI = 0.001; // CHANGE
         public static final double WristKD = 0.0; // CHANGE
         public static final double WristFF = 0.0; // CHANGE
         public static final double WristIZone = 0.15; // CHANGE
-    }   
+    }
 
     public static final class CoralConstants {
         public static final double IntakeKP = 32; // CHANGE
@@ -329,53 +341,52 @@ public class Constants {
         public static TuneableParameter coralIsVisible = new TuneableParameter(0, 1, 0, true, "Auto/CoralIsVisible");
 
         public static final double MaxSpeedMetersPerSecond = DriveConstants.MaxModuleMetersPerSecond / 4; // CHANGE
-        public static final double MaxAngularSpeedRadiansPerSecond = DriveConstants.PhysicalMaxAngularSpeedRadiansPerSecond / 10; // Default is 540 degress
+        public static final double MaxAngularSpeedRadiansPerSecond = DriveConstants.PhysicalMaxAngularSpeedRadiansPerSecond
+                / 10; // Default is 540 degress
         public static final double kPXController = 1;
         public static final double kPYController = 1;
         public static final double kPThetaController = 1;
-    
+
         public static final double MaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4; // default: 720 deg
 
-        public static final double NoteAlignTolerance = 10; // CHANGE (pixels from the center of the screen)
     }
 
-
     public final class LogitechDAConstants {
-        public static final int LeftStickX = 0; 
+        public static final int LeftStickX = 0;
         public static final int LeftStickY = 1;
         public static final int RightStickX = 2;
         public static final int RightStickY = 3;
-        public static final int LeftTrigger = 7; 
-        public static final int RightTrigger = 8; 
-        public static final int ButtonA = 2; 
-        public static final int ButtonB = 3; 
-        public static final int ButtonX = 1; 
-        public static final int ButtonY = 4; 
-        public static final int LeftBumper = 5; 
-        public static final int RightBumper = 6; 
-        public static final int BackButton = 9; 
+        public static final int LeftTrigger = 7;
+        public static final int RightTrigger = 8;
+        public static final int ButtonA = 2;
+        public static final int ButtonB = 3;
+        public static final int ButtonX = 1;
+        public static final int ButtonY = 4;
+        public static final int LeftBumper = 5;
+        public static final int RightBumper = 6;
+        public static final int BackButton = 9;
         public static final int StartButton = 10;
         public static final int LeftStick = 11;
-        public static final int RightStick = 12; 
+        public static final int RightStick = 12;
         public static final double ForwardAxisAttenuation = -0.5;
         public static final double LateralAxisAttenuation = 0.5;
         public static final double YawAxisAttenuation = 0.5;
     }
 
     public final class LogitechExtreme3DConstants {
-        public static final int AxisX = 0; 
+        public static final int AxisX = 0;
         public static final int AxisY = 1;
-        public static final int AxisZRotate = 2; 
-        public static final int Slider = 3; 
-        public static final int Trigger = 1; 
-        public static final int ButtonStick = 2; 
-        public static final int Button3 = 3; 
-        public static final int Button4 = 4; 
-        public static final int Button5 = 5; 
+        public static final int AxisZRotate = 2;
+        public static final int Slider = 3;
+        public static final int Trigger = 1;
+        public static final int ButtonStick = 2;
+        public static final int Button3 = 3;
+        public static final int Button4 = 4;
+        public static final int Button5 = 5;
         public static final int Button6 = 6;
-        public static final int Button7 = 7; 
+        public static final int Button7 = 7;
         public static final int Button8 = 8;
-        public static final int Button9 = 9; 
+        public static final int Button9 = 9;
         public static final int Button10 = 10;
         public static final int Button11 = 11;
         public static final int Button12 = 12;
@@ -406,16 +417,16 @@ public class Constants {
         public static final int RightTrigger = 4;
         public static final int RightStickX = 4;
         public static final int RightStickY = 5;
-        public static final int ButtonA = 1; 
-        public static final int ButtonB = 2; 
-        public static final int ButtonX = 3; 
-        public static final int ButtonY = 4; 
+        public static final int ButtonA = 1;
+        public static final int ButtonB = 2;
+        public static final int ButtonX = 3;
+        public static final int ButtonY = 4;
         public static final int LeftBumper = 5;
-        public static final int RightBumper = 6; 
+        public static final int RightBumper = 6;
         // public static final int BackButton = 7;
-        public static final int HamburgerButton = 8; 
-        public static final int LeftStick = 9; 
-        public static final int RightStick = 10; 
+        public static final int HamburgerButton = 8;
+        public static final int LeftStick = 9;
+        public static final int RightStick = 10;
         public static final int WindowButton = 7;
         public static final double ForwardAxisAttenuation = -0.5;
         public static final double LateralAxisAttenuation = 0.5;
