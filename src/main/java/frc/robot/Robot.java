@@ -98,7 +98,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {    
     if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-      selectedAutoCommand = robotContainer.getVisionPathPlannerPathing();
+      selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
 
       if (!currentlyFollowingAPath && selectedAutoCommand != null) {
           currentlyFollowingAPath = true;

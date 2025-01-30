@@ -213,6 +213,9 @@ public class Drive extends SubsystemBase {
         return odometry.getPoseMeters();
         // return poseEstimator.getEstimatedPosition();
     }
+    public Pose2d getPredictedPose() {
+        return poseEstimator.getEstimatedPosition();
+    }
 
     // public Pose2d getPoseWithVision() {
     // return poseEstimator.getEstimatedPosition();
