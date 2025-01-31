@@ -222,48 +222,48 @@ public class Constants {
         // Arm and Wrist Angles
         public static final double SupplyCurrentLimit = 40;
         public static final double AngleCANCoderMagnetOffset = 0.48583;
-        public static final double Level1ArmAngle = 0;
-        public static final double Level2ArmAngle = 0;
-        public static final double Level3ArmAngle = 0;
-        public static final double Level4ArmAngle = 0;
-        public static final double Level1WristAngle = 0;
-        public static final double Level2WristAngle = 0;
-        public static final double Level3WristAngle = 0;
-        public static final double Level4WristAngle = 0;
+        public static final double Level1ArmAngle = 10; // CHANGE
+        public static final double Level2ArmAngle = 20; // CHANGE
+        public static final double Level3ArmAngle = 30; // CHANGE
+        public static final double Level4ArmAngle = 40; // CHANGE
+        public static final double Level1WristAngle = 10; // CHANGE
+        public static final double Level2WristAngle = 20; // CHANGE
+        public static final double Level3WristAngle = 30; // CHANGE
+        public static final double Level4WristAngle = 40; // CHANGE
 
-        public static final double Level1ElevatorHeight = 0;
-        public static final double Level2ElevatorHeight = 0;
-        public static final double Level3ElevatorHeight = 0;
-        public static final double Level4ElevatorHeight = 0;
-        public static final double Level1CarriageHeight = 0;
-        public static final double Level2CarriageHeight = 0;
-        public static final double Level3CarriageHeight = 0;
-        public static final double Level4CarriageHeight = 0;
+        public static final double Level1ElevatorHeight = 5; // CHANGE
+        public static final double Level2ElevatorHeight = 10; // CHANGE
+        public static final double Level3ElevatorHeight = 15; // CHANGE
+        public static final double Level4ElevatorHeight = 20; // CHANGE
+        public static final double Level1CarriageHeight = 5; // CHANGE
+        public static final double Level2CarriageHeight = 10; // CHANGE
+        public static final double Level3CarriageHeight = 15; // CHANGE
+        public static final double Level4CarriageHeight = 20; // CHANGE
 
-        public static final double AngleKP = 0;
-        public static final double AngleKI = 0;
-        public static final double AngleKD = 0;
-        public static final double AngleFF = 0;
-        public static final double AngleKG = 0;
-        public static final double AngleCruiseRotationsPerSec = 0;
+        public static final double AngleKP = 30; // CHANGE
+        public static final double AngleKI = 0.000; // CHANGE
+        public static final double AngleKD = 1.5; // CHANGE
+        public static final double AngleFF = 0; // CHANGE
+        public static final double AngleKG = 0.29; // CHANGE
+        public static final double AngleCruiseRotationsPerSec = 3; // CHANGE
 
-        public static final double AngleAcceleration = 0;
-        public static final double AngleJerk = 0;
+        public static final double AngleAcceleration = 12; // CHANGE
+        public static final double AngleJerk = 40; // CHANGE
 
-        public static final double CoralWristAngle = 0;
-        public static final double CoralElevatorHeight = 0;
-        public static final double CoralCarriageHeight = 0;
-        public static final double CoralArmAngle = 0;
+        public static final double CoralWristAngle = -40; // CHANGE
+        public static final double CoralElevatorHeight = 25; // CHANGE
+        public static final double CoralCarriageHeight = 22; // CHANGE
+        public static final double CoralArmAngle = -20; // CHANGE
         
-        public static final double AlgaeHighArmAngle = 0;
-        public static final double AlgaeHighWristAngle = 0;
-        public static final double AlgaeHighElevatorHeight = 0;
-        public static final double AlgaeHighCarriageHeight = 0;
+        public static final double AlgaeHighArmAngle = 70; // CHANGE
+        public static final double AlgaeHighWristAngle = 50; // CHANGE
+        public static final double AlgaeHighElevatorHeight = 21; // CHANGE
+        public static final double AlgaeHighCarriageHeight = 23; // CHANGE
 
-        public static final double AlgaeLowWristAngle = 0;
-        public static final double AlgaeLowArmAngle = 0;
-        public static final double AlgaeLowElevatorHeight = 0;
-        public static final double AlgaeLowCarriageHeight = 0;
+        public static final double AlgaeLowWristAngle = 20; // CHANGE
+        public static final double AlgaeLowArmAngle = 25; // CHANGE
+        public static final double AlgaeLowElevatorHeight = 15; // CHANGE
+        public static final double AlgaeLowCarriageHeight = 13; // CHANGE
 
         public static final double WristAngleTolerance = 1.5; // CHANGE
         public static final double ArmAngleTolerance = 1.5; // CHANGE

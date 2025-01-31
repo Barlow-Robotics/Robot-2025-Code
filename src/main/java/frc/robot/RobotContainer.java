@@ -200,18 +200,18 @@ public class RobotContainer {
 
         /***************** ALGAE INTAKE *****************/
 
-        intakeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
+        intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        ejectAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
+        ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
         /***************** CORAL INTAKE *****************/
 
-        ejectCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
+        ejectCoralButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         ejectCoralButton.onTrue(ejectCoralCmd).onFalse(stopCoralIntakeCmd);
         
-        intakeCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
+        intakeCoralButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         intakeCoralButton.onTrue(intakeCoralCmd).onFalse(stopCoralIntakeCmd);
  
     }
