@@ -240,11 +240,11 @@ public class Constants {
         public static final double Level3CarriageHeight = 15; // CHANGE
         public static final double Level4CarriageHeight = 20; // CHANGE
 
-        public static final double AngleKP = 30; // CHANGE
+        public static final double AngleKP = 1; // CHANGE
         public static final double AngleKI = 0.000; // CHANGE
-        public static final double AngleKD = 1.5; // CHANGE
+        public static final double AngleKD = 0; // CHANGE
         public static final double AngleFF = 0; // CHANGE
-        public static final double AngleKG = 0.29; // CHANGE
+        public static final double AngleKG = 0; // CHANGE
         public static final double AngleCruiseRotationsPerSec = 3; // CHANGE
 
         public static final double AngleAcceleration = 12; // CHANGE

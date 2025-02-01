@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.*;
+
 // import static edu.wpi.first.units.Units.Amp;
 
 import org.littletonrobotics.junction.Logger;
@@ -56,10 +58,11 @@ import frc.robot.Constants;
 public class Arm extends SubsystemBase {
 
     TalonFX armMotor;
-    private final TalonFXSimState armMotorSim;
+    //private final TalonFXSimState armMotorSim;
     
     private final DCMotorSim armMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+        DCMotor.getKrakenX60Foc(1));
 
     TalonFX carriageMotor;
     private final TalonFXSimState carriageMotorSim;
@@ -88,7 +91,6 @@ public class Arm extends SubsystemBase {
     private final CANcoderSimState wristEncoderSim;
 
     private final CANcoder armEncoder;
-    private final CANcoderSimState armEncoderSim;
 
     public enum ArmState {
         MovingToPos, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow
@@ -112,7 +114,7 @@ public class Arm extends SubsystemBase {
         // bottomHallEffect = new DigitalInput(ElectronicsIDs.BottomHallEffectID);
 
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
-        armMotorSim = armMotor.getSimState();
+        //armMotorSim = armMotor.getSimState();
         armMotor.setPosition(0);
         
         carriageMotor = new TalonFX(ElectronicsIDs.CarriageMotorID);
@@ -125,7 +127,6 @@ public class Arm extends SubsystemBase {
         wristEncoderSim = wristEncoder.getSimState();
 
         armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
-        armEncoderSim = armEncoder.getSimState();
         
         wristPidController = wristMotor.getClosedLoopController();
 
@@ -136,7 +137,7 @@ public class Arm extends SubsystemBase {
         rightElevatorMotor = new TalonFX(ElectronicsIDs.RightElevatorMotorID);
         rightElevatorMotorSim = rightElevatorMotor.getSimState(); 
 
-        applyArmMotorConfigs(InvertedValue.Clockwise_Positive);
+        applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
         applyAngleEncoderConfigs(); 
         applyElevatorMotorConfigs(leftElevatorMotor, "leftElevatorMotor", InvertedValue.CounterClockwise_Positive);
         applyElevatorMotorConfigs(rightElevatorMotor, "rightElevatorMotor", InvertedValue.Clockwise_Positive);
@@ -412,7 +413,7 @@ public class Arm extends SubsystemBase {
         motionMagicConfigs.MotionMagicAcceleration = ArmConstants.AngleAcceleration;
         motionMagicConfigs.MotionMagicJerk = ArmConstants.AngleJerk;
 
-        talonConfigs.Feedback.FeedbackRemoteSensorID = wristEncoder.getDeviceID();
+        talonConfigs.Feedback.FeedbackRemoteSensorID = armEncoder.getDeviceID();
         talonConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 
         applyMotorConfigs(armMotor, "armMotor", talonConfigs, inversion);
@@ -564,15 +565,29 @@ public class Arm extends SubsystemBase {
             simulationInitialized = true;
         }
 
+        // Following pattern from:
+        // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/simulation/simulation-intro.html
+        var armMotorSim = armMotor.getSimState();
+
         armMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        double armVoltage = armMotorSim.getMotorVoltage();
-        armMotorModel.setInputVoltage(armVoltage);
+
+        var armVoltage = armMotorSim.getMotorVoltageMeasure();
+
+        armMotorModel.setInputVoltage(armVoltage.in(Volts));
         armMotorModel.update(0.02);
-        armMotorSim.setRotorVelocity(armMotorModel.getAngularVelocityRPM() / 60.0);
+
         armMotorSim.setRawRotorPosition(armMotorModel.getAngularPositionRotations());
+        armMotorSim.setRotorVelocity(armMotorModel.getAngularVelocity());
+
+        // The armEncoder needs to be synchronized from the motor simulation model
+        // This is because the talonConfigs.Feedback.FeedbackRemoteSensorID is set to use the
+        // the encoder.
+        var armEncoderSim = armEncoder.getSimState();
+        armEncoderSim.setVelocity(armMotorModel.getAngularVelocityRadPerSec());
+        armEncoderSim.setRawPosition(armMotorModel.getAngularPositionRotations());
 
         carriageMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        double carriageVoltage = armMotorSim.getMotorVoltage();
+        double carriageVoltage = carriageMotorSim.getMotorVoltage();
         carriageMotorModel.setInputVoltage(carriageVoltage);
         carriageMotorModel.update(0.02);
         carriageMotorSim.setRotorVelocity(carriageMotorModel.getAngularVelocityRPM() / 60.0);
