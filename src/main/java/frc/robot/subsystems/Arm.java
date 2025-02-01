@@ -344,22 +344,17 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/StateActual", actualState);
         Logger.recordOutput("Arm/StateDesired", desiredState);
 
+        // SparkMax Config
         Logger.recordOutput("Arm/WristAngle/DegreesDesired", desiredWristAngle);
         Logger.recordOutput("Arm/WristAngle/DegreesCANCoder", getWristEncoderDegrees());
         Logger.recordOutput("Arm/WristAngle/RotationsCANCoder", wristEncoder.getAbsolutePosition().getValue());
-        // Logger.recordOutput("Arm/WristAngle/DegreesTalon", getTalonEncoderDegrees());
-        // Logger.recordOutput("Arm/WristAngle/MissedSpeakerTargetFrameCount", missedSpeakerTargetFrameCount);
         Logger.recordOutput("Arm/WristAngle/VoltageActual", wristMotor.getEncoder().getVelocity());
-        // Logger.recordOutput("Arm/WristAngle/ClosedLoopError", wristMotor.get
-        // Logger.recordOutput("Arm/WristAngle/SupplyCurrent", wristMotor.get
         Logger.recordOutput("Arm/WristAngle/RPSActual", wristMotor.getEncoder().getVelocity());
-        // Logger.recordOutput("Arm/WristAngle/AccelerationActual", wristMotor.getEncoder().get
 
         Logger.recordOutput("Arm/ArmAngle/DegreesDesired", desiredArmAngle);
         Logger.recordOutput("Arm/ArmAngle/DegreesCANCoder", getArmEncoderDegrees());
         Logger.recordOutput("Arm/ArmAngle/RotationsCANCoder", armEncoder.getAbsolutePosition().getValue());
         Logger.recordOutput("Arm/ArmAngle/DegreesTalon", getArmTalonEncoderDegrees());
-        // Logger.recordOutput("Arm/ArmAngle/MissedSpeakerTargetFrameCount", missedSpeakerTargetFrameCount);
         Logger.recordOutput("Arm/ArmAngle/VoltageActual", armMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopError", armMotor.getClosedLoopError().getValue());
         Logger.recordOutput("Arm/ArmAngle/SupplyCurrent", armMotor.getSupplyCurrent().getValue());

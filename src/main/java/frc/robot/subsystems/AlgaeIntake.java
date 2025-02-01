@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.revrobotics.sim.SparkMaxSim;
@@ -52,7 +54,7 @@ public class AlgaeIntake extends SubsystemBase {
   private final Vision visionSub;
 
   private boolean simulationInitialized = false;
-
+  private boolean isEjecting;
   public AlgaeIntake(Vision visionSub, Drive driveSub) {
 
     intakeMotor = new SparkMax(ElectronicsIDs.AlgaeIntakeMotorID, MotorType.kBrushless);
@@ -95,12 +97,18 @@ public class AlgaeIntake extends SubsystemBase {
     return Units.rotationsToDegrees(liftMotor.getAbsoluteEncoder().getPosition());
   }
 
+  public double getIntakeEncoderDegrees() {
+    return Units.rotationsToDegrees(intakeMotor.getAbsoluteEncoder().getPosition());
+  }
+
   public void startIntaking() {
     intakePidController.setReference(AlgaeConstants.IntakeSpeed, ControlType.kVelocity);
+    isEjecting = false;
   }
 
   public void startEjecting() {
     intakePidController.setReference(AlgaeConstants.EjectSpeed, ControlType.kVelocity);
+    isEjecting = true;
   }
 
   public void stop() {
@@ -113,7 +121,18 @@ public class AlgaeIntake extends SubsystemBase {
   }
 
   private void logData() {
-    // put logging in here
+    Logger.recordOutput("AlgaeIntake/LiftMotor/DegreesDesired", desiredLiftAngle);
+    Logger.recordOutput("AlgaeIntake/LiftMotor/DegreesCANCoder", getLiftEncoderDegrees());
+    Logger.recordOutput("AlgaeIntake/LiftMotor/RotationsCANCoder", liftMotor.getAbsoluteEncoder().getPosition());
+    Logger.recordOutput("AlgaeIntake/LiftMotor/VoltageActual", liftMotor.getEncoder().getVelocity());
+    Logger.recordOutput("AlgaeIntake/LiftMotor/RPSActual", liftMotor.getEncoder().getVelocity());
+    Logger.recordOutput("AlgaeIntake/IntakeMotor/DegreesDesired", desiredIntakeAngle);
+    Logger.recordOutput("AlgaeIntake/IntakeMotor/DegreesCANCoder", getIntakeEncoderDegrees());
+    Logger.recordOutput("AlgaeIntake/IntakeMotor/RotationsCANCoder", intakeMotor.getAbsoluteEncoder().getPosition());
+    Logger.recordOutput("AlgaeIntake/IntakeMotor/VoltageActual", intakeMotor.getEncoder().getVelocity());
+    Logger.recordOutput("AlgaeIntake/IntakeMotor/RPSActual", intakeMotor.getEncoder().getVelocity());
+    Logger.recordOutput("AlgaeIntake/isEjecting", this.isEjecting);
+    Logger.recordOutput("AlgaeIntake/isIntaking", !this.isEjecting);
   }
 
   /* SIMULATION */
