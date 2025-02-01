@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -13,12 +14,16 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -107,6 +112,14 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
+    /** Swerve request to apply during robot-centric path following */
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    /**********************************************************************/
+    /**************************   CONSTRUCTORS   **************************/
+    /**********************************************************************/
+
+
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants. <p>
      * This constructs the underlying hardware devices, so users should not
@@ -120,6 +133,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        configureAutoBuilder();
     }
 
     /** Constructs a CTRE SwerveDrivetrain using the specified constants. <p>
@@ -139,6 +153,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        configureAutoBuilder();
     }
 
     /** Constructs a CTRE SwerveDrivetrain using the specified constants. <p>
@@ -173,6 +188,36 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                 modules);
         if (Utils.isSimulation()) {
             startSimThread();
+        }
+        configureAutoBuilder();
+    }
+
+    private void configureAutoBuilder() {
+        try {
+            var config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                () -> getState().Pose,   // Supplier of current robot pose
+                this::resetPose,         // Consumer for seeding pose against auto
+                () -> getState().Speeds, // Supplier of current robot speeds
+                // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                (speeds, feedforwards) -> setControl(
+                    m_pathApplyRobotSpeeds.withSpeeds(speeds)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                ),
+                new PPHolonomicDriveController(
+                    // PID constants for translation
+                    new PIDConstants(10, 0, 0),
+                    // PID constants for rotation
+                    new PIDConstants(7, 0, 0)
+                ),
+                config,
+                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                this // Subsystem for requirements
+            );
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
     }
 
@@ -231,6 +276,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        logData();
     }
 
     private void startSimThread() {
@@ -326,5 +373,22 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             e.printStackTrace();
         }
         return AutoBuilder.followPath(path);
+    }
+
+    private void logData() {
+        Logger.recordOutput("Drive/StatesActual", getState().ModuleStates);
+        Logger.recordOutput("Drive/Pose", getPose());
+        // Logger.recordOutput("Drive/PoseEstimate", poseEstimator.getEstimatedPosition());
+        Logger.recordOutput("Drive/Heading", getState().RawHeading);
+        // Logger.recordOutput("Drive/Odometry/X", odometry.getPoseMeters().getX());
+        // Logger.recordOutput("Drive/Odometry/Y", odometry.getPoseMeters().getY());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontLeftDrive", frontLeft.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontLeftTurn", frontLeft.getTurnCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontRightDrive", frontRight.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontRightTurn", frontRight.getTurnCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackLeftDrive", backLeft.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackLeftTurn", backLeft.getTurnCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackRightDrive", backRight.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackRightTurn", backRight.getTurnCurrent());
     }
 }
