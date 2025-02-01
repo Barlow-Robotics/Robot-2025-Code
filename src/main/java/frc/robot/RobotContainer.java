@@ -93,8 +93,8 @@ public class RobotContainer {
     private final StopCoralIntake stopCoralIntakeCmd = new StopCoralIntake(coralIntakeSub);
 
     /* CONTROLLERS */
-    private static Joystick driverController;
-    private static Joystick operatorController;
+    /*private*/ static Joystick driverController;
+    /*private*/ static Joystick operatorController;
 
     /* BUTTONS */
     private Trigger resetFieldRelativeButton;
@@ -165,12 +165,20 @@ public class RobotContainer {
 
         driveSub.setDefaultCommand(
             // Drivetrain will execute this command periodically
-            driveSub.applyRequest(() ->
-                drive.withVelocityX(-driverController.getY() * DriveConstants.MaxDriveableVelocity) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driverController.getX() * DriveConstants.MaxDriveableVelocity) // Drive left with negative X (left)
-                    .withRotationalRate(-driverController.getTwist() * DriveConstants.MaxAngularRadiansPerSecond) // Drive counterclockwise with negative X (left)
-            )
-        );
+            driveSub.applyRequest(() -> {
+                // CHANGE deadband values to constants in terms of 0 to 1
+                double xVelocity = MathUtil.applyDeadband(-driverController.getY(), .15/DriveConstants.MaxDriveableVelocity) * DriveConstants.MaxDriveableVelocity; // x and y being switched is intentional!
+                double yVelocity = MathUtil.applyDeadband(-driverController.getX(), .15/DriveConstants.MaxDriveableVelocity)* DriveConstants.MaxDriveableVelocity;
+                double rotVelocity = MathUtil.applyDeadband(-driverController.getTwist(), .25/DriveConstants.MaxAngularRadiansPerSecond) * DriveConstants.MaxAngularRadiansPerSecond;
+                
+                Logger.recordOutput("Drive/XRequestVel", xVelocity);
+                Logger.recordOutput("Drive/YRequestVel", yVelocity);
+                Logger.recordOutput("Drive/ZRequestVel", rotVelocity);
+            
+                return drive.withVelocityX(xVelocity) // Drive forward with negative Y (forward)
+                            .withVelocityY(yVelocity) // Drive left with negative X (left)
+                            .withRotationalRate(rotVelocity); // Drive counterclockwise with negative X (left)
+        }));
 
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);

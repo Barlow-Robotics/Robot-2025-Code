@@ -380,7 +380,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         Logger.recordOutput("Drive/Pose", getPose());
         // Logger.recordOutput("Drive/PoseEstimate", poseEstimator.getEstimatedPosition());
         Logger.recordOutput("Drive/Heading", getState().RawHeading);
-        // Logger.recordOutput("Drive/Odometry/X", odometry.getPoseMeters().getX());
+        Logger.recordOutput("Drive/Odometry/X", getPose().getX());
         // Logger.recordOutput("Drive/Odometry/Y", odometry.getPoseMeters().getY());
         // Logger.recordOutput("Drive/CurrentSupply/FrontLeftDrive", frontLeft.getDriveCurrent());
         // Logger.recordOutput("Drive/CurrentSupply/FrontLeftTurn", frontLeft.getTurnCurrent());
