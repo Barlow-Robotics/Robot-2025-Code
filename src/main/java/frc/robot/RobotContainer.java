@@ -118,6 +118,7 @@ public class RobotContainer {
 
     private Trigger autoAlignButton; // driver button 11
     private Trigger restartGyroButton; // driver button 9
+    private Trigger lockInPlaceButton;
 
     private PIDController noteYawPID;
     private PIDController targetYawPID;
@@ -166,7 +167,9 @@ public class RobotContainer {
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisX),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisY),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate),
-                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), true));
+                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), 
+                        () -> lockInPlaceButton.getAsBoolean(),
+                        true));
 
         configurePathPlanner();
                     }
@@ -187,6 +190,12 @@ public class RobotContainer {
 
         moveToRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         moveToRightButton.onTrue(new InstantCommand(() -> changeToRight(true))).onFalse(new InstantCommand(() -> changeToRight(false)));
+
+        lockInPlaceButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button6);
+        // lockInPlaceButton.getAsBoolean();
+
+        // lockInPlaceButton.onTrue(new InstantCommand(() -> (true))).onFalse(new InstantCommand(() -> changeToRight(false)));
+
     }
 
 
@@ -459,7 +468,7 @@ public class RobotContainer {
                 }
 
             }
-            reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()/*-0.025406 * (Constants.DriveConstants.WheelBase)*/, finalPoseOfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI));
+            reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()+(Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI));
             var waypoints = PathPlannerPath.waypointsFromPoses(
                 new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
                 // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) // vision AprilTag Detection

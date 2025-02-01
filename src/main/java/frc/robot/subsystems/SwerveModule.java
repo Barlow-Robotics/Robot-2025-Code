@@ -191,6 +191,7 @@ public class SwerveModule {
         turnMotor.set(0);
     }
 
+
     public void simulationInit() {
         driveMotorSim.getDouble("Position").set(0.0);
         turnMotorSim.getDouble("Position").set(0.0);
