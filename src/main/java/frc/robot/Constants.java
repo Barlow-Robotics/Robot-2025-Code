@@ -392,4 +392,11 @@ public class Constants {
         public static final double reefOffsetInches = reefSideLengthInches/4; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
+    public static final class UnderGlowConstants {
+        public static final SerialPort.Port Port = SerialPort.Port.kUSB1;
+        public static final int BlueAlliance = 1;
+        public static final int RedAlliance = 2;
+        public static final int NeonGreen = 3;
+    }
+
 }

@@ -85,7 +85,7 @@ import frc.robot.subsystems.Drive;
 // import frc.robot.subsystems.Shooter;
 // import frc.robot.subsystems.ShooterMount;
 // import frc.robot.subsystems.ShooterMount.ShooterMountState;
-// import frc.robot.subsystems.Underglow;
+import frc.robot.subsystems.Underglow;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
@@ -125,6 +125,7 @@ public class RobotContainer {
 
     public final Drive driveSub;
     public final Vision visionSub;
+    public final Underglow underglowSub;
     /* AUTO */
 
     private SendableChooser<Command> autoChooser;
@@ -148,6 +149,7 @@ public class RobotContainer {
         moveToCoral = false; 
         visionSub = new Vision();
         driveSub = new Drive(visionSub);
+        underglowSub = new Underglow();
         noteYawPID = new PIDController(
                 DriveConstants.YawOverrideAlignNoteKP,
                 DriveConstants.YawOverrideAlignNoteKI,
