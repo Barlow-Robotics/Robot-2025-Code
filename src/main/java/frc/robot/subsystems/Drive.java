@@ -2,13 +2,19 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.io.IOException;
 import java.util.function.Supplier;
+
+import org.json.simple.parser.ParseException;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.TunerConstants.TunerSwerveDrivetrain;
@@ -281,5 +288,43 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             Matrix<N3, N1> visionMeasurementStdDevs) {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
+    }
+
+    public Pose2d getPose() {
+        return getState().Pose;
+    }
+
+    // public void resetOdometry() {
+    //     this::resetPose
+    // }
+
+    public Command ChoreoAuto(String name) {
+        try {
+                PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(name);
+                return AutoBuilder.followPath(path).alongWith(Commands.runOnce(() -> resetPose(path.getStartingDifferentialPose())));
+                // return AutoBuilder.followPath(path).alongWith(Commands.runOnce(() -> resetOdometry(path.getStartingDifferentialPose())));
+                // Do something with the path
+        } catch (IOException e) {
+                e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+        } catch (ParseException e) {
+                e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+        }
+        return Commands.none();
+        }
+    public Command ChoreoAutoWithoutReset(String name) {
+        PathPlannerPath path /* may need to get rid of that -> */ = null;
+        try {
+                path = PathPlannerPath.fromChoreoTrajectory(name);
+                // Do something with the path
+        } catch (IOException e) {
+                e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+                path = null;
+        } catch (ParseException e) {
+                e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+                path = null;
+        } catch (FileVersionException e) {
+            e.printStackTrace();
+        }
+        return AutoBuilder.followPath(path);
     }
 }
