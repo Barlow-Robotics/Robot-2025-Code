@@ -18,36 +18,32 @@ public class Underglow extends SubsystemBase {
     int currentMode = 1;
 
     public Underglow() {
-        try {
-            port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
-        } catch (Exception ex) {
-
-        }
+        port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
     }
 
     @Override
     public void periodic() {
-        int desiredMode = Constants.UnderGlowConstants.NeonGreen;
+        int desiredMode = Constants.UnderGlowConstants.CoralLoaded;
 
-        if (DriverStation.isEnabled()) {
-            if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-                desiredMode = Constants.UnderGlowConstants.BlueAlliance;
-            } else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
-                desiredMode = Constants.UnderGlowConstants.RedAlliance;
-            }
-        } else {
-            desiredMode = Constants.UnderGlowConstants.NeonGreen;
-        }
+        // if (DriverStation.isEnabled()) {
+        //     if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+        //         desiredMode = Constants.UnderGlowConstants.BlueAlliance;
+        //     } else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+        //         desiredMode = Constants.UnderGlowConstants.RedAlliance;
+        //     }
+        // } else {
+        //     desiredMode = Constants.UnderGlowConstants.NeonGreen;
+        // }
 
-        if (currentMode != desiredMode && port != null) {
-            try {
-                port.write(new byte[] { (byte) desiredMode }, 1);
-                Logger.recordOutput("Underglow/byte", ((byte) desiredMode));
-            } catch (Exception ex) {
-                Logger.recordOutput("Underglow/problem", ex.toString());
-            }
-            currentMode = desiredMode;
-        }
+        // if (currentMode != desiredMode && port != null) {
+            // try {
+        port.write(new byte[] { (byte) desiredMode }, 1);
+        Logger.recordOutput("Underglow/byte", ((byte) desiredMode));
+            // } catch (Exception ex) {
+            // Logger.recordOutput("Underglow/problem", ex.toString());
+            // }
+        currentMode = desiredMode;
+        
         Logger.recordOutput("Underglow/desiredMode", desiredMode);
 
     }

@@ -397,6 +397,7 @@ public class Constants {
         public static final int BlueAlliance = 1;
         public static final int RedAlliance = 2;
         public static final int NeonGreen = 3;
+        public static final int CoralLoaded = 4;
     }
 
 }
