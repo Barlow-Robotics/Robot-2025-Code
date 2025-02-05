@@ -118,6 +118,7 @@ public class RobotContainer {
     
     private Trigger intakeCoralButton;
     private Trigger ejectCoralButton;
+    private Trigger shooterButton;
     
     /* PID */
     private PIDController noteYawPID;
@@ -171,6 +172,18 @@ public class RobotContainer {
                 double yVelocity = MathUtil.applyDeadband(-driverController.getX(), .15/DriveConstants.MaxDriveableVelocity)* DriveConstants.MaxDriveableVelocity;
                 double rotVelocity = MathUtil.applyDeadband(-driverController.getTwist(), .25/DriveConstants.MaxAngularRadiansPerSecond) * DriveConstants.MaxAngularRadiansPerSecond;
                 
+                xVelocity = 0.0;
+                
+                // if (clicking shooter button) {
+                if (shooterButton.getAsBoolean()) {
+                    rotVelocity = Math.signum(rotVelocity) * 0.5;
+                }
+                else {
+                    rotVelocity = 0;
+                }
+                System.out.println(shooterButton.getAsBoolean());
+                // }
+
                 Logger.recordOutput("Drive/XRequestVel", xVelocity);
                 Logger.recordOutput("Drive/YRequestVel", yVelocity);
                 Logger.recordOutput("Drive/ZRequestVel", rotVelocity);
@@ -246,6 +259,10 @@ public class RobotContainer {
         
         intakeCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         intakeCoralButton.onTrue(intakeCoralCmd).onFalse(stopCoralIntakeCmd);
+
+        shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
+
+
  
     }
 
