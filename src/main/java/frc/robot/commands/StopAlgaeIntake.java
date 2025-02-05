@@ -26,7 +26,7 @@ public class StopAlgaeIntake extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    algaeIntakeSub.stop();
+    algaeIntakeSub.stopIntakeMotor();
   }
 
   // Called once the command ends or is interrupted.
