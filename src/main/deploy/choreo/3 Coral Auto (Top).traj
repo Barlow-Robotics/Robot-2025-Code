@@ -212,20 +212,20 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Marker", "from":{"target":0, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+   {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
        {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
-   {"name":"Marker", "from":{"target":1, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+   {"name":"Marker", "from":{"target":1, "targetTimestamp":1.10386, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}},
        {"type":"named", "data":{"name":"setPositionHPS"}}]}}},
-   {"name":"Marker", "from":{"target":3, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+   {"name":"Marker", "from":{"target":3, "targetTimestamp":2.53072, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startIntake"}},
        {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
-   {"name":"Marker", "from":{"target":4, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+   {"name":"Marker", "from":{"target":4, "targetTimestamp":3.65793, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}},
        {"type":"named", "data":{"name":"setPositionHPS"}}]}}},
-   {"name":"Marker", "from":{"target":5, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+   {"name":"Marker", "from":{"target":5, "targetTimestamp":4.78513, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startIntake"}},
        {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
-   {"name":"Marker", "from":{"target":6, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+   {"name":"Marker", "from":{"target":6, "targetTimestamp":5.91234, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
        {"type":"named", "data":{"name":"setOuttake"}}]}}}]
 }
