@@ -32,6 +32,7 @@ public class CoralIntake extends SubsystemBase {
   DCMotorSim intakeMotorModel;
   public final SparkClosedLoopController intakePidController;
   private boolean simulationInitialized = false;
+  private boolean isEjecting;
 
   private final Drive driveSub;
   private final Vision visionSub;
@@ -59,13 +60,15 @@ public class CoralIntake extends SubsystemBase {
 
   public void startIntaking() {
     intakeMotor.getClosedLoopController().setReference(CoralConstants.IntakeSpeed, ControlType.kVelocity);
+    isEjecting = false;
   }
 
   public void startEjecting() {
     // NEED TO FIX // should be differents speed (need to make new constant)
     intakeMotor.getClosedLoopController().setReference(CoralConstants.EjectSpeed, ControlType.kVelocity);
+    isEjecting = true;
   }
-  public double getIntakeMotorDegrees() {
+  public double getIntakeEncoderDegrees() {
     return Units.rotationsToDegrees(intakeMotor.getAbsoluteEncoder().getPosition());
   }
 
@@ -74,7 +77,14 @@ public class CoralIntake extends SubsystemBase {
   }
  /* LOGGING */
   private void logData() {
-    // put logging in here
+    Logger.recordOutput("CoralIntake/IntakeMotor/DegreesCANCoder", getIntakeEncoderDegrees());
+    Logger.recordOutput("CoralIntake/IntakeMotor/RotationsCANCoder", intakeMotor.getAbsoluteEncoder().getPosition());
+    Logger.recordOutput("CoralIntake/IntakeMotor/VoltageActual", intakeMotor.getEncoder().getVelocity());
+    Logger.recordOutput("CoralIntake/IntakeMotor/RPSActual", intakeMotor.getEncoder().getVelocity());
+
+    Logger.recordOutput("CoralIntake/isEjecting", this.isEjecting);
+    Logger.recordOutput("CoralIntake/isIntaking", !this.isEjecting);
+
   }
   /* SIMULATION */
 
