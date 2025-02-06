@@ -1,9 +1,16 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonTrackedTarget;
+
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
@@ -23,6 +30,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -38,7 +46,7 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
-import frc.robot.commands.DriveRobot;
+// import frc.robot.commands.DriveRobot;
 import frc.robot.commands.EjectCoral;
 import frc.robot.commands.IntakeCoral;
 import frc.robot.commands.SetArmPosition;
@@ -57,7 +65,7 @@ import frc.robot.subsystems.Vision;
 public class RobotContainer {
 
     /* SUBSYSTEMS */
-    public Drive driveSub = new Drive();
+    public Drive driveSub = TunerConstants.createDrivetrain();
     public Vision visionSub = new Vision();
     public final Arm armSub = new Arm(visionSub, driveSub);
     public final Climb climbSub = new Climb();
@@ -85,10 +93,12 @@ public class RobotContainer {
     private final StopCoralIntake stopCoralIntakeCmd = new StopCoralIntake(coralIntakeSub);
 
     /* CONTROLLERS */
-    private static Joystick driverController;
-    private static Joystick operatorController;
+    /*private*/ static Joystick driverController;
+    /*private*/ static Joystick operatorController;
 
     /* BUTTONS */
+    private Trigger resetFieldRelativeButton;
+
     private Trigger moveToCoralButton;
 
     private Trigger autoAlignButton; // driver button 11
@@ -108,6 +118,7 @@ public class RobotContainer {
     
     private Trigger intakeCoralButton;
     private Trigger ejectCoralButton;
+    private Trigger shooterButton;
     
     /* PID */
     private PIDController noteYawPID;
@@ -117,8 +128,14 @@ public class RobotContainer {
     private SendableChooser<Command> autoChooser;
     boolean moveToCoral;
 
-    // private final RobotCommunicator communicator;
-    // private RobotController robotController;
+    /* DRIVE STUFF */
+
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1).withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
     public RobotContainer() {
         // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
         // Dispatch Thread
@@ -130,9 +147,9 @@ public class RobotContainer {
         // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // frame.add(robotController); frame.pack(); frame.setVisible(true);
         // });
+        
         moveToCoral = false;
-        // driveSub = new Drive();
-        // visionSub = new Vision();
+
         noteYawPID = new PIDController(
                 DriveConstants.YawOverrideAlignNoteKP,
                 DriveConstants.YawOverrideAlignNoteKI,
@@ -146,13 +163,38 @@ public class RobotContainer {
         targetYawPID.setSetpoint(0.0);
 
         configureBindings();
+
         driveSub.setDefaultCommand(
-                new DriveRobot(
-                        driveSub,
-                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisX),
-                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisY),
-                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate),
-                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), true));
+            // Drivetrain will execute this command periodically
+            driveSub.applyRequest(() -> {
+                // CHANGE deadband values to constants in terms of 0 to 1
+                double xVelocity = MathUtil.applyDeadband(-driverController.getY(), .15/DriveConstants.MaxDriveableVelocity) * DriveConstants.MaxDriveableVelocity; // x and y being switched is intentional!
+                double yVelocity = MathUtil.applyDeadband(-driverController.getX(), .15/DriveConstants.MaxDriveableVelocity)* DriveConstants.MaxDriveableVelocity;
+                double rotVelocity = MathUtil.applyDeadband(-driverController.getTwist(), .25/DriveConstants.MaxAngularRadiansPerSecond) * DriveConstants.MaxAngularRadiansPerSecond;
+                
+                xVelocity = 0.0;
+                
+                // if (clicking shooter button) {
+                if (shooterButton.getAsBoolean()) {
+                    rotVelocity = Math.signum(rotVelocity) * 0.5;
+                }
+                else {
+                    rotVelocity = 0;
+                }
+                System.out.println(shooterButton.getAsBoolean());
+                // }
+
+                Logger.recordOutput("Drive/XRequestVel", xVelocity);
+                Logger.recordOutput("Drive/YRequestVel", yVelocity);
+                Logger.recordOutput("Drive/ZRequestVel", rotVelocity);
+            
+                return drive.withVelocityX(xVelocity) // Drive forward with negative Y (forward)
+                            .withVelocityY(yVelocity) // Drive left with negative X (left)
+                            .withRotationalRate(rotVelocity); // Drive counterclockwise with negative X (left)
+        }));
+
+        autoChooser = AutoBuilder.buildAutoChooser("Tests");
+        SmartDashboard.putData("Auto Mode", autoChooser);
 
         configurePathPlanner();
     }
@@ -165,8 +207,12 @@ public class RobotContainer {
 
         autoAlignButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
 
-        restartGyroButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
-        restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
+        // restartGyroButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
+        // restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
+
+        // reset the field-centric heading on left bumper press
+        resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
+        resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
         moveToCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button8);
         moveToCoralButton.onTrue(new InstantCommand(() -> changeCoralVision(true)))
@@ -213,6 +259,10 @@ public class RobotContainer {
         
         intakeCoralButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         intakeCoralButton.onTrue(intakeCoralCmd).onFalse(stopCoralIntakeCmd);
+
+        shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
+
+
  
     }
 
@@ -228,27 +278,27 @@ public class RobotContainer {
             config = null;
         }
 
-        /* PATHPLANNER INIT */
-        AutoBuilder.configure(
-                driveSub::getPose, // Robot pose supplier
-                driveSub::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-                driveSub::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> driveSub.driveRobotRelative(speeds), // Method that will drive the robot given
-                                                                               // ROBOT RELATIVE ChassisSpeeds
-                new PPHolonomicDriveController(
-                        new PIDConstants(5, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5, 0.0, 0.5) // Rotation PID constants
-                ),
-                config,
-                () -> {
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                driveSub);
-
+        // /* PATHPLANNER INIT */
+        // AutoBuilder.configure(
+                // driveSub::getPose, // Robot pose supplier
+                // driveSub::resetPose //driveSub::restOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+                // driveSub::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                // (speeds, feedforwards) -> driveSub.driveRobotRelative(speeds), // Method that will drive the robot given
+                //                                                                // ROBOT RELATIVE ChassisSpeeds
+                // new PPHolonomicDriveController(
+                //         new PIDConstants(5, 0.0, 0.0), // Translation PID constants
+                //         new PIDConstants(5, 0.0, 0.5) // Rotation PID constants
+                // ),
+                // config,
+                // () -> {
+                //     var alliance = DriverStation.getAlliance();
+                //     if (alliance.isPresent()) {
+                //         return alliance.get() == DriverStation.Alliance.Red;
+                //     }
+                //     return false;
+                // },
+                // driveSub);
+        // 
         // NamedCommands.registerCommand("StartShooterIntake", startShooterIntakeCmd);
         // NamedCommands.registerCommand("StopShooterIntake", stopShooterIntakeCmd);
         // NamedCommands.registerCommand("SetShooterMountPositionAmp",
