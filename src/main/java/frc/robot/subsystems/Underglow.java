@@ -18,11 +18,23 @@ public class Underglow extends SubsystemBase {
     int currentMode = 1;
 
     public Underglow() {
-        port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
+        try {
+            port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
+        } catch (Exception e) {
+            port = null;
+        }
     }
 
     @Override
     public void periodic() {
+        if (port == null) {
+            try {
+                port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
+            } catch (Exception e) {
+                port = null;
+            }
+        }
+        else {
         int desiredMode = Constants.UnderGlowConstants.CoralLoaded;
 
         // if (DriverStation.isEnabled()) {
@@ -45,6 +57,6 @@ public class Underglow extends SubsystemBase {
         currentMode = desiredMode;
         
         Logger.recordOutput("Underglow/desiredMode", desiredMode);
-
+        }
     }
 }
