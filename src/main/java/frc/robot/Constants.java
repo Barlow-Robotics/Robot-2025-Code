@@ -227,10 +227,10 @@ public class Constants {
         public static final double Level2ArmAngle = 20; // CHANGE
         public static final double Level3ArmAngle = 30; // CHANGE
         public static final double Level4ArmAngle = 40; // CHANGE
-        public static final double Level1WristAngle = 10; // CHANGE
-        public static final double Level2WristAngle = 20; // CHANGE
-        public static final double Level3WristAngle = 30; // CHANGE
-        public static final double Level4WristAngle = 40; // CHANGE
+        public static final double Level1WristAngle = 0; // CHANGE
+        public static final double Level2WristAngle = 90; // CHANGE
+        public static final double Level3WristAngle = 90; // CHANGE
+        public static final double Level4WristAngle = 90; // CHANGE
 
         public static final double Level1ElevatorHeight = 5; // CHANGE
         public static final double Level2ElevatorHeight = 10; // CHANGE
@@ -241,27 +241,27 @@ public class Constants {
         public static final double Level3CarriageHeight = 15; // CHANGE
         public static final double Level4CarriageHeight = 20; // CHANGE
 
-        public static final double AngleKP = 30; // CHANGE
-        public static final double AngleKI = 0.000; // CHANGE
-        public static final double AngleKD = 1.5; // CHANGE
-        public static final double AngleFF = 0; // CHANGE
-        public static final double AngleKG = 0.29; // CHANGE
-        public static final double AngleCruiseRotationsPerSec = 3; // CHANGE
-
-        public static final double AngleAcceleration = 12; // CHANGE
-        public static final double AngleJerk = 40; // CHANGE
-
-        public static final double CoralWristAngle = -40; // CHANGE
+        public static final double CoralWristAngle = 90; // CHANGE
         public static final double CoralElevatorHeight = 25; // CHANGE
         public static final double CoralCarriageHeight = 22; // CHANGE
         public static final double CoralArmAngle = -20; // CHANGE
+
+        public static final double GrabbingCoralWristAngle = 90; // CHANGE
+        public static final double GrabbingCoralElevatorHeight = 25; // CHANGE
+        public static final double GrabbingCoralCarriageHeight = 22; // CHANGE
+        public static final double GrabbingCoralArmAngle = -20; // CHANGE
+
+        public static final double AutoCoralWristAngle = 90; // CHANGE
+        public static final double AutoCoralElevatorHeight = 25; // CHANGE
+        public static final double AutoCoralCarriageHeight = 22; // CHANGE
+        public static final double AutoCoralArmAngle = -20; // CHANGE
         
         public static final double AlgaeHighArmAngle = 70; // CHANGE
-        public static final double AlgaeHighWristAngle = 50; // CHANGE
+        public static final double AlgaeHighWristAngle = 0; // CHANGE
         public static final double AlgaeHighElevatorHeight = 21; // CHANGE
         public static final double AlgaeHighCarriageHeight = 23; // CHANGE
 
-        public static final double AlgaeLowWristAngle = 20; // CHANGE
+        public static final double AlgaeLowWristAngle = 0; // CHANGE
         public static final double AlgaeLowArmAngle = 25; // CHANGE
         public static final double AlgaeLowElevatorHeight = 15; // CHANGE
         public static final double AlgaeLowCarriageHeight = 13; // CHANGE
@@ -271,6 +271,16 @@ public class Constants {
         public static final double ElevatorHeightTolerance = 0.25;// CHANGE
         public static final double CarriageHeightTolerance = 0.25;// CHANGE
 
+        public static final double AngleKP = 30; // CHANGE
+        public static final double AngleKI = 0.000; // CHANGE
+        public static final double AngleKD = 1.5; // CHANGE
+        public static final double AngleFF = 0; // CHANGE
+        public static final double AngleKG = 0.29; // CHANGE
+        public static final double AngleCruiseRotationsPerSec = 3; // CHANGE
+
+        public static final double AngleAcceleration = 12; // CHANGE
+        public static final double AngleJerk = 40; // CHANGE
+        
         /* ELEVATOR */
 
         public static final double MaxHeightInches = 45; // CHANGE

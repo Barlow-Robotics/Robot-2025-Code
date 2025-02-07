@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+
 // import static edu.wpi.first.units.Units.Amp;
 
 import org.littletonrobotics.junction.Logger;
@@ -49,11 +51,16 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.ArmConstants;
 //import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
+import frc.robot.commands.ElevatorState;
 import frc.robot.sim.PhysicsSim;
 //import frc.robot.subsystems.Vision.TargetToAlign;
 import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
+
+    private final HashMap<ArmState, ElevatorState> positionDictionary = new HashMap<ArmState, ElevatorState>();
+    // include intake speeds, in dictionary, speed that intake runs at. 
+    // Remember to increase the capacity of the hashmap, it's default 16
 
     TalonFX armMotor;
     private final TalonFXSimState armMotorSim;
