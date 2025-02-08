@@ -26,15 +26,13 @@ public class DriveRobot extends Command {
     Supplier<Double> yInput;
     Supplier<Double> rotInput;
     Supplier<Double> multiplierInput;
-    Supplier<Boolean> usingHoldButton;
-
+        
     public DriveRobot(
         Drive driveSub,
         Supplier<Double> x, 
         Supplier<Double> y, 
         Supplier<Double> rot, 
         Supplier<Double> multiplier,
-        Supplier<Boolean> holdButton,
         boolean FieldRelative) {
 
         this.driveSub = driveSub;
@@ -42,7 +40,6 @@ public class DriveRobot extends Command {
         this.yInput = y;
         this.rotInput = rot;
         this.multiplierInput = multiplier;
-        this.usingHoldButton = holdButton;
         this.FieldRelative = FieldRelative;
 
         addRequirements(driveSub);
@@ -66,7 +63,7 @@ public class DriveRobot extends Command {
         double speedY = MathUtil.applyDeadband(xInput.get(), DeadBand) * (DriveConstants.MaxDriveableVelocity * maxVelocityMultiplier);
         double speedRot = MathUtil.applyDeadband(rotInput.get(), 2*DeadBand) * DriveConstants.MaxAngularRadiansPerSecond;
 
-        driveSub.drive(speedX, speedY, speedRot, FieldRelative, usingHoldButton.get());   
+        driveSub.drive(speedX, speedY, speedRot, FieldRelative);   
 
         Logger.recordOutput("Drive/YawInput", speedRot);
         Logger.recordOutput("Drive/XSpeed", speedY);
@@ -76,7 +73,7 @@ public class DriveRobot extends Command {
 
     // rride
     public void end(boolean interrupted) {
-        driveSub.drive(0, 0, 0, true, false);
+        driveSub.drive(0, 0, 0, true);
     }
 
     @Override

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 
 
 public class Robot extends LoggedRobot {
@@ -55,15 +56,40 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Controllers/Driver", currentDriverController);
     Logger.recordOutput("Controllers/Operator", currentOperatorController);
     Logger.recordOutput("vision/reefAutoTargetPose", robotContainer.reefAutoTargetPose);
-
+    Logger.recordOutput("vision/differenceInPosition", Units.metersToFeet(Math.abs(robotContainer.driveSub.getPredictedPose().getX()- robotContainer.reefAutoTargetPose.getX())));
     CommandScheduler.getInstance().run();
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
+    if (selectedAutoCommand != null) {
+      selectedAutoCommand.cancel();
+      currentlyFollowingAPath = false;
+      selectedAutoCommand = null;
+    }
+
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+      selectedAutoCommand = null;
+      currentTeleopCommand = null;
+
+    }
+    if (selectedAutoCommand != null) {
+      selectedAutoCommand.cancel();
+      currentlyFollowingAPath = false;
+      selectedAutoCommand = null;
+      currentTeleopCommand = null;
+
+    }
+
+  }
 
   @Override
   public void disabledExit() {}
@@ -93,14 +119,18 @@ public class Robot extends LoggedRobot {
       selectedAutoCommand.cancel();
       currentlyFollowingAPath = false;
       selectedAutoCommand = null;
+      currentTeleopCommand = null;
+      
     }
   }
 
   @Override
   public void teleopPeriodic() {    
     if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-      selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
-
+      if (currentTeleopCommand == null) {
+        selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
+      }
+      
       if (!currentlyFollowingAPath && selectedAutoCommand != null) {
           currentlyFollowingAPath = true;
           currentTeleopCommand = selectedAutoCommand;
@@ -111,13 +141,18 @@ public class Robot extends LoggedRobot {
         currentlyFollowingAPath = false;
         if (currentTeleopCommand != null) {
           currentTeleopCommand.cancel();
+          selectedAutoCommand = null;
+          currentTeleopCommand = null;
+
         }
-        currentTeleopCommand = null;
     }
     if (currentlyFollowingAPath) {
       if (Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisX)) > 0.5 ||Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisY )) > 0.5  ) {
         if (currentTeleopCommand != null) {
           currentTeleopCommand.cancel();
+          selectedAutoCommand = null;
+          currentTeleopCommand = null;
+    
         }
       }
     }

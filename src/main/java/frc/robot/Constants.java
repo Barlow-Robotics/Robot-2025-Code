@@ -59,7 +59,7 @@ public class Constants {
 
         public static final Transform3d TargetCamToRobot =
                 new Transform3d(
-                    new Translation3d(0.0, Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
+                    new Translation3d(Units.inchesToMeters(2), Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
                     new Rotation3d(0, Units.degreesToRadians(5), 0));
         public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
 
@@ -125,7 +125,7 @@ public class Constants {
     public static final class DriveConstants {
 
         public static final boolean GyroReversed = false;
-
+        public static final double distanceToFrontOfRobot = Units.inchesToMeters(22); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
@@ -392,12 +392,4 @@ public class Constants {
         public static final double reefOffsetInches = reefSideLengthInches/4; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
-    public static final class UnderGlowConstants {
-        public static final SerialPort.Port Port = SerialPort.Port.kUSB1;
-        public static final int BlueAlliance = 1;
-        public static final int RedAlliance = 2;
-        public static final int NeonGreen = 3;
-        public static final int CoralLoaded = 4;
-    }
-
 }

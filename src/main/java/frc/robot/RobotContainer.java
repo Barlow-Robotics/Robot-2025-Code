@@ -85,7 +85,7 @@ import frc.robot.subsystems.Drive;
 // import frc.robot.subsystems.Shooter;
 // import frc.robot.subsystems.ShooterMount;
 // import frc.robot.subsystems.ShooterMount.ShooterMountState;
-import frc.robot.subsystems.Underglow;
+// import frc.robot.subsystems.Underglow;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
@@ -106,6 +106,7 @@ public class RobotContainer {
     private Trigger piviotToPoint;
     private Trigger moveToCoralButton;
     private Trigger moveToRightButton;
+    private Trigger resetOdometryToVision;
 
     // private Trigger climbAbortButton; // right stick
 
@@ -118,14 +119,12 @@ public class RobotContainer {
 
     private Trigger autoAlignButton; // driver button 11
     private Trigger restartGyroButton; // driver button 9
-    private Trigger lockInPlaceButton;
 
     private PIDController noteYawPID;
     private PIDController targetYawPID;
 
     public final Drive driveSub;
     public final Vision visionSub;
-    public final Underglow underglowSub;
     /* AUTO */
 
     private SendableChooser<Command> autoChooser;
@@ -149,7 +148,6 @@ public class RobotContainer {
         moveToCoral = false; 
         visionSub = new Vision();
         driveSub = new Drive(visionSub);
-        underglowSub = new Underglow();
         noteYawPID = new PIDController(
                 DriveConstants.YawOverrideAlignNoteKP,
                 DriveConstants.YawOverrideAlignNoteKI,
@@ -169,9 +167,7 @@ public class RobotContainer {
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisX),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisY),
                         () -> -driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate),
-                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), 
-                        () -> lockInPlaceButton.getAsBoolean(),
-                        true));
+                        () -> -driverController.getRawAxis(LogitechExtreme3DConstants.Slider), true));
 
         configurePathPlanner();
                     }
@@ -181,6 +177,7 @@ public class RobotContainer {
         operatorController = new Joystick(ElectronicsIDs.OperatorControllerPort);
 
         /***************** DRIVE *****************/
+        
 
         autoAlignButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
 
@@ -193,11 +190,8 @@ public class RobotContainer {
         moveToRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         moveToRightButton.onTrue(new InstantCommand(() -> changeToRight(true))).onFalse(new InstantCommand(() -> changeToRight(false)));
 
-        lockInPlaceButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button6);
-        // lockInPlaceButton.getAsBoolean();
-
-        // lockInPlaceButton.onTrue(new InstantCommand(() -> (true))).onFalse(new InstantCommand(() -> changeToRight(false)));
-
+        resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
+        resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetOdometry(driveSub.getPredictedPose())));
     }
 
 
@@ -261,6 +255,7 @@ public class RobotContainer {
                     if (alliance.isPresent() && DriverStation.isAutonomous()) {
                         return alliance.get() == DriverStation.Alliance.Red;
                     }
+
                     return false; 
                 },
                 driveSub);
@@ -326,6 +321,8 @@ public class RobotContainer {
                 (targetPose) -> {
                     Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
                 });
+
+        // Logger.recordOutput(, nu);
     }
 
     // public Optional<Rotation2d> getRotationTargetOverride(){
@@ -380,7 +377,9 @@ public class RobotContainer {
         Pose2d drivePose = driveSub.getPose();
         if (usingOdometryUpdate) {
             drivePose = driveSub.getPredictedPose();
+            driveSub.resetOdometry(drivePose);
         }
+
         double targetX = -1000;
         double targetY = -1000;
         double targetZ = -1000;
@@ -470,7 +469,7 @@ public class RobotContainer {
                 }
 
             }
-            reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()+(Constants.DriveConstants.WheelBase), finalPoseOfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI));
+            reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()+Constants.DriveConstants.distanceToFrontOfRobot/*-0.025406 * (Constants.DriveConstants.WheelBase)*/, finalPoseOfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef), new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI));
             var waypoints = PathPlannerPath.waypointsFromPoses(
                 new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
                 // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) // vision AprilTag Detection

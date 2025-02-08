@@ -16,7 +16,6 @@ import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -185,6 +184,7 @@ public class Drive extends SubsystemBase {
                 lastPose2d = currPose2d;
         }
         currPose2d = this.getPose();
+        
     }
 
     private void logData(SwerveModuleState[] swerveModuleActualStates) {
@@ -270,9 +270,6 @@ public class Drive extends SubsystemBase {
                 pose);
     }
 
-
-    
-
     // public void drive(double xSpeed, double ySpeed, double rot, boolean
     // fieldRelative) {
     // var swerveModuleDesiredStates =
@@ -292,39 +289,21 @@ public class Drive extends SubsystemBase {
 
     // }
 
-    public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean setHoldPosition) {
-        if (setHoldPosition) {
-                holdSwervePosition();
-        }
-        else {
-                var swerveModuleDesiredStates = DriveConstants.kinematics.toSwerveModuleStates(
-                        fieldRelative
-                                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot,
-                                        navX.getRotation2d())
-                                : ChassisSpeeds.discretize(
-                                        new ChassisSpeeds(xSpeed, ySpeed, rot),
-                                        DriveConstants.TimestepDurationInSeconds));
-                SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleDesiredStates,
-                        DriveConstants.MaxDriveableVelocity);
-                frontLeft.setDesiredState(swerveModuleDesiredStates[0]);
-                frontRight.setDesiredState(swerveModuleDesiredStates[1]);
-                backLeft.setDesiredState(swerveModuleDesiredStates[2]);
-                backRight.setDesiredState(swerveModuleDesiredStates[3]);
-
-                Logger.recordOutput("Drive/StatesDesired", swerveModuleDesiredStates);
-        }
-    }
-
-    public void holdSwervePosition() {
-        SwerveModuleState[] swerveModuleDesiredStates = new SwerveModuleState[4];
-        swerveModuleDesiredStates[0] = new SwerveModuleState(0, new Rotation2d(Math.toRadians(45)));
-        swerveModuleDesiredStates[1] = new SwerveModuleState(0, new Rotation2d(Math.toRadians(-45)));
-        swerveModuleDesiredStates[2] = new SwerveModuleState(0, new Rotation2d(Math.toRadians(135)));
-        swerveModuleDesiredStates[3] = new SwerveModuleState(0, new Rotation2d(Math.toRadians(-135)));
+    public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+        var swerveModuleDesiredStates = DriveConstants.kinematics.toSwerveModuleStates(
+                fieldRelative
+                        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot,
+                                navX.getRotation2d())
+                        : ChassisSpeeds.discretize(
+                                new ChassisSpeeds(xSpeed, ySpeed, rot),
+                                DriveConstants.TimestepDurationInSeconds));
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleDesiredStates,
+                DriveConstants.MaxDriveableVelocity);
         frontLeft.setDesiredState(swerveModuleDesiredStates[0]);
         frontRight.setDesiredState(swerveModuleDesiredStates[1]);
         backLeft.setDesiredState(swerveModuleDesiredStates[2]);
         backRight.setDesiredState(swerveModuleDesiredStates[3]);
+
         Logger.recordOutput("Drive/StatesDesired", swerveModuleDesiredStates);
     }
 
@@ -348,8 +327,6 @@ public class Drive extends SubsystemBase {
         backLeft.setDesiredState(desiredStates[2]);
         backRight.setDesiredState(desiredStates[3]);
     }
-
-
 
     public void stop() {
         frontLeft.stop();
