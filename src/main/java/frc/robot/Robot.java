@@ -5,6 +5,8 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -15,7 +17,9 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechExtreme3DConstants;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -48,9 +52,11 @@ public class Robot extends LoggedRobot {
     robotContainer.visionSub.periodic();
     String currentDriverController = DriverStation.getJoystickName(ElectronicsIDs.DriverControllerPort);
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
-    Logger.recordOutput("Controllers/Driver", currentDriverController);
-    Logger.recordOutput("Controllers/Operator", currentOperatorController);
-
+    Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
+    // Logger.recordOutput("Controllers/Driver/X_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisX));
+    // Logger.recordOutput("Controllers/Driver/Y_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisY));
+    // Logger.recordOutput("Controllers/Driver/Twist_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate));
+    Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
     CommandScheduler.getInstance().run();
   }
 

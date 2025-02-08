@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
+import java.util.HashMap;
 
 // import static edu.wpi.first.units.Units.Amp;
 
@@ -47,10 +48,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Robot;
+import frc.robot.commands.ElevatorState;
 import frc.robot.sim.PhysicsSim;
 import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
+
+    private final HashMap<ArmState, ElevatorState> positionDictionary = new HashMap<ArmState, ElevatorState>();
+    // include intake speeds, in dictionary, speed that intake runs at. 
+    // Remember to increase the capacity of the hashmap, it's default 16
 
     TalonFX armMotor;
     private final DCMotorSim armMotorModel = new DCMotorSim(
