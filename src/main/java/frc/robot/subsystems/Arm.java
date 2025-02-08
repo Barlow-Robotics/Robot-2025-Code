@@ -32,6 +32,8 @@ import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -39,6 +41,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElectronicsIDs;
@@ -64,6 +67,8 @@ public class Arm extends SubsystemBase {
     private final SparkMaxSim wristMotorSim;
     private final CANcoder wristEncoder; 
     private final CANcoderSimState wristEncoderSim;
+    private final DCMotorSim wristMotorModel = new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
     
     TalonFX leftElevatorMotor;
     private final TalonFXSimState leftElevatorMotorSim;
@@ -124,14 +129,16 @@ public class Arm extends SubsystemBase {
         applyElevatorMotorConfigs(rightElevatorMotor, "rightElevatorMotor", InvertedValue.Clockwise_Positive);
         applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
-        this.driveSub = driveSub;
-        this.visionSub = visionSub;
         rightElevatorMotor.setControl(new Follower(leftElevatorMotor.getDeviceID(), true));
 
         wristMotorConfig.closedLoop
             .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
             .iZone(ArmConstants.WristIZone)
             .outputRange(-1, 1);        
+        wristMotor.configure(wristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        this.driveSub = driveSub;
+        this.visionSub = visionSub;
     }
 
     private void setDesiredAnglesAndHeights() {
@@ -208,7 +215,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristMotor.getClosedLoopController().setReference(desiredDegrees, ControlType.kPosition);
+        wristMotor.getClosedLoopController().setReference(Units.degreesToRadians(desiredDegrees), ControlType.kPosition);
     }
 
     public void stopWristMotor() {
@@ -595,12 +602,10 @@ public class Arm extends SubsystemBase {
         // Wrist Motor Sim
         
         wristMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
-        // wristMotorSim.setPosition(wristMotor.getAbsoluteEncoder().getPosition());
-
-        double currentWristAngle = getWristEncoderDegrees();
-        double delta = desiredWristAngle - currentWristAngle;
-        delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
-        wristEncoder.setPosition(Units.degreesToRotations(currentWristAngle + delta));
-
+        wristMotorModel.setInputVoltage(wristMotorSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
+        wristMotorModel.update(0.02);
+        wristMotorSim.iterate(wristMotorModel.getAngularVelocityRPM(), RobotController.getBatteryVoltage(), 0.02);
+        wristEncoderSim.setVelocity(wristMotorModel.getAngularVelocityRadPerSec());
+        wristEncoderSim.setRawPosition(wristMotorModel.getAngularPositionRotations());
     }
 }
