@@ -181,7 +181,7 @@ public class RobotContainer {
                 else {
                     rotVelocity = 0;
                 }
-                System.out.println(shooterButton.getAsBoolean());
+                // System.out.println(shooterButton.getAsBoolean());
                 // }
 
                 Logger.recordOutput("Drive/XRequestVel", xVelocity);
@@ -465,8 +465,8 @@ public class RobotContainer {
         // else {
         // addAmount = 180;
         // }
-        System.out.println(drivePose.getRotation());
-        System.out.println(drivePose.getRotation().getDegrees());
+        // System.out.println(drivePose.getRotation());
+        // System.out.println(drivePose.getRotation().getDegrees());
         // Rotation2d test = new Rotation2d(Math.toRadians(drivePose.getRotation().getDegrees()+(targetZ+addAmount)));
         // Rotation2d test2 = Rotation2d.fromDegrees(drivePose.getRotation().getDegrees()+(targetZ+addAmount));
         // Rotation2d finalRotation = Rotation2d.fromDegrees(
@@ -492,7 +492,7 @@ public class RobotContainer {
 
         PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for
                                                                                                // this path.
-        System.out.println("TEST2");
+        // System.out.println("TEST2");
 
         PathPlannerPath path = new PathPlannerPath(
                 waypoints,

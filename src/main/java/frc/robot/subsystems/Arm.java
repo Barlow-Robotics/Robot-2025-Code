@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.*;
 import java.util.HashMap;
 
 // import static edu.wpi.first.units.Units.Amp;
@@ -32,28 +33,23 @@ import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-//import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
-//import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-//import edu.wpi.first.wpilibj.simulation.DIOSim;
-//import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-//import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.ArmConstants;
-//import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 import frc.robot.commands.ElevatorState;
 import frc.robot.sim.PhysicsSim;
-//import frc.robot.subsystems.Vision.TargetToAlign;
 import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
@@ -63,24 +59,23 @@ public class Arm extends SubsystemBase {
     // Remember to increase the capacity of the hashmap, it's default 16
 
     TalonFX armMotor;
-    private final TalonFXSimState armMotorSim;
-    
     private final DCMotorSim armMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+        DCMotor.getKrakenX60Foc(1));
+    private final CANcoder armEncoder;
 
     TalonFX carriageMotor;
-    private final TalonFXSimState carriageMotorSim;
-    
     private final DCMotorSim carriageMotorModel = new DCMotorSim(
         LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
 
     SparkMax wristMotor;
-    private final SparkMaxSim wristMotorSim;
     SparkMaxConfig wristMotorConfig = new SparkMaxConfig();
-    public final SparkClosedLoopController wristPidController;
+    private final SparkMaxSim wristMotorSim;
+    private final CANcoder wristEncoder; 
+    private final CANcoderSimState wristEncoderSim;
     private final DCMotorSim wristMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
-
+        LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+    
     TalonFX leftElevatorMotor;
     private final TalonFXSimState leftElevatorMotorSim;
     private final DCMotorSim leftElevatorMotorModel = new DCMotorSim(
@@ -90,22 +85,16 @@ public class Arm extends SubsystemBase {
     private final TalonFXSimState rightElevatorMotorSim;
     private final DCMotorSim rightElevatorMotorModel = new DCMotorSim(
         LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
-    
-    private final CANcoder wristEncoder; 
-    private final CANcoderSimState wristEncoderSim;
-
-    private final CANcoder armEncoder;
-    private final CANcoderSimState armEncoderSim;
 
     public enum ArmState {
-        MovingToPos, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow
+        WaitingForCoral, Startup, CoralAuto, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running
     }
 
     private final Drive driveSub;
     private final Vision visionSub;
 
-    private ArmState actualState = ArmState.MovingToPos;
-    public ArmState desiredState = ArmState.MovingToPos;
+    private ArmState actualState = ArmState.Startup;
+    public ArmState desiredState = ArmState.Startup;
 
     private double desiredWristAngle = 0; // CHANGE PLACEHOLDER
     private double desiredCarriageHeight = 0;
@@ -119,11 +108,11 @@ public class Arm extends SubsystemBase {
         // bottomHallEffect = new DigitalInput(ElectronicsIDs.BottomHallEffectID);
 
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
-        armMotorSim = armMotor.getSimState();
+        //armMotorSim = armMotor.getSimState();
         armMotor.setPosition(0);
         
         carriageMotor = new TalonFX(ElectronicsIDs.CarriageMotorID);
-        carriageMotorSim = armMotor.getSimState();
+        // carriageMotorSim = armMotor.getSimState();
         carriageMotor.setPosition(0);
 
         wristMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
@@ -132,10 +121,7 @@ public class Arm extends SubsystemBase {
         wristEncoderSim = wristEncoder.getSimState();
 
         armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
-        armEncoderSim = armEncoder.getSimState();
         
-        wristPidController = wristMotor.getClosedLoopController();
-
         leftElevatorMotor = new TalonFX(ElectronicsIDs.LeftElevatorMotorID);
         leftElevatorMotorSim = leftElevatorMotor.getSimState();
         leftElevatorMotor.setPosition(0);
@@ -143,74 +129,82 @@ public class Arm extends SubsystemBase {
         rightElevatorMotor = new TalonFX(ElectronicsIDs.RightElevatorMotorID);
         rightElevatorMotorSim = rightElevatorMotor.getSimState(); 
 
-        applyArmMotorConfigs(InvertedValue.Clockwise_Positive);
-        applyAngleEncoderConfigs(); 
+        applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
+        applyWristEncoderConfigs(); 
         applyElevatorMotorConfigs(leftElevatorMotor, "leftElevatorMotor", InvertedValue.CounterClockwise_Positive);
         applyElevatorMotorConfigs(rightElevatorMotor, "rightElevatorMotor", InvertedValue.Clockwise_Positive);
         applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
-        this.driveSub = driveSub;
-        this.visionSub = visionSub;
         rightElevatorMotor.setControl(new Follower(leftElevatorMotor.getDeviceID(), true));
 
         wristMotorConfig.closedLoop
             .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
             .iZone(ArmConstants.WristIZone)
             .outputRange(-1, 1);        
+        wristMotor.configure(wristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        this.driveSub = driveSub;
+        this.visionSub = visionSub;
+        initializePositionDictionary();
+    }
+    private void initializePositionDictionary() {
+        positionDictionary.put(ArmState.Level1, new ElevatorState(0, 0, 0, 0));
+        positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.Level3, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.LoadCoral, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.AlgaeLow, new ElevatorState(0, 0, 0, 0));
+        positionDictionary.put(ArmState.AlgaeHigh, new ElevatorState(0, 0, 0, 0));
+        positionDictionary.put(ArmState.Startup, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.CoralAuto, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.Running, new ElevatorState(0, 0, 0, 90));
     }
 
     private void setDesiredAnglesAndHeights() {
-
+        ElevatorState val;
         switch (desiredState) {
-            case MovingToPos: 
+            case Running: 
+                val = positionDictionary.get(ArmState.Running);
+                break;
+            case Startup: 
+                val = positionDictionary.get(ArmState.Startup);
+                break;
+            case CoralAuto: 
+                val = positionDictionary.get(ArmState.CoralAuto);
+                break;
+            case WaitingForCoral: 
+                val = positionDictionary.get(ArmState.WaitingForCoral);
                 break;
             case LoadCoral: 
-                desiredWristAngle = ArmConstants.CoralWristAngle;
-                desiredElevatorHeight = ArmConstants.CoralElevatorHeight;
-                desiredCarriageHeight = ArmConstants.CoralCarriageHeight;
-                desiredArmAngle = ArmConstants.CoralArmAngle;
+                val = positionDictionary.get(ArmState.LoadCoral);
                 break;
             case Level1:
-                desiredWristAngle = ArmConstants.Level1WristAngle;
-                desiredElevatorHeight = ArmConstants.Level1ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level1CarriageHeight;
-                desiredArmAngle = ArmConstants.Level1ArmAngle;
+                val = positionDictionary.get(ArmState.Level1);
                 break;
             case Level2:
-                desiredWristAngle = ArmConstants.Level2WristAngle;
-                desiredElevatorHeight = ArmConstants.Level2ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level2CarriageHeight;
-                desiredArmAngle = ArmConstants.Level2ArmAngle;
+                val = positionDictionary.get(ArmState.Level2);
                 break;
             case Level3:
-                desiredWristAngle = ArmConstants.Level3WristAngle;
-                desiredElevatorHeight = ArmConstants.Level3ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level3CarriageHeight;
-                desiredArmAngle = ArmConstants.Level3ArmAngle;
+                val = positionDictionary.get(ArmState.Level3);
                 break;
             case Level4:
-                desiredWristAngle = ArmConstants.Level4WristAngle;
-                desiredElevatorHeight = ArmConstants.Level4ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level4CarriageHeight;
-                desiredArmAngle = ArmConstants.Level4ArmAngle;
+                val = positionDictionary.get(ArmState.Level4);
                 break;
             case AlgaeHigh:
-                desiredWristAngle = ArmConstants.AlgaeHighWristAngle;
-                desiredElevatorHeight = ArmConstants.AlgaeHighElevatorHeight;
-                desiredCarriageHeight = ArmConstants.AlgaeHighCarriageHeight;
-                desiredArmAngle = ArmConstants.AlgaeHighArmAngle;        
+                val = positionDictionary.get(ArmState.AlgaeHigh);      
                 break;
             case AlgaeLow:
-               desiredWristAngle = ArmConstants.AlgaeLowWristAngle;
-               desiredElevatorHeight = ArmConstants.AlgaeLowElevatorHeight;
-               desiredCarriageHeight = ArmConstants.AlgaeLowCarriageHeight;
-               desiredArmAngle = ArmConstants.AlgaeLowArmAngle;  
+                val = positionDictionary.get(ArmState.AlgaeLow);
+                break;
+            default:
+                val = positionDictionary.get(ArmState.Running);
                 break;
         }
-        setWristAngle(desiredWristAngle);
-        setElevatorHeightInches(leftElevatorMotor, desiredElevatorHeight);
-        setCarriageHeightInches(carriageMotor, desiredCarriageHeight);
-        setArmAngle(desiredArmAngle);
+        setWristAngle(val.getWristAngle());
+        setElevatorHeightInches(leftElevatorMotor, val.getElevatorHeight());
+        setCarriageHeightInches(carriageMotor, val.getCarriageHeight());
+        setArmAngle(val.getArmAngle());
     }
 
     public boolean hasCompletedMovement() {
@@ -233,7 +227,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristPidController.setReference(desiredDegrees, ControlType.kPosition);
+        wristMotor.getClosedLoopController().setReference(Units.degreesToRadians(desiredDegrees), ControlType.kPosition);
     }
 
     public void stopWristMotor() {
@@ -300,11 +294,11 @@ public class Arm extends SubsystemBase {
     }
 
     public void setDesiredState(ArmState newState) {
-        if (newState == ArmState.MovingToPos) {
+        if (newState == ArmState.Running) {
             return;
         }
         if (newState != desiredState) {
-            actualState = ArmState.MovingToPos;
+            actualState = ArmState.Running;
         }
         desiredState = newState;
     }
@@ -355,8 +349,9 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/WristAngle/DegreesDesired", desiredWristAngle);
         Logger.recordOutput("Arm/WristAngle/DegreesCANCoder", getWristEncoderDegrees());
         Logger.recordOutput("Arm/WristAngle/RotationsCANCoder", wristEncoder.getAbsolutePosition().getValue());
-        Logger.recordOutput("Arm/WristAngle/VoltageActual", wristMotor.getEncoder().getVelocity());
-        Logger.recordOutput("Arm/WristAngle/RPSActual", wristMotor.getEncoder().getVelocity());
+        // Logger.recordOutput("Arm/WristAngle/VoltageActual", wristMotor.getEncoder().getVelocity());
+        // Logger.recordOutput("Arm/WristAngle/RPSActual", wristMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Arm/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
 
         Logger.recordOutput("Arm/ArmAngle/DegreesDesired", desiredArmAngle);
         Logger.recordOutput("Arm/ArmAngle/DegreesCANCoder", getArmEncoderDegrees());
@@ -407,19 +402,19 @@ public class Arm extends SubsystemBase {
 
     private void applyArmMotorConfigs(InvertedValue inversion) {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
-        talonConfigs.Slot0.kP = ArmConstants.AngleKP;
-        talonConfigs.Slot0.kI = ArmConstants.AngleKI;
-        talonConfigs.Slot0.kD = ArmConstants.AngleKD;
-        talonConfigs.Slot0.kV = ArmConstants.AngleFF;
-        talonConfigs.Slot0.kG = ArmConstants.AngleKG;
+        talonConfigs.Slot0.kP = ArmConstants.ArmAngleKP;
+        talonConfigs.Slot0.kI = ArmConstants.ArmAngleKI;
+        talonConfigs.Slot0.kD = ArmConstants.ArmAngleKD;
+        talonConfigs.Slot0.kV = ArmConstants.ArmAngleFF;
+        talonConfigs.Slot0.kG = ArmConstants.ArmAngleKG;
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = ArmConstants.AngleCruiseRotationsPerSec;
-        motionMagicConfigs.MotionMagicAcceleration = ArmConstants.AngleAcceleration;
-        motionMagicConfigs.MotionMagicJerk = ArmConstants.AngleJerk;
+        motionMagicConfigs.MotionMagicCruiseVelocity = ArmConstants.ArmAngleCruiseRotationsPerSec;
+        motionMagicConfigs.MotionMagicAcceleration = ArmConstants.ArmAngleAcceleration;
+        motionMagicConfigs.MotionMagicJerk = ArmConstants.ArmAngleJerk;
 
-        talonConfigs.Feedback.FeedbackRemoteSensorID = wristEncoder.getDeviceID();
+        talonConfigs.Feedback.FeedbackRemoteSensorID = armEncoder.getDeviceID();
         talonConfigs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
 
         applyMotorConfigs(armMotor, "armMotor", talonConfigs, inversion);
@@ -508,7 +503,7 @@ public class Arm extends SubsystemBase {
         }
     }
 
-    private void applyAngleEncoderConfigs() {
+    private void applyWristEncoderConfigs() {
         MagnetSensorConfigs magnetConfig = new MagnetSensorConfigs();
         var canCoderConfiguration = new CANcoderConfiguration();
         magnetConfig.AbsoluteSensorDiscontinuityPoint = 0.5;
@@ -521,7 +516,7 @@ public class Arm extends SubsystemBase {
 
         magnetConfig.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         canCoderConfiguration.MagnetSensor = magnetConfig;
-
+        
         StatusCode status = StatusCode.StatusCodeNotInitialized;
 
         for (int i = 0; i < 5; ++i) {
@@ -543,7 +538,6 @@ public class Arm extends SubsystemBase {
             System.out.println(
                     "Could not apply magnet configs to angle encoder, error code: " + status.toString());
         }
-
     }
 
     private void setNeutralMode(NeutralModeValue armMotorMode, NeutralModeValue elevatorMotorMode) {
@@ -560,8 +554,8 @@ public class Arm extends SubsystemBase {
         PhysicsSim.getInstance().addTalonFX(leftElevatorMotor, 0.001);
         PhysicsSim.getInstance().addTalonFX(rightElevatorMotor, 0.001);
 
-        double encoderAngle = Units.degreesToRotations(this.desiredWristAngle);
-        wristEncoderSim.setRawPosition(encoderAngle);
+        double wristEncoderAngle = Units.degreesToRotations(this.desiredWristAngle);
+        wristEncoderSim.setRawPosition(wristEncoderAngle);
     }
 
     @Override
@@ -571,19 +565,38 @@ public class Arm extends SubsystemBase {
             simulationInitialized = true;
         }
 
+        // Following pattern from:
+        // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/simulation/simulation-intro.html
+        var armMotorSim = armMotor.getSimState();
+        var carriageMotorSim = carriageMotor.getSimState();
+
         armMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        double armVoltage = armMotorSim.getMotorVoltage();
-        armMotorModel.setInputVoltage(armVoltage);
+
+        var armVoltage = armMotorSim.getMotorVoltageMeasure();
+
+        armMotorModel.setInputVoltage(armVoltage.in(Volts));
         armMotorModel.update(0.02);
-        armMotorSim.setRotorVelocity(armMotorModel.getAngularVelocityRPM() / 60.0);
+
         armMotorSim.setRawRotorPosition(armMotorModel.getAngularPositionRotations());
+        armMotorSim.setRotorVelocity(armMotorModel.getAngularVelocity());
+
+        // The armEncoder needs to be synchronized from the motor simulation model
+        // This is because the talonConfigs.Feedback.FeedbackRemoteSensorID is set to use the
+        // the encoder.
+        var armEncoderSim = armEncoder.getSimState();
+        armEncoderSim.setVelocity(armMotorModel.getAngularVelocityRadPerSec());
+        armEncoderSim.setRawPosition(armMotorModel.getAngularPositionRotations());
+
+        // Carriage Motor Sim
 
         carriageMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        double carriageVoltage = armMotorSim.getMotorVoltage();
+        double carriageVoltage = carriageMotorSim.getMotorVoltage();
         carriageMotorModel.setInputVoltage(carriageVoltage);
         carriageMotorModel.update(0.02);
         carriageMotorSim.setRotorVelocity(carriageMotorModel.getAngularVelocityRPM() / 60.0);
         carriageMotorSim.setRawRotorPosition(carriageMotorModel.getAngularPositionRotations());
+
+        // Elevator Motor Sim
 
         leftElevatorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
         double leftVoltage = leftElevatorMotorSim.getMotorVoltage();
@@ -598,16 +611,13 @@ public class Arm extends SubsystemBase {
         rightElevatorMotorModel.update(0.02);
         rightElevatorMotorSim.setRotorVelocity(rightElevatorMotorModel.getAngularVelocityRPM() / 60.0);
         
+        // Wrist Motor Sim
+        
         wristMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
-        double wristVoltage = wristMotorSim.getBusVoltage();
-        wristMotorModel.setInputVoltage(wristVoltage);
+        wristMotorModel.setInputVoltage(wristMotorSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
         wristMotorModel.update(0.02);
-        wristMotorSim.setVelocity(wristMotorModel.getAngularVelocityRPM() / 60.0);
-
-        double currentWristAngle = getWristEncoderDegrees();
-        double delta = desiredWristAngle - currentWristAngle;
-        delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
-        wristEncoder.setPosition(Units.degreesToRotations(currentWristAngle + delta));
-
+        wristMotorSim.iterate(wristMotorModel.getAngularVelocityRPM(), RobotController.getBatteryVoltage(), 0.02);
+        wristEncoderSim.setVelocity(wristMotorModel.getAngularVelocityRadPerSec());
+        wristEncoderSim.setRawPosition(wristMotorModel.getAngularPositionRotations());
     }
 }

@@ -223,10 +223,14 @@ public class Constants {
         // Arm and Wrist Angles
         public static final double SupplyCurrentLimit = 40;
         public static final double AngleCANCoderMagnetOffset = 0.48583;
+
+        /*
+
         public static final double Level1ArmAngle = 10; // CHANGE
         public static final double Level2ArmAngle = 20; // CHANGE
         public static final double Level3ArmAngle = 30; // CHANGE
         public static final double Level4ArmAngle = 40; // CHANGE
+
         public static final double Level1WristAngle = 0; // CHANGE
         public static final double Level2WristAngle = 90; // CHANGE
         public static final double Level3WristAngle = 90; // CHANGE
@@ -236,12 +240,26 @@ public class Constants {
         public static final double Level2ElevatorHeight = 10; // CHANGE
         public static final double Level3ElevatorHeight = 15; // CHANGE
         public static final double Level4ElevatorHeight = 20; // CHANGE
+
         public static final double Level1CarriageHeight = 5; // CHANGE
         public static final double Level2CarriageHeight = 10; // CHANGE
         public static final double Level3CarriageHeight = 15; // CHANGE
         public static final double Level4CarriageHeight = 20; // CHANGE
 
+        */
+        public static final double ArmAngleKP = 1; // CHANGE
+        public static final double ArmAngleKI = 0.000; // CHANGE
+        public static final double ArmAngleKD = 0; // CHANGE
+        public static final double ArmAngleFF = 0; // CHANGE
+        public static final double ArmAngleKG = 0; // CHANGE
+        public static final double ArmAngleCruiseRotationsPerSec = 3; // CHANGE
+
+        public static final double ArmAngleAcceleration = 12; // CHANGE
+        public static final double ArmAngleJerk = 40; // CHANGE
+        
+        /*
         public static final double CoralWristAngle = 90; // CHANGE
+      
         public static final double CoralElevatorHeight = 25; // CHANGE
         public static final double CoralCarriageHeight = 22; // CHANGE
         public static final double CoralArmAngle = -20; // CHANGE
@@ -265,6 +283,7 @@ public class Constants {
         public static final double AlgaeLowArmAngle = 25; // CHANGE
         public static final double AlgaeLowElevatorHeight = 15; // CHANGE
         public static final double AlgaeLowCarriageHeight = 13; // CHANGE
+        */
 
         public static final double WristAngleTolerance = 1.5; // CHANGE
         public static final double ArmAngleTolerance = 1.5; // CHANGE
@@ -313,9 +332,9 @@ public class Constants {
         public static final double ElevatorInchesPerSecPerSec = 10; // CHANGE
         public static final double ElevatorJerk = 800; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
-        public static final double WristKP = 32; // CHANGE
-        public static final double WristKI = 0.001; // CHANGE
-        public static final double WristKD = 0.0; // CHANGE
+        public static final double WristKP = 2; // CHANGE
+        public static final double WristKI = 0.000; // CHANGE
+        public static final double WristKD = 1.5; // CHANGE
         public static final double WristFF = 0.0; // CHANGE
         public static final double WristIZone = 0.15; // CHANGE
         public static final double ElevatorMinimumHeight = 2; // CHANGE
@@ -337,16 +356,27 @@ public class Constants {
         public static final double LiftKI = 0.001; // CHANGE
         public static final double LiftKD = 0; // CHANGE
         public static final double LiftFF = 0; // CHANGE
+        public static final double LiftKG = 0; // CHANGE
         public static final double LiftIZone = 0.15; // CHANGE
 
         public static final double IntakeKP = 32; // CHANGE
         public static final double IntakeKI = 0.001; // CHANGE
         public static final double IntakeKD = 0; // CHANGE
         public static final double IntakeFF = 0; // CHANGE
+        public static final double IntakeKG = 0; // CHANGE
         public static final double IntakeIZone = 0.15; // CHANGE
 
         public static final double IntakeSpeed = 0; // CHANGE
         public static final double EjectSpeed = 0; // CHANGE
+
+        
+        public static final double LiftAcceleration = 12; // CHANGE
+        public static final double LiftJerk = 40; // CHANGE
+        public static final double LiftCruiseRotationsPerSec = 3; // CHANGE
+        
+        public static final double IntakeCruiseRotationsPerSec = 3; // CHANGE
+        public static final double IntakeAcceleration = 12; // CHANGE
+
     }
 
     public static final class AutoConstants {
