@@ -307,8 +307,8 @@ public class Constants {
         public static final double StartingCarriageHeight = 24.75; // CHANGE
 
         public static final double ElevatorKP = 32; // CHANGE
-        public static final double ElevatorKI = 0.001; // CHANGE
-        public static final double ElevatorKD = 0.0; // CHANGE
+        public static final double ElevatorKI = 0.1; // CHANGE
+        public static final double ElevatorKD = 0.2; // CHANGE
         // public static final double ElevatorIZone = 0.1; // motor already does this
         public static final double ElevatorFF = 0.0; // CHANGE
         public static final double ElevatorKG = 2.7; // CHANGE

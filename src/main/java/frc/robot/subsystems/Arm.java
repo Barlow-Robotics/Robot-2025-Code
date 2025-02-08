@@ -97,9 +97,9 @@ public class Arm extends SubsystemBase {
     public ArmState desiredState = ArmState.Startup;
 
     private double desiredWristAngle = 0; // CHANGE PLACEHOLDER
-    private double desiredCarriageHeight = 0;
+    private double desiredCarriageHeight = ArmConstants.StartingCarriageHeight;
     private double desiredArmAngle = 0; // CHANGE PLACEHOLDER
-    private double desiredElevatorHeight = 0;
+    private double desiredElevatorHeight = ArmConstants.StartingElevatorHeight;
 
     public boolean targetIsVisible = false;
     private boolean simulationInitialized = false;
@@ -148,9 +148,11 @@ public class Arm extends SubsystemBase {
         initializePositionDictionary();
     }
     private void initializePositionDictionary() {
-        positionDictionary.put(ArmState.Level1, new ElevatorState(0, 0, 0, 0));
+        // CHANGE all these magic #s (except for wrist)
+        // all elevator heights should be above ~24 (ElevatorStartingHeight)
+        positionDictionary.put(ArmState.Level1, new ElevatorState(50, 0, 0, 0));
         positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90));
-        positionDictionary.put(ArmState.Level3, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.Level3, new ElevatorState(30, 0, 0, 90));
         positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90));
         positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90));
         positionDictionary.put(ArmState.LoadCoral, new ElevatorState(0, 0, 0, 90));
@@ -162,49 +164,15 @@ public class Arm extends SubsystemBase {
     }
 
     private void setDesiredAnglesAndHeights() {
-        ElevatorState val;
-        switch (desiredState) {
-            case Running: 
-                val = positionDictionary.get(ArmState.Running);
-                break;
-            case Startup: 
-                val = positionDictionary.get(ArmState.Startup);
-                break;
-            case CoralAuto: 
-                val = positionDictionary.get(ArmState.CoralAuto);
-                break;
-            case WaitingForCoral: 
-                val = positionDictionary.get(ArmState.WaitingForCoral);
-                break;
-            case LoadCoral: 
-                val = positionDictionary.get(ArmState.LoadCoral);
-                break;
-            case Level1:
-                val = positionDictionary.get(ArmState.Level1);
-                break;
-            case Level2:
-                val = positionDictionary.get(ArmState.Level2);
-                break;
-            case Level3:
-                val = positionDictionary.get(ArmState.Level3);
-                break;
-            case Level4:
-                val = positionDictionary.get(ArmState.Level4);
-                break;
-            case AlgaeHigh:
-                val = positionDictionary.get(ArmState.AlgaeHigh);      
-                break;
-            case AlgaeLow:
-                val = positionDictionary.get(ArmState.AlgaeLow);
-                break;
-            default:
-                val = positionDictionary.get(ArmState.Running);
-                break;
-        }
-        setWristAngle(val.getWristAngle());
-        setElevatorHeightInches(leftElevatorMotor, val.getElevatorHeight());
-        setCarriageHeightInches(carriageMotor, val.getCarriageHeight());
-        setArmAngle(val.getArmAngle());
+        var val = positionDictionary.get(desiredState);
+        desiredWristAngle = val.getWristAngle();
+        desiredCarriageHeight = val.getCarriageHeight();
+        desiredArmAngle = val.getArmAngle();
+        desiredElevatorHeight = val.getElevatorHeight();
+        setWristAngle(desiredWristAngle);
+        setElevatorHeightInches(leftElevatorMotor, desiredElevatorHeight);
+        setCarriageHeightInches(carriageMotor,desiredCarriageHeight);
+        setArmAngle(desiredArmAngle);
     }
 
     public boolean hasCompletedMovement() {
@@ -554,7 +522,7 @@ public class Arm extends SubsystemBase {
         PhysicsSim.getInstance().addTalonFX(leftElevatorMotor, 0.001);
         PhysicsSim.getInstance().addTalonFX(rightElevatorMotor, 0.001);
 
-        double wristEncoderAngle = Units.degreesToRotations(this.desiredWristAngle);
+        double wristEncoderAngle = Units.degreesToRotations(desiredWristAngle);
         wristEncoderSim.setRawPosition(wristEncoderAngle);
     }
 

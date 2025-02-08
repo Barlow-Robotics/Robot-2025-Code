@@ -98,6 +98,7 @@ public class Robot extends LoggedRobot {
 
     elevator.setLength(ArmConstants.ElevatorMinimumHeight + (robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12);
     arm.setAngle(robotContainer.armSub.getArmEncoderDegrees()-90);
+    gripper.setAngle(robotContainer.armSub.getWristEncoderDegrees());
 
     SmartDashboard.putData("Mech2d", mech);
 

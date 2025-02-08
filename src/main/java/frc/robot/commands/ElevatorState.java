@@ -1,20 +1,20 @@
 package frc.robot.commands;
 
 public class ElevatorState {
-    private double elvatorHeight;
+    private double elevatorHeight;
     private double carriageHeight;
     private double armAngle;
     private double wristAngle;
     private double intakeSpeed;
-    public ElevatorState(double elvatorHeight, double carriageHeight, double armAngle, double wristAngle, double intakeSpeed) {
-        this.elvatorHeight = elvatorHeight;
+    public ElevatorState(double elevatorHeight, double carriageHeight, double armAngle, double wristAngle, double intakeSpeed) {
+        this.elevatorHeight = elevatorHeight;
         this.carriageHeight = carriageHeight;
         this.armAngle = armAngle;
         this.wristAngle = wristAngle;
         this.intakeSpeed = intakeSpeed;
     }
     public ElevatorState(double elvatorHeight, double carriageHeight, double armAngle, double wristAngle) {
-        this.elvatorHeight = elvatorHeight;
+        this.elevatorHeight = elvatorHeight;
         this.carriageHeight = carriageHeight;
         this.armAngle = armAngle;
         this.wristAngle = wristAngle;
@@ -22,23 +22,23 @@ public class ElevatorState {
     }
 
     public double getWristAngle() {
-        return this.wristAngle;
+        return wristAngle;
     }
 
     public double getCarriageHeight() {
-        return this.carriageHeight;
+        return carriageHeight;
     }
 
     public double getArmAngle() {
-        return this.armAngle;
+        return armAngle;
     }
     
     public double getElevatorHeight() {
-        return this.elvatorHeight;
+        return elevatorHeight;
     }
 
     public double getIntakeSpeed() {
-        return this.intakeSpeed;
+        return intakeSpeed;
     }
 
 }
