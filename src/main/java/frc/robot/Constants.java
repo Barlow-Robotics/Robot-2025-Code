@@ -224,6 +224,8 @@ public class Constants {
         public static final double SupplyCurrentLimit = 40;
         public static final double AngleCANCoderMagnetOffset = 0.48583;
 
+        /*
+
         public static final double Level1ArmAngle = 10; // CHANGE
         public static final double Level2ArmAngle = 20; // CHANGE
         public static final double Level3ArmAngle = 30; // CHANGE
@@ -243,6 +245,8 @@ public class Constants {
         public static final double Level2CarriageHeight = 10; // CHANGE
         public static final double Level3CarriageHeight = 15; // CHANGE
         public static final double Level4CarriageHeight = 20; // CHANGE
+
+        */
         public static final double ArmAngleKP = 1; // CHANGE
         public static final double ArmAngleKI = 0.000; // CHANGE
         public static final double ArmAngleKD = 0; // CHANGE
@@ -252,7 +256,8 @@ public class Constants {
 
         public static final double ArmAngleAcceleration = 12; // CHANGE
         public static final double ArmAngleJerk = 40; // CHANGE
-
+        
+        /*
         public static final double CoralWristAngle = 90; // CHANGE
       
         public static final double CoralElevatorHeight = 25; // CHANGE
@@ -278,6 +283,7 @@ public class Constants {
         public static final double AlgaeLowArmAngle = 25; // CHANGE
         public static final double AlgaeLowElevatorHeight = 15; // CHANGE
         public static final double AlgaeLowCarriageHeight = 13; // CHANGE
+        */
 
         public static final double WristAngleTolerance = 1.5; // CHANGE
         public static final double ArmAngleTolerance = 1.5; // CHANGE

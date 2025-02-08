@@ -87,14 +87,14 @@ public class Arm extends SubsystemBase {
         LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
 
     public enum ArmState {
-        MovingToPos, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow
+        WaitingForCoral, Startup, CoralAuto, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running
     }
 
     private final Drive driveSub;
     private final Vision visionSub;
 
-    private ArmState actualState = ArmState.MovingToPos;
-    public ArmState desiredState = ArmState.MovingToPos;
+    private ArmState actualState = ArmState.Startup;
+    public ArmState desiredState = ArmState.Startup;
 
     private double desiredWristAngle = 0; // CHANGE PLACEHOLDER
     private double desiredCarriageHeight = 0;
@@ -145,60 +145,66 @@ public class Arm extends SubsystemBase {
 
         this.driveSub = driveSub;
         this.visionSub = visionSub;
+        initializePositionDictionary();
+    }
+    private void initializePositionDictionary() {
+        positionDictionary.put(ArmState.Level1, new ElevatorState(0, 0, 0, 0));
+        positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.Level3, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.LoadCoral, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.AlgaeLow, new ElevatorState(0, 0, 0, 0));
+        positionDictionary.put(ArmState.AlgaeHigh, new ElevatorState(0, 0, 0, 0));
+        positionDictionary.put(ArmState.Startup, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.CoralAuto, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.Running, new ElevatorState(0, 0, 0, 90));
     }
 
     private void setDesiredAnglesAndHeights() {
-
+        ElevatorState val;
         switch (desiredState) {
-            case MovingToPos: 
+            case Running: 
+                val = positionDictionary.get(ArmState.Running);
+                break;
+            case Startup: 
+                val = positionDictionary.get(ArmState.Startup);
+                break;
+            case CoralAuto: 
+                val = positionDictionary.get(ArmState.CoralAuto);
+                break;
+            case WaitingForCoral: 
+                val = positionDictionary.get(ArmState.WaitingForCoral);
                 break;
             case LoadCoral: 
-                desiredWristAngle = ArmConstants.CoralWristAngle;
-                desiredElevatorHeight = ArmConstants.CoralElevatorHeight;
-                desiredCarriageHeight = ArmConstants.CoralCarriageHeight;
-                desiredArmAngle = ArmConstants.CoralArmAngle;
+                val = positionDictionary.get(ArmState.LoadCoral);
                 break;
             case Level1:
-                desiredWristAngle = ArmConstants.Level1WristAngle;
-                desiredElevatorHeight = ArmConstants.Level1ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level1CarriageHeight;
-                desiredArmAngle = ArmConstants.Level1ArmAngle;
+                val = positionDictionary.get(ArmState.Level1);
                 break;
             case Level2:
-                desiredWristAngle = ArmConstants.Level2WristAngle;
-                desiredElevatorHeight = ArmConstants.Level2ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level2CarriageHeight;
-                desiredArmAngle = ArmConstants.Level2ArmAngle;
+                val = positionDictionary.get(ArmState.Level2);
                 break;
             case Level3:
-                desiredWristAngle = ArmConstants.Level3WristAngle;
-                desiredElevatorHeight = ArmConstants.Level3ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level3CarriageHeight;
-                desiredArmAngle = ArmConstants.Level3ArmAngle;
+                val = positionDictionary.get(ArmState.Level3);
                 break;
             case Level4:
-                desiredWristAngle = ArmConstants.Level4WristAngle;
-                desiredElevatorHeight = ArmConstants.Level4ElevatorHeight;
-                desiredCarriageHeight = ArmConstants.Level4CarriageHeight;
-                desiredArmAngle = ArmConstants.Level4ArmAngle;
+                val = positionDictionary.get(ArmState.Level4);
                 break;
             case AlgaeHigh:
-                desiredWristAngle = ArmConstants.AlgaeHighWristAngle;
-                desiredElevatorHeight = ArmConstants.AlgaeHighElevatorHeight;
-                desiredCarriageHeight = ArmConstants.AlgaeHighCarriageHeight;
-                desiredArmAngle = ArmConstants.AlgaeHighArmAngle;        
+                val = positionDictionary.get(ArmState.AlgaeHigh);      
                 break;
             case AlgaeLow:
-               desiredWristAngle = ArmConstants.AlgaeLowWristAngle;
-               desiredElevatorHeight = ArmConstants.AlgaeLowElevatorHeight;
-               desiredCarriageHeight = ArmConstants.AlgaeLowCarriageHeight;
-               desiredArmAngle = ArmConstants.AlgaeLowArmAngle;  
+                val = positionDictionary.get(ArmState.AlgaeLow);
+                break;
+            default:
+                val = positionDictionary.get(ArmState.Running);
                 break;
         }
-        setWristAngle(desiredWristAngle);
-        setElevatorHeightInches(leftElevatorMotor, desiredElevatorHeight);
-        setCarriageHeightInches(carriageMotor, desiredCarriageHeight);
-        setArmAngle(desiredArmAngle);
+        setWristAngle(val.getWristAngle());
+        setElevatorHeightInches(leftElevatorMotor, val.getElevatorHeight());
+        setCarriageHeightInches(carriageMotor, val.getCarriageHeight());
+        setArmAngle(val.getArmAngle());
     }
 
     public boolean hasCompletedMovement() {
@@ -288,11 +294,11 @@ public class Arm extends SubsystemBase {
     }
 
     public void setDesiredState(ArmState newState) {
-        if (newState == ArmState.MovingToPos) {
+        if (newState == ArmState.Running) {
             return;
         }
         if (newState != desiredState) {
-            actualState = ArmState.MovingToPos;
+            actualState = ArmState.Running;
         }
         desiredState = newState;
     }

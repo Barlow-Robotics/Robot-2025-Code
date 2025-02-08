@@ -99,19 +99,19 @@ public class Robot extends LoggedRobot {
       Command selectedAutoCommand = robotContainer.getVisionPathPlannerPathing();
 
       if (selectedAutoCommand != null) {
-        System.out.println("PATH");
+        // System.out.println("PATH");
       }
       else {
-        System.out.println("NO PATH");
-        System.out.println(robotContainer.visionSub.getBestTrackableTarget());
+        // System.out.println("NO PATH");
+        // System.out.println(robotContainer.visionSub.getBestTrackableTarget());
       }
 
       if (!currentlyFollowingAPath && selectedAutoCommand != null) {
           currentlyFollowingAPath = true;
           currentTeleopCommand = selectedAutoCommand;
-          System.out.println("SCEDUAL PROBLEM");
+          // System.out.println("SCHEDULE PROBLEM");
           CommandScheduler.getInstance().schedule(selectedAutoCommand);
-          System.out.println("SCEDUAL PROBLEM");
+          // System.out.println("SCHEDULE PROBLEM");
       }
     }
     if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
