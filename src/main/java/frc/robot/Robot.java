@@ -11,12 +11,23 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
@@ -28,6 +39,24 @@ public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
   boolean pathPlannerConfigured = false ;
   boolean currentlyFollowingAPath = false;
+
+  /*****  MECHANISM 2D FOR ADVANTAGE SCOPE  *****/
+
+    // the main mechanism object
+    Mechanism2d mech = new Mechanism2d(8, 10);
+
+    // the mechanism root node
+    MechanismRoot2d root = mech.getRoot("manipulator", 2.5, 0);
+
+    // MechanismLigament2d objects represent each "section"/"stage" of the mechanism, and are based
+    // off the root node or another ligament object
+    MechanismLigament2d elevator = root.append(new MechanismLigament2d("elevator", ArmConstants.ElevatorMinimumHeight, 90));
+    MechanismLigament2d arm = elevator.append(
+            new MechanismLigament2d("arm", 2, 0, 6, new Color8Bit(Color.kPurple)));
+    MechanismLigament2d gripper = arm.append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
+
+    /**********************************************/
+
   public Robot() {
     robotContainer = new RobotContainer();
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
@@ -42,7 +71,7 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter(""));
         Logger.addDataReceiver(new NT4Publisher());
     }
-
+    
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
                     // be added.
   }
@@ -57,6 +86,21 @@ public class Robot extends LoggedRobot {
     // Logger.recordOutput("Controllers/Driver/Y_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisY));
     // Logger.recordOutput("Controllers/Driver/Twist_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate));
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
+
+    // Logger.recordOutput("RobotPose", new Pose2d());
+    // Logger.recordOutput("ZeroedComponentPoses", new Pose3d[] {new Pose3d()});
+    // Logger.recordOutput(
+    //   "FinalComponentPoses", 
+    //   new Pose3d[] {
+    //     new Pose3d(
+    //       -0.238, 0.0, 0.298, new Rotation3d(0.0, Math.sin(Timer.getTimestamp
+    //       ())- 1.0, 0.0))});
+
+    elevator.setLength(ArmConstants.ElevatorMinimumHeight + (robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12);
+    arm.setAngle(robotContainer.armSub.getArmEncoderDegrees()-90);
+
+    SmartDashboard.putData("Mech2d", mech);
+
     CommandScheduler.getInstance().run();
   }
 
