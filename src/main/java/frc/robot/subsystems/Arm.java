@@ -35,7 +35,6 @@ import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -43,7 +42,6 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.ArmConstants;
@@ -213,41 +211,41 @@ public class Arm extends SubsystemBase {
     }
 
     public double getWristEncoderDegrees() {
-        return Units.rotationsToDegrees(wristEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
+        return wristEncoder.getAbsolutePosition().getValue().in(Degrees);
     }
 
     public double getArmEncoderDegrees() {
-        return Units.rotationsToDegrees(armEncoder.getAbsolutePosition().getValue().baseUnitMagnitude());
+        return armEncoder.getAbsolutePosition().getValue().in(Degrees);
     }
 
     public double getArmTalonEncoderDegrees() {
-        return Units.rotationsToDegrees(armMotor.getPosition().getValue().baseUnitMagnitude());
+        return armMotor.getPosition().getValue().in(Degrees);
     }
 
     public void setElevatorHeightInches(TalonFX motor, double desiredInches) {
-        double rotations = ((desiredInches - ArmConstants.StartingElevatorHeight) / 2)
+        double rotations = ((desiredInches /*- ArmConstants.StartingElevatorHeight*/))
         * ArmConstants.RotationsPerElevatorInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
         motor.setControl(request.withSlot(0));
     }
 
     public void setCarriageHeightInches(TalonFX motor, double desiredInches) {
-        double rotations = ((desiredInches - ArmConstants.StartingCarriageHeight) / 2)
+        double rotations = ((desiredInches /*- ArmConstants.StartingCarriageHeight*/))
         * ArmConstants.RotationsPerCarriageInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
         motor.setControl(request.withSlot(0));
     }
 
     public double getElevatorHeightInches() {
-        double elevatorHeight = ((leftElevatorMotor.getPosition().getValue().baseUnitMagnitude()
-                / ArmConstants.RotationsPerElevatorInch) * 2)
-                + ArmConstants.StartingElevatorHeight;
+        double elevatorHeight = ((leftElevatorMotor.getPosition().getValue().in(Rotations)
+                / ArmConstants.RotationsPerElevatorInch))
+                /*+ ArmConstants.StartingElevatorHeight*/;
         return elevatorHeight;
     }
     public double getCarriageHeightInches() {
-        double carriageHeight = ((carriageMotor.getPosition().getValue().baseUnitMagnitude()
-                / ArmConstants.RotationsPerElevatorInch) * 2)
-                + ArmConstants.StartingCarriageHeight;
+        double carriageHeight = ((carriageMotor.getPosition().getValue().in(Rotations)
+                / ArmConstants.RotationsPerElevatorInch));
+                /*+ ArmConstants.StartingCarriageHeight;*/ 
         return carriageHeight;
     }
 
@@ -286,27 +284,27 @@ public class Arm extends SubsystemBase {
     /* TOLERANCES */
 
     private boolean isWithinWristAngleTolerance() {
-        boolean withinTolerence = (getWristEncoderDegrees() >= desiredWristAngle - ArmConstants.WristAngleTolerance)
+        boolean withinTolerance = (getWristEncoderDegrees() >= desiredWristAngle - ArmConstants.WristAngleTolerance)
                 && (getWristEncoderDegrees() <= desiredWristAngle + ArmConstants.WristAngleTolerance);
-        return withinTolerence;
+        return withinTolerance;
     }
 
     private boolean isWithinArmAngleTolerance() {
-        boolean withinTolerence = (getArmEncoderDegrees() >= desiredArmAngle - ArmConstants.ArmAngleTolerance)
+        boolean withinTolerance = (getArmEncoderDegrees() >= desiredArmAngle - ArmConstants.ArmAngleTolerance)
                 && (getArmEncoderDegrees() <= desiredArmAngle + ArmConstants.ArmAngleTolerance);
-        return withinTolerence;
+        return withinTolerance;
     }
 
     private boolean isWithinElevatorHeightTolerance() {
-        boolean withinTolerence = (getElevatorHeightInches() >= desiredElevatorHeight - ArmConstants.ElevatorHeightTolerance) &&
+        boolean withinTolerance = (getElevatorHeightInches() >= desiredElevatorHeight - ArmConstants.ElevatorHeightTolerance) &&
                 (getElevatorHeightInches() <= desiredElevatorHeight + ArmConstants.ElevatorHeightTolerance);
-        return withinTolerence;
+        return withinTolerance;
     }
 
     private boolean isWithinCarriageHeightTolerance() {
-        boolean withinTolerence = (getCarriageHeightInches() >= desiredCarriageHeight - ArmConstants.CarriageHeightTolerance) &&
+        boolean withinTolerance = (getCarriageHeightInches() >= desiredCarriageHeight - ArmConstants.CarriageHeightTolerance) &&
                 (getCarriageHeightInches() <= desiredCarriageHeight + ArmConstants.CarriageHeightTolerance);
-        return withinTolerence;
+        return withinTolerance;
     }
 
     private void logData() {
@@ -480,7 +478,7 @@ public class Arm extends SubsystemBase {
             magnetConfig.MagnetOffset = ArmConstants.AngleCANCoderMagnetOffset;
         } else {
             magnetConfig.MagnetOffset = 0.0;
-        }
+        } 
 
         magnetConfig.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         canCoderConfiguration.MagnetSensor = magnetConfig;

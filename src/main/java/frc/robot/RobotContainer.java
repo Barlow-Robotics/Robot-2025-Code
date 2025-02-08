@@ -1,36 +1,23 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import java.util.List;
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-// import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 // import com.pathplanner.lib.config.ReplanningConfig;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -46,7 +33,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
-import frc.robot.Constants.XboxControllerConstants;
 // import frc.robot.commands.DriveRobot;
 import frc.robot.commands.EjectCoral;
 import frc.robot.commands.IntakeCoral;

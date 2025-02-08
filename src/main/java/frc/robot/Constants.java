@@ -337,7 +337,7 @@ public class Constants {
         public static final double WristKD = 1.5; // CHANGE
         public static final double WristFF = 0.0; // CHANGE
         public static final double WristIZone = 0.15; // CHANGE
-        public static final double ElevatorMinimumHeight = 2; // CHANGE
+        public static final double ElevatorMinimumHeight = 0; // CHANGE
     }
 
     public static final class CoralConstants {

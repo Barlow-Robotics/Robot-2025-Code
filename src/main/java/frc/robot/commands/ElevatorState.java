@@ -13,8 +13,8 @@ public class ElevatorState {
         this.wristAngle = wristAngle;
         this.intakeSpeed = intakeSpeed;
     }
-    public ElevatorState(double elvatorHeight, double carriageHeight, double armAngle, double wristAngle) {
-        this.elevatorHeight = elvatorHeight;
+    public ElevatorState(double elevatorHeight, double carriageHeight, double armAngle, double wristAngle) {
+        this.elevatorHeight = elevatorHeight;
         this.carriageHeight = carriageHeight;
         this.armAngle = armAngle;
         this.wristAngle = wristAngle;

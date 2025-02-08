@@ -5,20 +5,13 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -28,9 +21,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.LogitechExtreme3DConstants;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -96,11 +87,11 @@ public class Robot extends LoggedRobot {
     //       -0.238, 0.0, 0.298, new Rotation3d(0.0, Math.sin(Timer.getTimestamp
     //       ())- 1.0, 0.0))});
 
-    elevator.setLength(ArmConstants.ElevatorMinimumHeight + (robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12);
+    elevator.setLength(ArmConstants.ElevatorMinimumHeight + (robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12.0);
     arm.setAngle(robotContainer.armSub.getArmEncoderDegrees()-90);
     gripper.setAngle(robotContainer.armSub.getWristEncoderDegrees());
 
-    SmartDashboard.putData("Mech2d", mech);
+    SmartDashboard.putData("ArmMech2D", mech);
 
     CommandScheduler.getInstance().run();
   }
