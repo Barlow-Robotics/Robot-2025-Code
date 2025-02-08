@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
-import frc.robot.Constants.AlgaeConstants;
 import frc.robot.Constants.CoralConstants;
 import frc.robot.Constants.ElectronicsIDs;
 
