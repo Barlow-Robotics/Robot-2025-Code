@@ -121,7 +121,7 @@ public class Constants {
         public static final int AlgaeIntakeMotorID = 53;
 
         /***************************** CORAL INTAKE *****************************/
-        public static final int CoralIntakeMotorID = 0;
+        public static final int GripperMotorID = 0;
     }
 
     /***************************************************************************/
@@ -341,11 +341,11 @@ public class Constants {
     }
 
     public static final class CoralConstants {
-        public static final double IntakeKP = 32; // CHANGE
-        public static final double IntakeKI = 0.001; // CHANGE
-        public static final double IntakeKD = 0; // CHANGE
-        public static final double IntakeFF = 0; // CHANGE
-        public static final double IntakeIZone = 0.15; // CHANGE
+        public static final double GripperKP = 32; // CHANGE
+        public static final double GripperKI = 0.001; // CHANGE
+        public static final double GripperKD = 0; // CHANGE
+        public static final double GripperFF = 0; // CHANGE
+        public static final double GripperIZone = 0.15; // CHANGE
 
         public static final double IntakeSpeed = 0; // CHANGE
         public static final double EjectSpeed = 0; // CHANGE

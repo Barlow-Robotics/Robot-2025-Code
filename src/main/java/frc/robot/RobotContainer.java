@@ -46,7 +46,7 @@ import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
@@ -56,7 +56,7 @@ public class RobotContainer {
     public Vision visionSub = new Vision();
     public final Arm armSub = new Arm(visionSub, driveSub);
     public final Climb climbSub = new Climb();
-    public final CoralIntake coralIntakeSub = new CoralIntake(visionSub, driveSub);
+    public final Gripper coralIntakeSub = new Gripper(visionSub, driveSub);
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake(visionSub, driveSub);
 
     /* COMMANDS */

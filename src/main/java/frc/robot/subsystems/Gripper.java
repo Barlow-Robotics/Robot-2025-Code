@@ -23,13 +23,13 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 
-public class CoralIntake extends SubsystemBase {
+public class Gripper extends SubsystemBase {
 
-  SparkMax intakeMotor;
-  SparkMaxConfig intakeMotorConfig;
-  SparkMaxSim intakeMotorSim;
-  DCMotorSim intakeMotorModel;
-  public final SparkClosedLoopController intakePidController;
+  SparkMax gripperMotor;
+  SparkMaxConfig gripperMotorConfig;
+  SparkMaxSim gripperMotorSim;
+  DCMotorSim gripperMotorModel;
+  public final SparkClosedLoopController gripperPidController;
   private boolean simulationInitialized = false;
   private boolean isEjecting;
 
@@ -37,16 +37,16 @@ public class CoralIntake extends SubsystemBase {
   private final Vision visionSub;
 
   /** Creates a new Coral. */
-  public CoralIntake(Vision visionSub, Drive driveSub) {
-    intakeMotor = new SparkMax(ElectronicsIDs.CoralIntakeMotorID, MotorType.kBrushless);
+  public Gripper(Vision visionSub, Drive driveSub) {
+    gripperMotor = new SparkMax(ElectronicsIDs.GripperMotorID, MotorType.kBrushless);
 
-    intakeMotorSim = new SparkMaxSim(intakeMotor, DCMotor.getNeo550((1)));
-    intakeMotorModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
-    intakePidController = intakeMotor.getClosedLoopController();
-    intakeMotorConfig = new SparkMaxConfig();
-    intakeMotorConfig.closedLoop
-            .pidf(CoralConstants.IntakeKP, CoralConstants.IntakeKI, CoralConstants.IntakeKD, CoralConstants.IntakeFF)
-            .iZone(CoralConstants.IntakeIZone)
+    gripperMotorSim = new SparkMaxSim(gripperMotor, DCMotor.getNeo550((1)));
+    gripperMotorModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
+    gripperPidController = gripperMotor.getClosedLoopController();
+    gripperMotorConfig = new SparkMaxConfig();
+    gripperMotorConfig.closedLoop
+            .pidf(CoralConstants.GripperKP, CoralConstants.GripperKI, CoralConstants.GripperKD, CoralConstants.GripperFF)
+            .iZone(CoralConstants.GripperIZone)
             .outputRange(-1, 1); 
     this.driveSub = driveSub;
     this.visionSub = visionSub;
@@ -58,31 +58,30 @@ public class CoralIntake extends SubsystemBase {
   }
 
   public void startIntaking() {
-    intakeMotor.getClosedLoopController().setReference(CoralConstants.IntakeSpeed, ControlType.kVelocity);
+    gripperMotor.getClosedLoopController().setReference(CoralConstants.IntakeSpeed, ControlType.kVelocity);
     isEjecting = false;
   }
 
   public void startEjecting() {
     // NEED TO FIX // should be differents speed (need to make new constant)
-    intakeMotor.getClosedLoopController().setReference(CoralConstants.EjectSpeed, ControlType.kVelocity);
+    gripperMotor.getClosedLoopController().setReference(CoralConstants.EjectSpeed, ControlType.kVelocity);
     isEjecting = true;
   }
   public double getIntakeEncoderDegrees() {
-    return Units.rotationsToDegrees(intakeMotor.getAbsoluteEncoder().getPosition());
+    return Units.rotationsToDegrees(gripperMotor.getAbsoluteEncoder().getPosition());
   }
 
   public void stop() {
-    intakeMotor.stopMotor();
+    gripperMotor.stopMotor();
   }
  /* LOGGING */
   private void logData() {
-    Logger.recordOutput("CoralIntake/IntakeMotor/DegreesCANCoder", getIntakeEncoderDegrees());
-    Logger.recordOutput("CoralIntake/IntakeMotor/RotationsCANCoder", intakeMotor.getAbsoluteEncoder().getPosition());
-    Logger.recordOutput("CoralIntake/IntakeMotor/VoltageActual", intakeMotor.getEncoder().getVelocity());
-    Logger.recordOutput("CoralIntake/IntakeMotor/RPSActual", intakeMotor.getEncoder().getVelocity());
-
-    Logger.recordOutput("CoralIntake/isEjecting", this.isEjecting);
-    Logger.recordOutput("CoralIntake/isIntaking", !this.isEjecting);
+    Logger.recordOutput("Gripper/GripperMotor/DegreesCANCoder", getIntakeEncoderDegrees());
+    Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
+    Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
+    Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
+    Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
+    Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
 
   }
   /* SIMULATION */
@@ -96,11 +95,11 @@ public class CoralIntake extends SubsystemBase {
           simulationInit();
           simulationInitialized = true;
       }
-      intakeMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
-      double intakeVoltage = intakeMotorSim.getBusVoltage();
-      intakeMotorModel.setInputVoltage(intakeVoltage);
-      intakeMotorModel.update(0.02);
-      intakeMotorSim.setVelocity(intakeMotorModel.getAngularVelocityRPM() / 60.0);
+      gripperMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+      double intakeVoltage = gripperMotorSim.getBusVoltage();
+      gripperMotorModel.setInputVoltage(intakeVoltage);
+      gripperMotorModel.update(0.02);
+      gripperMotorSim.setVelocity(gripperMotorModel.getAngularVelocityRPM() / 60.0);
       
       //double currentLiftAngle = getLiftEncoderDegrees();
       //double delta = desiredLiftAngle - currentLiftAngle;

@@ -5,15 +5,15 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.Gripper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class IntakeCoral extends Command {
 
-  CoralIntake coralIntakeSub;
+  Gripper coralIntakeSub;
 
   /** Creates a new Intake. */
-  public IntakeCoral(CoralIntake coralIntakeSub) {
+  public IntakeCoral(Gripper coralIntakeSub) {
     this.coralIntakeSub = coralIntakeSub;
 
     addRequirements(coralIntakeSub);

@@ -203,7 +203,7 @@ public class Arm extends SubsystemBase {
     public void setArmAngle(double desiredDegrees) {
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
-        this.desiredArmAngle = desiredDegrees;
+        // this.desiredArmAngle = desiredDegrees;
     }
 
     public void stopArmMotor() {
@@ -310,6 +310,12 @@ public class Arm extends SubsystemBase {
     private void logData() {
         Logger.recordOutput("Arm/StateActual", actualState);
         Logger.recordOutput("Arm/StateDesired", desiredState);
+        
+        Logger.recordOutput("Arm/AtDesiredState", isAtDesiredState());
+        Logger.recordOutput("Arm/Tolerances/WithinWristTolerance", isWithinWristAngleTolerance());
+        Logger.recordOutput("Arm/Tolerances/WithinArmTolerance", isWithinArmAngleTolerance());
+        Logger.recordOutput("Arm/Tolerances/WithinElevatorTolerance", isWithinElevatorHeightTolerance());
+        Logger.recordOutput("Arm/Tolerances/WithinCarriageTolerance", isWithinCarriageHeightTolerance());
 
         // SparkMax Config
         Logger.recordOutput("Arm/WristAngle/DegreesDesired", desiredWristAngle);
