@@ -1,4 +1,4 @@
- // Copyright (c) FIRST and other WPILib contributors.
+// Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -53,36 +53,39 @@ import frc.robot.Constants;
 public class Arm extends SubsystemBase {
 
     private final HashMap<ArmState, ElevatorState> positionDictionary = new HashMap<ArmState, ElevatorState>();
-    // include intake speeds, in dictionary, speed that intake runs at. 
+    // include intake speeds, in dictionary, speed that intake runs at.
     // Remember to increase the capacity of the hashmap, it's default 16
 
     TalonFX armMotor;
     private final DCMotorSim armMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
-        DCMotor.getKrakenX60Foc(1));
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+            DCMotor.getKrakenX60Foc(1));
     private final CANcoder armEncoder;
 
     TalonFX carriageMotor;
     private final DCMotorSim carriageMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+            DCMotor.getKrakenX60Foc(1));
 
     SparkMax wristMotor;
     SparkMaxConfig wristMotorConfig = new SparkMaxConfig();
     private final SparkMaxSim wristMotorSim;
-    private final CANcoder wristEncoder; 
+    private final CANcoder wristEncoder;
     private final CANcoderSimState wristEncoderSim;
     private final DCMotorSim wristMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
-    
+            LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
+
     TalonFX leftElevatorMotor;
     private final TalonFXSimState leftElevatorMotorSim;
     private final DCMotorSim leftElevatorMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+            DCMotor.getKrakenX60Foc(1));
 
     TalonFX rightElevatorMotor;
     private final TalonFXSimState rightElevatorMotorSim;
     private final DCMotorSim rightElevatorMotorModel = new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1), DCMotor.getKrakenX60Foc(1));
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+            DCMotor.getKrakenX60Foc(1));
 
     public enum ArmState {
         WaitingForCoral, Startup, CoralAuto, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running
@@ -107,9 +110,9 @@ public class Arm extends SubsystemBase {
         // bottomHallEffect = new DigitalInput(ElectronicsIDs.BottomHallEffectID);
 
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
-        //armMotorSim = armMotor.getSimState();
+        // armMotorSim = armMotor.getSimState();
         armMotor.setPosition(0);
-        
+
         carriageMotor = new TalonFX(ElectronicsIDs.CarriageMotorID);
         // carriageMotorSim = armMotor.getSimState();
         carriageMotor.setPosition(0);
@@ -120,16 +123,16 @@ public class Arm extends SubsystemBase {
         wristEncoderSim = wristEncoder.getSimState();
 
         armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
-        
+
         leftElevatorMotor = new TalonFX(ElectronicsIDs.LeftElevatorMotorID);
         leftElevatorMotorSim = leftElevatorMotor.getSimState();
         leftElevatorMotor.setPosition(0);
 
         rightElevatorMotor = new TalonFX(ElectronicsIDs.RightElevatorMotorID);
-        rightElevatorMotorSim = rightElevatorMotor.getSimState(); 
+        rightElevatorMotorSim = rightElevatorMotor.getSimState();
 
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
-        applyWristEncoderConfigs(); 
+        applyWristEncoderConfigs();
         applyElevatorMotorConfigs(leftElevatorMotor, "leftElevatorMotor", InvertedValue.CounterClockwise_Positive);
         applyElevatorMotorConfigs(rightElevatorMotor, "rightElevatorMotor", InvertedValue.Clockwise_Positive);
         applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
@@ -137,9 +140,9 @@ public class Arm extends SubsystemBase {
         rightElevatorMotor.setControl(new Follower(leftElevatorMotor.getDeviceID(), true));
 
         wristMotorConfig.closedLoop
-            .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
-            .iZone(ArmConstants.WristIZone)
-            .outputRange(-1, 1);        
+                .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
+                .iZone(ArmConstants.WristIZone)
+                .outputRange(-1, 1);
         wristMotor.configure(wristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         this.driveSub = driveSub;
@@ -149,18 +152,19 @@ public class Arm extends SubsystemBase {
 
     private void initializePositionDictionary() {
         // CHANGE all these magic #s (except for wrist)
-        // need to add speeds to all of these
-        positionDictionary.put(ArmState.Level1, new ElevatorState(50, 0, 0, 0));
-        positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90));
-        positionDictionary.put(ArmState.Level3, new ElevatorState(30, 0, 0, 90));
-        positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90));
-        positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90, 0));
-        positionDictionary.put(ArmState.LoadCoral, new ElevatorState(0, 0, 0, 90));
-        positionDictionary.put(ArmState.AlgaeLow, new ElevatorState(0, 0, 0, 0));
-        positionDictionary.put(ArmState.AlgaeHigh, new ElevatorState(0, 0, 0, 0));
-        positionDictionary.put(ArmState.Startup, new ElevatorState(0, 0, 0, 90));
-        positionDictionary.put(ArmState.CoralAuto, new ElevatorState(0, 0, 0, 90));
-        positionDictionary.put(ArmState.Running, new ElevatorState(0, 0, 0, 90));
+        // need to change speeds to all of these (right now assuming grabing is + and
+        // release is -)
+        positionDictionary.put(ArmState.Level1, new ElevatorState(50, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90, -1));
+        positionDictionary.put(ArmState.Level3, new ElevatorState(30, 0, 0, 90, -1));
+        positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90, -1));
+        positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90, 1));
+        positionDictionary.put(ArmState.LoadCoral, new ElevatorState(0, 0, 0, 90, 1));
+        positionDictionary.put(ArmState.AlgaeLow, new ElevatorState(0, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.AlgaeHigh, new ElevatorState(0, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.Startup, new ElevatorState(0, 0, 0, 90, 0));
+        positionDictionary.put(ArmState.CoralAuto, new ElevatorState(0, 0, 0, 90, 1));
+        positionDictionary.put(ArmState.Running, new ElevatorState(0, 0, 0, 90, -1));
     }
 
     private void setDesiredAnglesAndHeights() {
@@ -172,7 +176,7 @@ public class Arm extends SubsystemBase {
         desiredGripperVelocity = val.getGripperVelocity();
         setWristAngle(desiredWristAngle);
         setElevatorHeightInches(leftElevatorMotor, desiredElevatorHeight);
-        setCarriageHeightInches(carriageMotor,desiredCarriageHeight);
+        setCarriageHeightInches(carriageMotor, desiredCarriageHeight);
     }
 
     public boolean hasCompletedMovement() {
@@ -187,7 +191,6 @@ public class Arm extends SubsystemBase {
             actualState = desiredState;
         }
 
-
         logData();
 
         // Shuffleboard.getTab("Match").add("Can See Tag", targetIsVisible);
@@ -195,13 +198,14 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristMotor.getClosedLoopController().setReference(Units.degreesToRadians(desiredDegrees), ControlType.kPosition);
+        wristMotor.getClosedLoopController().setReference(Units.degreesToRadians(desiredDegrees),
+                ControlType.kPosition);
     }
 
     public void stopWristMotor() {
         wristMotor.stopMotor();
     }
-    
+
     public void setArmAngle(double desiredDegrees) {
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
@@ -226,14 +230,14 @@ public class Arm extends SubsystemBase {
 
     public void setElevatorHeightInches(TalonFX motor, double desiredInches) {
         double rotations = ((desiredInches /*- ArmConstants.StartingElevatorHeight*/))
-        * ArmConstants.RotationsPerElevatorInch;
+                * ArmConstants.RotationsPerElevatorInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
         motor.setControl(request.withSlot(0));
     }
 
     public void setCarriageHeightInches(TalonFX motor, double desiredInches) {
         double rotations = ((desiredInches /*- ArmConstants.StartingCarriageHeight*/))
-        * ArmConstants.RotationsPerCarriageInch;
+                * ArmConstants.RotationsPerCarriageInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
         motor.setControl(request.withSlot(0));
     }
@@ -241,13 +245,14 @@ public class Arm extends SubsystemBase {
     public double getElevatorHeightInches() {
         double elevatorHeight = ((leftElevatorMotor.getPosition().getValue().in(Rotations)
                 / ArmConstants.RotationsPerElevatorInch))
-                /*+ ArmConstants.StartingElevatorHeight*/;
+        /* + ArmConstants.StartingElevatorHeight */;
         return elevatorHeight;
     }
+
     public double getCarriageHeightInches() {
         double carriageHeight = ((carriageMotor.getPosition().getValue().in(Rotations)
                 / ArmConstants.RotationsPerElevatorInch));
-                /*+ ArmConstants.StartingCarriageHeight;*/ 
+        /* + ArmConstants.StartingCarriageHeight; */
         return carriageHeight;
     }
 
@@ -276,7 +281,8 @@ public class Arm extends SubsystemBase {
     }
 
     private boolean isAtDesiredState() {
-        if (isWithinWristAngleTolerance() && isWithinArmAngleTolerance() && isWithinElevatorHeightTolerance() && isWithinCarriageHeightTolerance()) {
+        if (isWithinWristAngleTolerance() && isWithinArmAngleTolerance() && isWithinElevatorHeightTolerance()
+                && isWithinCarriageHeightTolerance()) {
             return true;
         } else {
             return false;
@@ -302,13 +308,15 @@ public class Arm extends SubsystemBase {
     }
 
     private boolean isWithinElevatorHeightTolerance() {
-        boolean withinTolerance = (getElevatorHeightInches() >= desiredElevatorHeight - ArmConstants.ElevatorHeightTolerance) &&
+        boolean withinTolerance = (getElevatorHeightInches() >= desiredElevatorHeight
+                - ArmConstants.ElevatorHeightTolerance) &&
                 (getElevatorHeightInches() <= desiredElevatorHeight + ArmConstants.ElevatorHeightTolerance);
         return withinTolerance;
     }
 
     private boolean isWithinCarriageHeightTolerance() {
-        boolean withinTolerance = (getCarriageHeightInches() >= desiredCarriageHeight - ArmConstants.CarriageHeightTolerance) &&
+        boolean withinTolerance = (getCarriageHeightInches() >= desiredCarriageHeight
+                - ArmConstants.CarriageHeightTolerance) &&
                 (getCarriageHeightInches() <= desiredCarriageHeight + ArmConstants.CarriageHeightTolerance);
         return withinTolerance;
     }
@@ -316,7 +324,7 @@ public class Arm extends SubsystemBase {
     private void logData() {
         Logger.recordOutput("Arm/StateActual", actualState);
         Logger.recordOutput("Arm/StateDesired", desiredState);
-        
+
         Logger.recordOutput("Arm/AtDesiredState", isAtDesiredState());
         Logger.recordOutput("Arm/Tolerances/WithinWristTolerance", isWithinWristAngleTolerance());
         Logger.recordOutput("Arm/Tolerances/WithinArmTolerance", isWithinArmAngleTolerance());
@@ -327,8 +335,10 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/WristAngle/DegreesDesired", desiredWristAngle);
         Logger.recordOutput("Arm/WristAngle/DegreesCANCoder", getWristEncoderDegrees());
         Logger.recordOutput("Arm/WristAngle/RotationsCANCoder", wristEncoder.getAbsolutePosition().getValue());
-        // Logger.recordOutput("Arm/WristAngle/VoltageActual", wristMotor.getEncoder().getVelocity());
-        // Logger.recordOutput("Arm/WristAngle/RPSActual", wristMotor.getEncoder().getVelocity());
+        // Logger.recordOutput("Arm/WristAngle/VoltageActual",
+        // wristMotor.getEncoder().getVelocity());
+        // Logger.recordOutput("Arm/WristAngle/RPSActual",
+        // wristMotor.getEncoder().getVelocity());
         Logger.recordOutput("Arm/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
 
         Logger.recordOutput("Arm/ArmAngle/DegreesDesired", desiredArmAngle);
@@ -344,24 +354,32 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ElevatorHeight/InchesDesired", desiredElevatorHeight);
         Logger.recordOutput("Arm/ElevatorHeight/InchesActual", getElevatorHeightInches());
         Logger.recordOutput("Arm/ElevatorHeight/Left/VoltageActual", leftElevatorMotor.getMotorVoltage().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/ClosedLoopError", leftElevatorMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/ClosedLoopError",
+                leftElevatorMotor.getClosedLoopError().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/Left/SupplyCurrent", leftElevatorMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/Left/TempC", leftElevatorMotor.getDeviceTemp().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/Left/ControlMode", leftElevatorMotor.getControlMode().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsActual", leftElevatorMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsDesired", leftElevatorMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsActual",
+                leftElevatorMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsDesired",
+                leftElevatorMotor.getClosedLoopReference().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/Left/RPSActual", leftElevatorMotor.getVelocity().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/AccelerationActual", leftElevatorMotor.getAcceleration().getValue());
-        
+        Logger.recordOutput("Arm/ElevatorHeight/Left/AccelerationActual",
+                leftElevatorMotor.getAcceleration().getValue());
+
         Logger.recordOutput("Arm/ElevatorHeight/Right/VoltageActual", rightElevatorMotor.getMotorVoltage().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/ClosedLoopError", rightElevatorMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/ClosedLoopError",
+                rightElevatorMotor.getClosedLoopError().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/Right/SupplyCurrent", rightElevatorMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/Right/TempC", rightElevatorMotor.getDeviceTemp().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsActual", rightElevatorMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsDesired", rightElevatorMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsActual",
+                rightElevatorMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsDesired",
+                rightElevatorMotor.getClosedLoopReference().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/Right/RPSActual", rightElevatorMotor.getVelocity().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/AccelerationActual", rightElevatorMotor.getAcceleration().getValue());
-        
+        Logger.recordOutput("Arm/ElevatorHeight/Right/AccelerationActual",
+                rightElevatorMotor.getAcceleration().getValue());
+
         Logger.recordOutput("Arm/CarriageHeight/InchesDesired", desiredCarriageHeight);
         Logger.recordOutput("Arm/CarriageHeight/InchesActual", getCarriageHeightInches());
         Logger.recordOutput("Arm/CarriageHeight/VoltageActual", carriageMotor.getMotorVoltage().getValue());
@@ -408,12 +426,12 @@ public class Arm extends SubsystemBase {
         talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         /*
-        talonConfigs.Slot1.kP = ShooterMountConstants.ClimbKP;
-        talonConfigs.Slot1.kI = ShooterMountConstants.ClimbKI;
-        talonConfigs.Slot1.kD = ShooterMountConstants.ClimbKD;
-        talonConfigs.Slot1.kV = ShooterMountConstants.ClimbFF;
-        talonConfigs.Slot1.kG = ShooterMountConstants.ClimbKG;\
-        */
+         * talonConfigs.Slot1.kP = ShooterMountConstants.ClimbKP;
+         * talonConfigs.Slot1.kI = ShooterMountConstants.ClimbKI;
+         * talonConfigs.Slot1.kD = ShooterMountConstants.ClimbKD;
+         * talonConfigs.Slot1.kV = ShooterMountConstants.ClimbFF;
+         * talonConfigs.Slot1.kG = ShooterMountConstants.ClimbKG;\
+         */
         talonConfigs.Slot1.GravityType = GravityTypeValue.Elevator_Static;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
@@ -485,16 +503,16 @@ public class Arm extends SubsystemBase {
         MagnetSensorConfigs magnetConfig = new MagnetSensorConfigs();
         var canCoderConfiguration = new CANcoderConfiguration();
         magnetConfig.AbsoluteSensorDiscontinuityPoint = 0.5;
-        
+
         if (!Robot.isSimulation()) {
             magnetConfig.MagnetOffset = ArmConstants.AngleCANCoderMagnetOffset;
         } else {
             magnetConfig.MagnetOffset = 0.0;
-        } 
+        }
 
         magnetConfig.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         canCoderConfiguration.MagnetSensor = magnetConfig;
-        
+
         StatusCode status = StatusCode.StatusCodeNotInitialized;
 
         for (int i = 0; i < 5; ++i) {
@@ -519,9 +537,9 @@ public class Arm extends SubsystemBase {
     }
 
     private void setNeutralMode(NeutralModeValue armMotorMode, NeutralModeValue elevatorMotorMode) {
-        armMotor.setNeutralMode(armMotorMode); 
+        armMotor.setNeutralMode(armMotorMode);
         leftElevatorMotor.setNeutralMode(elevatorMotorMode);
-        rightElevatorMotor.setNeutralMode(elevatorMotorMode);                                                                                                 
+        rightElevatorMotor.setNeutralMode(elevatorMotorMode);
     }
 
     /* SIMULATION */
@@ -559,7 +577,8 @@ public class Arm extends SubsystemBase {
         armMotorSim.setRotorVelocity(armMotorModel.getAngularVelocity());
 
         // The armEncoder needs to be synchronized from the motor simulation model
-        // This is because the talonConfigs.Feedback.FeedbackRemoteSensorID is set to use the
+        // This is because the talonConfigs.Feedback.FeedbackRemoteSensorID is set to
+        // use the
         // the encoder.
         var armEncoderSim = armEncoder.getSimState();
         armEncoderSim.setVelocity(armMotorModel.getAngularVelocityRadPerSec());
@@ -588,9 +607,9 @@ public class Arm extends SubsystemBase {
         rightElevatorMotorModel.setInputVoltage(rightVoltage);
         rightElevatorMotorModel.update(0.02);
         rightElevatorMotorSim.setRotorVelocity(rightElevatorMotorModel.getAngularVelocityRPM() / 60.0);
-        
+
         // Wrist Motor Sim
-        
+
         wristMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
         wristMotorModel.setInputVoltage(wristMotorSim.getAppliedOutput() * RoboRioSim.getVInVoltage());
         wristMotorModel.update(0.02);
