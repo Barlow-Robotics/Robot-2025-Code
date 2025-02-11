@@ -98,6 +98,7 @@ public class Arm extends SubsystemBase {
     private double desiredCarriageHeight = ArmConstants.StartingCarriageHeight;
     private double desiredArmAngle = 0; // CHANGE PLACEHOLDER
     private double desiredElevatorHeight = ArmConstants.StartingElevatorHeight;
+    private double desiredGripperVelocity = 0;
 
     public boolean targetIsVisible = false;
     private boolean simulationInitialized = false;
@@ -145,14 +146,15 @@ public class Arm extends SubsystemBase {
         this.visionSub = visionSub;
         initializePositionDictionary();
     }
+
     private void initializePositionDictionary() {
         // CHANGE all these magic #s (except for wrist)
-        // all elevator heights should be above ~24 (ElevatorStartingHeight)
+        // need to add speeds to all of these
         positionDictionary.put(ArmState.Level1, new ElevatorState(50, 0, 0, 0));
         positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90));
         positionDictionary.put(ArmState.Level3, new ElevatorState(30, 0, 0, 90));
         positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90));
-        positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90));
+        positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90, 0));
         positionDictionary.put(ArmState.LoadCoral, new ElevatorState(0, 0, 0, 90));
         positionDictionary.put(ArmState.AlgaeLow, new ElevatorState(0, 0, 0, 0));
         positionDictionary.put(ArmState.AlgaeHigh, new ElevatorState(0, 0, 0, 0));
@@ -167,10 +169,10 @@ public class Arm extends SubsystemBase {
         desiredCarriageHeight = val.getCarriageHeight();
         desiredArmAngle = val.getArmAngle();
         desiredElevatorHeight = val.getElevatorHeight();
+        desiredGripperVelocity = val.getGripperVelocity();
         setWristAngle(desiredWristAngle);
         setElevatorHeightInches(leftElevatorMotor, desiredElevatorHeight);
         setCarriageHeightInches(carriageMotor,desiredCarriageHeight);
-        setArmAngle(desiredArmAngle);
     }
 
     public boolean hasCompletedMovement() {
@@ -279,6 +281,10 @@ public class Arm extends SubsystemBase {
         } else {
             return false;
         }
+    }
+
+    public double getDesiredGripperVel() {
+        return desiredGripperVelocity;
     }
 
     /* TOLERANCES */

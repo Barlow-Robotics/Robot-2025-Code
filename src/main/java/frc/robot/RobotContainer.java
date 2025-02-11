@@ -34,11 +34,10 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 // import frc.robot.commands.DriveRobot;
-import frc.robot.commands.EjectCoral;
-import frc.robot.commands.IntakeCoral;
+import frc.robot.commands.RunGripper;
 import frc.robot.commands.SetArmPosition;
 import frc.robot.commands.StopAlgaeIntake;
-import frc.robot.commands.StopCoralIntake;
+import frc.robot.commands.StopGripper;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.subsystems.Drive;
@@ -56,7 +55,7 @@ public class RobotContainer {
     public Vision visionSub = new Vision();
     public final Arm armSub = new Arm(visionSub, driveSub);
     public final Climb climbSub = new Climb();
-    public final Gripper coralIntakeSub = new Gripper(visionSub, driveSub);
+    public final Gripper gripperSub = new Gripper(visionSub, driveSub);
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake(visionSub, driveSub);
 
     /* COMMANDS */
@@ -75,9 +74,8 @@ public class RobotContainer {
     private final IntakeAlgae intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
     private final StopAlgaeIntake stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
     
-    private final IntakeCoral intakeCoralCmd = new IntakeCoral(coralIntakeSub);
-    private final EjectCoral ejectCoralCmd = new EjectCoral(coralIntakeSub);
-    private final StopCoralIntake stopCoralIntakeCmd = new StopCoralIntake(coralIntakeSub);
+    private final RunGripper runGripperCmd = new RunGripper(gripperSub, armSub);
+    private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
 
     /* CONTROLLERS */
     /*private*/ static Joystick driverController;
@@ -103,7 +101,7 @@ public class RobotContainer {
     private Trigger intakeAlgaeButton;
     private Trigger ejectAlgaeButton;    
     
-    private Trigger intakeCoralButton;
+    private Trigger runGripperButton;
     private Trigger ejectCoralButton;
     private Trigger shooterButton;
     
@@ -253,13 +251,10 @@ public class RobotContainer {
         ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        /***************** CORAL INTAKE *****************/
-
-        ejectCoralButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
-        ejectCoralButton.onTrue(ejectCoralCmd).onFalse(stopCoralIntakeCmd);
+        /***************** GRIPPER *****************/
         
-        intakeCoralButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
-        intakeCoralButton.onTrue(intakeCoralCmd).onFalse(stopCoralIntakeCmd);
+        runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
+        runGripperButton.onTrue(runGripperCmd).onFalse(stopGripperCmd);
 
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
 

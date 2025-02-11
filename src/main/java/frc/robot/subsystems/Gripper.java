@@ -54,19 +54,21 @@ public class Gripper extends SubsystemBase {
 
   @Override
   public void periodic() {
+
     logData();
   }
 
-  public void startIntaking() {
-    gripperMotor.getClosedLoopController().setReference(CoralConstants.IntakeSpeed, ControlType.kVelocity);
+  public void setVelocity(double speed) {
+    gripperMotor.getClosedLoopController().setReference(speed, ControlType.kVelocity);
     isEjecting = false;
   }
 
-  public void startEjecting() {
-    // NEED TO FIX // should be differents speed (need to make new constant)
-    gripperMotor.getClosedLoopController().setReference(CoralConstants.EjectSpeed, ControlType.kVelocity);
-    isEjecting = true;
-  }
+  // public void startEjecting() {
+  //   // NEED TO FIX // should be differents speed (need to make new constant)
+  //   gripperMotor.getClosedLoopController().setReference(CoralConstants.EjectSpeed, ControlType.kVelocity);
+  //   isEjecting = true;
+  // }
+  
   public double getIntakeEncoderDegrees() {
     return Units.rotationsToDegrees(gripperMotor.getAbsoluteEncoder().getPosition());
   }

@@ -5,18 +5,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Gripper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class EjectCoral extends Command {
+public class RunGripper extends Command {
 
-  Gripper coralIntakeSub;
+  Gripper gripperSub;
+  Arm armSub;
 
   /** Creates a new Intake. */
-  public EjectCoral(Gripper coralIntakeSub) {
-    this.coralIntakeSub = coralIntakeSub;
+  public RunGripper(Gripper gripperSub, Arm armSub) {
+    this.gripperSub = gripperSub;
+    this.armSub = armSub;
 
-    addRequirements(coralIntakeSub);
+    addRequirements(gripperSub);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -27,7 +30,7 @@ public class EjectCoral extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    coralIntakeSub.startEjecting();
+    gripperSub.setVelocity(armSub.getDesiredGripperVel());
   }
 
   // Called once the command ends or is interrupted.
