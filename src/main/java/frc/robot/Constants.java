@@ -106,7 +106,7 @@ public class Constants {
 
         public static final int PigeonID = 1;
 
-        /***************************** ARM *****************************/
+        /****************************** ARM ******************************/
         public static final int ArmMotorID = 41;
         public static final int WristMotorID = 42; // rev
         public static final int LeftElevatorMotorID = 43;
@@ -115,12 +115,12 @@ public class Constants {
         public static final int WristEncoderID = 46;
         public static final int ArmEncoderID = 47;
 
-        /***************************** ALGAE INTAKE *****************************/
+        /************************** ALGAE INTAKE ****************************/
         public static final int LiftMotorID = 51;
         public static final int LiftEncoderID = 52;
         public static final int AlgaeIntakeMotorID = 53;
 
-        /***************************** CORAL INTAKE *****************************/
+        /***************************** GRIPPER *****************************/
         public static final int GripperMotorID = 0;
     }
 
@@ -340,15 +340,15 @@ public class Constants {
         public static final double ElevatorMinimumHeight = 0; // CHANGE
     }
 
-    public static final class CoralConstants {
+    public static final class GripperConstants {
         public static final double GripperKP = 32; // CHANGE
         public static final double GripperKI = 0.001; // CHANGE
         public static final double GripperKD = 0; // CHANGE
         public static final double GripperFF = 0; // CHANGE
         public static final double GripperIZone = 0.15; // CHANGE
 
-        public static final double IntakeSpeed = 0; // CHANGE
-        public static final double EjectSpeed = 0; // CHANGE
+        public static final double IntakeSpeed = 1; // CHANGE
+        public static final double EjectSpeed = -1; // CHANGE
     }
 
     public static final class AlgaeConstants {
@@ -366,8 +366,8 @@ public class Constants {
         public static final double IntakeKG = 0; // CHANGE
         public static final double IntakeIZone = 0.15; // CHANGE
 
-        public static final double IntakeSpeed = 0; // CHANGE
-        public static final double EjectSpeed = 0; // CHANGE
+        public static final double IntakeSpeed = 1; // CHANGE
+        public static final double EjectSpeed = -1; // CHANGE
 
         
         public static final double LiftAcceleration = 12; // CHANGE
@@ -376,6 +376,8 @@ public class Constants {
         
         public static final double IntakeCruiseRotationsPerSec = 3; // CHANGE
         public static final double IntakeAcceleration = 12; // CHANGE
+        public static final double IntakeJerk = 40; // CHANGE
+        public static final double LiftAngleTolerance = 1.5;
 
     }
 

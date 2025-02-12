@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
-import frc.robot.Constants.CoralConstants;
+import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.ElectronicsIDs;
 
 import org.littletonrobotics.junction.Logger;
@@ -45,8 +45,8 @@ public class Gripper extends SubsystemBase {
     gripperPidController = gripperMotor.getClosedLoopController();
     gripperMotorConfig = new SparkMaxConfig();
     gripperMotorConfig.closedLoop
-            .pidf(CoralConstants.GripperKP, CoralConstants.GripperKI, CoralConstants.GripperKD, CoralConstants.GripperFF)
-            .iZone(CoralConstants.GripperIZone)
+            .pidf(GripperConstants.GripperKP, GripperConstants.GripperKI, GripperConstants.GripperKD, GripperConstants.GripperFF)
+            .iZone(GripperConstants.GripperIZone)
             .outputRange(-1, 1); 
     this.driveSub = driveSub;
     this.visionSub = visionSub;
@@ -82,9 +82,10 @@ public class Gripper extends SubsystemBase {
     Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
     Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
     Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
+    
     Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
     Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
-
+                          // Is there supposed to be an exclamation mark
   }
   /* SIMULATION */
 
