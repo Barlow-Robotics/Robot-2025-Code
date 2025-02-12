@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 
 /**
  * Manages physics simulation for CTRE products.
@@ -29,6 +30,22 @@ public class PhysicsSim {
     public void addTalonFX(TalonFX falcon, final double rotorInertia) {
         if (falcon != null) {
             TalonFXSimProfile simFalcon = new TalonFXSimProfile(falcon, rotorInertia);
+            _simProfiles.add(simFalcon);
+        }
+    }
+
+
+    /**
+     * Adds a TalonFXS controller to the simulator.
+     * 
+     * @param falcon
+     *        The TalonFXS device
+     * @param rotorInertia
+     *        Rotational Inertia of the mechanism at the rotor
+     */
+    public void addTalonFXS(TalonFXS falcon, final double rotorInertia) {
+        if (falcon != null) {
+            TalonFXSSimProfile simFalcon = new TalonFXSSimProfile(falcon, rotorInertia);
             _simProfiles.add(simFalcon);
         }
     }
