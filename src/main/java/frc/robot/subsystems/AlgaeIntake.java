@@ -179,6 +179,24 @@ public class AlgaeIntake extends SubsystemBase {
         motionMagicConfigs.MotionMagicAcceleration = AlgaeConstants.IntakeAcceleration;
         motionMagicConfigs.MotionMagicJerk = AlgaeConstants.IntakeJerk;
 
+        // set current limit
+        CurrentLimitsConfigs currentLimitConfigs = talonConfigs.CurrentLimits;
+        currentLimitConfigs.SupplyCurrentLimit = AlgaeConstants.SupplyCurrentLimit;
+        currentLimitConfigs.SupplyCurrentLimitEnable = true; // Start with stator limits off
+
+        StatusCode status = StatusCode.StatusCodeNotInitialized;
+
+        // Try five times to apply the Intake motor current config
+        for (int i = 0; i < 5; ++i) {
+            status = intakeMotor.getConfigurator().apply(currentLimitConfigs, 0.05);
+            if (status.isOK())
+                break;
+        }
+        if (!status.isOK()) {
+            System.out.println(
+                    "Could not apply current limit configs to intake motor, with error code: " + status.toString());
+        }
+
         applyMotorConfigs(intakeMotor, "intakeMotor", talonConfigs, inversion);
     }
 

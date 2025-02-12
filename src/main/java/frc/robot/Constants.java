@@ -378,6 +378,7 @@ public class Constants {
         public static final double IntakeAcceleration = 12; // CHANGE
         public static final double IntakeJerk = 40; // CHANGE
         public static final double LiftAngleTolerance = 1.5;
+        public static final double SupplyCurrentLimit = 30; // CHANGE
 
     }
 
