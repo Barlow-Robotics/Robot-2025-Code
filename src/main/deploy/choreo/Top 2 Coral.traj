@@ -21,10 +21,10 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"7.9908623695373535 m", "val":7.9908623695373535}, "y":{"exp":"6.025062561035156 m", "val":6.025062561035156}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":31, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"5.3497538566589355 m", "val":5.3497538566589355}, "y":{"exp":"5.421063423156738 m", "val":5.421063423156738}, "heading":{"exp":"240 deg", "val":4.1887902047863905}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"5.435914993286133 m", "val":5.435914993286133}, "y":{"exp":"5.3522491455078125 m", "val":5.3522491455078125}, "heading":{"exp":"240 deg", "val":4.1887902047863905}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.685189723968506 m", "val":3.685189723968506}, "y":{"exp":"6.292977809906006 m", "val":6.292977809906006}, "heading":{"exp":"240 deg", "val":4.1887902047863905}, "intervals":30, "split":false, "fixTranslation":false, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"1.6021065711975098 m", "val":1.6021065711975098}, "y":{"exp":"7.405858039855957 m", "val":7.405858039855957}, "heading":{"exp":"-0.9600702071207173 rad", "val":-0.9600702071207172}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"3.6836042404174805 m", "val":3.683604240417481}, "y":{"exp":"5.448013782501221 m", "val":5.448013782501221}, "heading":{"exp":"300 deg", "val":5.235987755982989}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"3.5358076095581055 m", "val":3.5358076095581055}, "y":{"exp":"5.361698150634766 m", "val":5.361698150634766}, "heading":{"exp":"300 deg", "val":5.235987755982989}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
