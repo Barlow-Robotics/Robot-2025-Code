@@ -88,9 +88,18 @@ public class AlgaeIntake extends SubsystemBase {
     public void retract() {
         final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.restedAngle.get()));
         final MotionMagicVelocityVoltage intakeRequest = new MotionMagicVelocityVoltage(0);
+        liftMotor.setControl(liftRequest);
+        intakeMotor.setControl(intakeRequest.withVelocity(0));
+        desiredLiftAngle = AlgaeConstants.restedAngle.get();
+        desiredIntakeAngle = 0;
+    }
+
+    public void eject() {
+        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.deployedAngle.get()));
+        final MotionMagicVelocityVoltage intakeRequest = new MotionMagicVelocityVoltage(0);
         intakeMotor.setControl(intakeRequest.withVelocity(AlgaeConstants.EjectSpeed.get()));
         liftMotor.setControl(liftRequest);
-        desiredLiftAngle = AlgaeConstants.restedAngle.get();
+        desiredLiftAngle = AlgaeConstants.deployedAngle.get();
         desiredIntakeAngle = AlgaeConstants.EjectSpeed.get();
     }
 
@@ -117,8 +126,8 @@ public class AlgaeIntake extends SubsystemBase {
         return withinTolerance;
     }
 
-    public boolean isEjecting() {
-        if(getLiftTalonEncoderDegrees() >= (AlgaeConstants.deployedAngle.get() - 2)) {
+    public boolean isDeployed() {
+        if(getLiftTalonEncoderDegrees() >= (AlgaeConstants.deployedAngle.get() - 10)) {
             return true;
         } else {
             return false;
@@ -128,7 +137,7 @@ public class AlgaeIntake extends SubsystemBase {
     @Override
     public void periodic() {
         logData();
-        if(isEjecting()) {
+        if(!isDeployed()) {
             stopIntakeMotor();
         }
     }
