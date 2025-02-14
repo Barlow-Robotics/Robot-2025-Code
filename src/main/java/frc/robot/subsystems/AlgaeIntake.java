@@ -95,11 +95,11 @@ public class AlgaeIntake extends SubsystemBase {
     }
 
     public void eject() {
-        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.deployedAngle.get()));
+        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.restedAngle.get()));
         final MotionMagicVelocityVoltage intakeRequest = new MotionMagicVelocityVoltage(0);
         intakeMotor.setControl(intakeRequest.withVelocity(AlgaeConstants.EjectSpeed.get()));
         liftMotor.setControl(liftRequest);
-        desiredLiftAngle = AlgaeConstants.deployedAngle.get();
+        desiredLiftAngle = AlgaeConstants.restedAngle.get();
         desiredIntakeAngle = AlgaeConstants.EjectSpeed.get();
     }
 
