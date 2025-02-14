@@ -94,7 +94,7 @@
  },
  "events":[
    {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+       {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
    {"name":"Marker", "from":{"target":2, "targetTimestamp":1.49694, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}}]}}}]
 }

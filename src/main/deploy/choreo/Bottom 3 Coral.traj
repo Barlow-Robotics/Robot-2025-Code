@@ -231,19 +231,19 @@
  },
  "events":[
    {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+       {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
    {"name":"Marker", "from":{"target":1, "targetTimestamp":0.97655, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}},
        {"type":"named", "data":{"name":"setPositionHPS"}}]}}},
    {"name":"Marker", "from":{"target":4, "targetTimestamp":3.05158, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startIntake"}},
-       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+       {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
    {"name":"Marker", "from":{"target":5, "targetTimestamp":4.18453, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}},
        {"type":"named", "data":{"name":"setPositionHPS"}}]}}},
    {"name":"Marker", "from":{"target":6, "targetTimestamp":5.31749, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"startIntake"}},
-       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+       {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
    {"name":"Marker", "from":{"target":7, "targetTimestamp":6.45045, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}}]}}}]
 }
