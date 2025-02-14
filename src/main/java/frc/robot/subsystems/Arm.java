@@ -198,7 +198,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristMotor.getClosedLoopController().setReference(Units.degreesToRadians(desiredDegrees),
+        wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees),
                 ControlType.kPosition);
     }
 
@@ -254,10 +254,6 @@ public class Arm extends SubsystemBase {
                 / ArmConstants.RotationsPerElevatorInch));
         /* + ArmConstants.StartingCarriageHeight; */
         return carriageHeight;
-    }
-
-    public void setBasePosition(double height) {
-        armMotor.setPosition(height);
     }
 
     /* ARM STATES */
@@ -510,7 +506,7 @@ public class Arm extends SubsystemBase {
             magnetConfig.MagnetOffset = 0.0;
         }
 
-        magnetConfig.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        magnetConfig.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         canCoderConfiguration.MagnetSensor = magnetConfig;
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;

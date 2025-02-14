@@ -308,7 +308,7 @@ public class Constants {
 
         public static final double ElevatorKP = 32; // CHANGE
         public static final double ElevatorKI = 0.1; // CHANGE
-        public static final double ElevatorKD = 0.2; // CHANGE
+        public static final double ElevatorKD = 0.2; //  
         // public static final double ElevatorIZone = 0.1; // motor already does this
         public static final double ElevatorFF = 0.0; // CHANGE
         public static final double ElevatorKG = 2.7; // CHANGE
@@ -334,7 +334,7 @@ public class Constants {
 
         public static final double WristKP = 2; // CHANGE
         public static final double WristKI = 0.000; // CHANGE
-        public static final double WristKD = 1.5; // CHANGE
+        public static final double WristKD = 0.0; // CHANGE
         public static final double WristFF = 0.0; // CHANGE
         public static final double WristIZone = 0.15; // CHANGE
         public static final double ElevatorMinimumHeight = 0; // CHANGE
@@ -366,10 +366,11 @@ public class Constants {
         public static final double IntakeKG = 0; // CHANGE
         public static final double IntakeIZone = 0.15; // CHANGE
 
-        public static final double IntakeSpeed = 1; // CHANGE
-        public static final double EjectSpeed = -1; // CHANGE
+        public static final double IntakeSpeed2 = 1; // CHANGE
+        public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 5, 0, true, "AlgaeIntake/IntakeSpeed");
+        public static final double EjectSpeed2 = -1; // CHANGE
+        public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, 0, -5, true, "AlgaeIntake/EjectSpeed");
 
-        
         public static final double LiftAcceleration = 12; // CHANGE
         public static final double LiftJerk = 40; // CHANGE
         public static final double LiftCruiseRotationsPerSec = 3; // CHANGE
@@ -380,6 +381,11 @@ public class Constants {
         public static final double LiftAngleTolerance = 1.5;
         public static final double SupplyCurrentLimit = 30; // CHANGE
 
+        public static final double deployedAngle2 = 60; 
+        public static final double restedAngle2 = 60; 
+
+        public static TuneableParameter deployedAngle = new TuneableParameter(deployedAngle2, 180,0, true, "AlgaeIntake/DeployedAngle"); //CHANGE
+        public static TuneableParameter restedAngle = new TuneableParameter(restedAngle2, 180 ,0, true, "AlgaeIntake/RestedAngle");
     }
 
     public static final class AutoConstants {

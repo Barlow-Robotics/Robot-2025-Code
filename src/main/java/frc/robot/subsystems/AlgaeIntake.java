@@ -56,7 +56,6 @@ public class AlgaeIntake extends SubsystemBase {
     private final Vision visionSub;
 
     private boolean simulationInitialized = false;
-    private boolean isEjecting;
 
     public AlgaeIntake(Vision visionSub, Drive driveSub) {
 
@@ -77,10 +76,22 @@ public class AlgaeIntake extends SubsystemBase {
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
     }
 
-    public void setLiftAngle(double desiredDegrees) {
-        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
-        liftMotor.setControl(request);
-        desiredLiftAngle = desiredDegrees;
+    public void deploy() {
+        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.deployedAngle.get()));
+        final MotionMagicVelocityVoltage intakeRequest = new MotionMagicVelocityVoltage(0);
+        intakeMotor.setControl(intakeRequest.withVelocity(AlgaeConstants.IntakeSpeed.get()));
+        liftMotor.setControl(liftRequest);
+        desiredLiftAngle = AlgaeConstants.deployedAngle.get();
+        desiredIntakeAngle = AlgaeConstants.restedAngle.get();
+    }
+    
+    public void retract() {
+        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.restedAngle.get()));
+        final MotionMagicVelocityVoltage intakeRequest = new MotionMagicVelocityVoltage(0);
+        intakeMotor.setControl(intakeRequest.withVelocity(AlgaeConstants.EjectSpeed.get()));
+        liftMotor.setControl(liftRequest);
+        desiredLiftAngle = AlgaeConstants.restedAngle.get();
+        desiredIntakeAngle = AlgaeConstants.EjectSpeed.get();
     }
 
     public void stopLiftMotor() {
@@ -95,20 +106,6 @@ public class AlgaeIntake extends SubsystemBase {
         return intakeMotor.getPosition().getValue().in(Degrees);
     }
 
-    public void startIntaking() {
-        final MotionMagicVelocityVoltage request = new MotionMagicVelocityVoltage(0);
-        intakeMotor.setControl(request.withVelocity(AlgaeConstants.IntakeSpeed));
-        isEjecting = false;
-        desiredIntakeAngle = AlgaeConstants.IntakeSpeed;
-    }
-
-    public void startEjecting() {
-        final MotionMagicVelocityVoltage m_request = new MotionMagicVelocityVoltage(0);
-        intakeMotor.setControl(m_request.withVelocity(AlgaeConstants.EjectSpeed));
-        isEjecting = true;
-        desiredIntakeAngle = AlgaeConstants.EjectSpeed;
-    }
-
     public void stopIntakeMotor() {
         intakeMotor.stopMotor();
     }
@@ -118,11 +115,22 @@ public class AlgaeIntake extends SubsystemBase {
         boolean withinTolerance = (getLiftTalonEncoderDegrees() >= desiredLiftAngle - AlgaeConstants.LiftAngleTolerance)
                 && (getLiftTalonEncoderDegrees() <= desiredLiftAngle + AlgaeConstants.LiftAngleTolerance);
         return withinTolerance;
-    } 
+    }
+
+    public boolean isEjecting() {
+        if(getLiftTalonEncoderDegrees() >= (AlgaeConstants.deployedAngle.get() - 2)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public void periodic() {
         logData();
+        if(isEjecting()) {
+            stopIntakeMotor();
+        }
     }
 
     private void logData() {
@@ -143,8 +151,8 @@ public class AlgaeIntake extends SubsystemBase {
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/RPSActual", intakeMotor.getVelocity().getValue());
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/AccelerationActual", intakeMotor.getAcceleration().getValue());
 
-        Logger.recordOutput("AlgaeIntake/isEjecting", this.isEjecting);
-        Logger.recordOutput("AlgaeIntake/isIntaking", !this.isEjecting);
+        Logger.recordOutput("AlgaeIntake/isEjecting", this.isEjecting());
+        Logger.recordOutput("AlgaeIntake/isIntaking", !this.isEjecting());
         
     }
 
