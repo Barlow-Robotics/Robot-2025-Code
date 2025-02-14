@@ -15,7 +15,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"8.022533416748047 m", "val":8.022533416748047}, "y":{"exp":"5.054199695587158 m", "val":5.054199695587158}, "heading":{"exp":"3.141592653589793 rad", "val":3.141592653589793}, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"6.085 m", "val":6.085}, "y":{"exp":"3.8590188026428223 m", "val":3.8590188026428223}, "heading":{"exp":"-3.1415923809222597 rad", "val":-3.1415923809222597}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"6.15 m", "val":6.15}, "y":{"exp":"3.8590188026428223 m", "val":3.8590188026428223}, "heading":{"exp":"-3.1415923809222597 rad", "val":-3.1415923809222597}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
@@ -59,7 +59,7 @@
  },
  "events":[
    {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"setPositionCoralL4"}}]}}},
+       {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
    {"name":"Marker", "from":{"target":1, "targetTimestamp":1.15491, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}}]}}}]
 }
