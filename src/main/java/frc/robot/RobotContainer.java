@@ -422,6 +422,20 @@ public class RobotContainer {
         return this.moveToCoral;
     }
 
+    public int findClosestToRobot(Pose2d drivePose, int[] aprilTagList) {
+        double minValue = Integer.MAX_VALUE;
+        int idMinValue = -1;
+        for (int i = 0; i < aprilTagList.length; i++) {
+            Pose3d poseAprilTag = visionSub.getLayout().getTagPose(aprilTagList[i]).get();
+            double distance = Math.abs(drivePose.getX()-poseAprilTag.getX()) + Math.abs(drivePose.getY()-poseAprilTag.getY());
+            if (distance < minValue) {
+                minValue = distance;
+                idMinValue = aprilTagList[i];
+            }
+        }
+        return idMinValue;
+    }
+
     public Command setUpPathplannerOTF(boolean usingVision, Pose2d drivePose, double targetX, double targetY, double targetZ) {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
@@ -462,10 +476,12 @@ public class RobotContainer {
             Logger.recordOutput("alliance", alliance.get());
             if (alliance.isPresent()) {
                 if (alliance.get() == DriverStation.Alliance.Blue) {
-                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(21).get();
+                    int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagList);
+                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
                 }
                 if (alliance.get() == DriverStation.Alliance.Red) {
-                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(10).get();
+                    int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagList);
+                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
                 }
 
             }
