@@ -109,8 +109,7 @@ public class Constants {
         /****************************** ARM ******************************/
         public static final int ArmMotorID = 41;
         public static final int WristMotorID = 42; // rev
-        public static final int LeftElevatorMotorID = 43;
-        public static final int RightElevatorMotorID = 44;
+        public static final int ElevatorMotorID = 43;
         public static final int CarriageMotorID = 45;
         public static final int WristEncoderID = 46;
         public static final int ArmEncoderID = 47;
@@ -352,37 +351,37 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double LiftKP = 32; // CHANGE
-        public static final double LiftKI = 0.001; // CHANGE
+        public static final double LiftKP = 0.01; // CHANGE
+        public static final double LiftKI = 0.06; // CHANGE
         public static final double LiftKD = 0; // CHANGE
-        public static final double LiftFF = 0; // CHANGE
+        public static final double LiftFF = 0.13; // CHANGE
         public static final double LiftKG = 0; // CHANGE
         public static final double LiftIZone = 0.15; // CHANGE
 
-        public static final double IntakeKP = 32; // CHANGE
-        public static final double IntakeKI = 0.001; // CHANGE
+        public static final double IntakeKS = 0; // CHANGE
+        public static final double IntakeFF = 0.13; // CHANGE
+        public static final double IntakeKA = 0; // CHANGE
+        public static final double IntakeKP = 0; // CHANGE
+        public static final double IntakeKI = 0; // CHANGE
         public static final double IntakeKD = 0; // CHANGE
-        public static final double IntakeFF = 0; // CHANGE
-        public static final double IntakeKG = 0; // CHANGE
         public static final double IntakeIZone = 0.15; // CHANGE
 
-        public static final double IntakeSpeed2 = 1; // CHANGE
+        public static final double IntakeSpeed2 = 2; // CHANGE
         public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 5, 0, true, "AlgaeIntake/IntakeSpeed");
-        public static final double EjectSpeed2 = -1; // CHANGE
+        public static final double EjectSpeed2 = -2; // CHANGE
         public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, 0, -5, true, "AlgaeIntake/EjectSpeed");
 
         public static final double LiftAcceleration = 12; // CHANGE
         public static final double LiftJerk = 40; // CHANGE
         public static final double LiftCruiseRotationsPerSec = 3; // CHANGE
         
-        public static final double IntakeCruiseRotationsPerSec = 3; // CHANGE
-        public static final double IntakeAcceleration = 12; // CHANGE
-        public static final double IntakeJerk = 40; // CHANGE
+        public static final double IntakeAcceleration = 400; // CHANGE
+        public static final double IntakeJerk = 4000; // CHANGE
         public static final double LiftAngleTolerance = 1.5;
         public static final double SupplyCurrentLimit = 30; // CHANGE
 
         public static final double deployedAngle2 = 60; 
-        public static final double restedAngle2 = 60; 
+        public static final double restedAngle2 = 0; 
 
         public static TuneableParameter deployedAngle = new TuneableParameter(deployedAngle2, 180,0, true, "AlgaeIntake/DeployedAngle"); //CHANGE
         public static TuneableParameter restedAngle = new TuneableParameter(restedAngle2, 180 ,0, true, "AlgaeIntake/RestedAngle");
