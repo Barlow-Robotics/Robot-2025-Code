@@ -75,15 +75,9 @@ public class Arm extends SubsystemBase {
     private final DCMotorSim wristMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
 
-    TalonFX leftElevatorMotor;
-    private final TalonFXSimState leftElevatorMotorSim;
-    private final DCMotorSim leftElevatorMotorModel = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
-            DCMotor.getKrakenX60Foc(1));
-
-    TalonFX rightElevatorMotor;
-    private final TalonFXSimState rightElevatorMotorSim;
-    private final DCMotorSim rightElevatorMotorModel = new DCMotorSim(
+    TalonFX elevatorMotor;
+    private final TalonFXSimState elevatorMotorSim;
+    private final DCMotorSim elevatorMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
 
@@ -124,20 +118,15 @@ public class Arm extends SubsystemBase {
 
         armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
 
-        leftElevatorMotor = new TalonFX(ElectronicsIDs.LeftElevatorMotorID);
-        leftElevatorMotorSim = leftElevatorMotor.getSimState();
-        leftElevatorMotor.setPosition(0);
-
-        rightElevatorMotor = new TalonFX(ElectronicsIDs.RightElevatorMotorID);
-        rightElevatorMotorSim = rightElevatorMotor.getSimState();
+        elevatorMotor = new TalonFX(ElectronicsIDs.ElevatorMotorID);
+        elevatorMotorSim = elevatorMotor.getSimState();
+        elevatorMotor.setPosition(0);
 
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
         applyWristEncoderConfigs();
-        applyElevatorMotorConfigs(leftElevatorMotor, "leftElevatorMotor", InvertedValue.CounterClockwise_Positive);
-        applyElevatorMotorConfigs(rightElevatorMotor, "rightElevatorMotor", InvertedValue.Clockwise_Positive);
-        applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
+        applyelevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.CounterClockwise_Positive);
+        applyelevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
-        rightElevatorMotor.setControl(new Follower(leftElevatorMotor.getDeviceID(), true));
 
         wristMotorConfig.closedLoop
                 .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
@@ -175,7 +164,7 @@ public class Arm extends SubsystemBase {
         desiredElevatorHeight = val.getElevatorHeight();
         desiredGripperVelocity = val.getGripperVelocity();
         setWristAngle(desiredWristAngle);
-        setElevatorHeightInches(leftElevatorMotor, desiredElevatorHeight);
+        setElevatorHeightInches(elevatorMotor, desiredElevatorHeight);
         setCarriageHeightInches(carriageMotor, desiredCarriageHeight);
     }
 
@@ -243,7 +232,7 @@ public class Arm extends SubsystemBase {
     }
 
     public double getElevatorHeightInches() {
-        double elevatorHeight = ((leftElevatorMotor.getPosition().getValue().in(Rotations)
+        double elevatorHeight = ((elevatorMotor.getPosition().getValue().in(Rotations)
                 / ArmConstants.RotationsPerElevatorInch))
         /* + ArmConstants.StartingElevatorHeight */;
         return elevatorHeight;
@@ -349,32 +338,19 @@ public class Arm extends SubsystemBase {
 
         Logger.recordOutput("Arm/ElevatorHeight/InchesDesired", desiredElevatorHeight);
         Logger.recordOutput("Arm/ElevatorHeight/InchesActual", getElevatorHeightInches());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/VoltageActual", leftElevatorMotor.getMotorVoltage().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/ClosedLoopError",
-                leftElevatorMotor.getClosedLoopError().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/SupplyCurrent", leftElevatorMotor.getSupplyCurrent().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/TempC", leftElevatorMotor.getDeviceTemp().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/ControlMode", leftElevatorMotor.getControlMode().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsActual",
-                leftElevatorMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/RotationsDesired",
-                leftElevatorMotor.getClosedLoopReference().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/RPSActual", leftElevatorMotor.getVelocity().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Left/AccelerationActual",
-                leftElevatorMotor.getAcceleration().getValue());
-
-        Logger.recordOutput("Arm/ElevatorHeight/Right/VoltageActual", rightElevatorMotor.getMotorVoltage().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/ClosedLoopError",
-                rightElevatorMotor.getClosedLoopError().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/SupplyCurrent", rightElevatorMotor.getSupplyCurrent().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/TempC", rightElevatorMotor.getDeviceTemp().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsActual",
-                rightElevatorMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/RotationsDesired",
-                rightElevatorMotor.getClosedLoopReference().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/RPSActual", rightElevatorMotor.getVelocity().getValue());
-        Logger.recordOutput("Arm/ElevatorHeight/Right/AccelerationActual",
-                rightElevatorMotor.getAcceleration().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/VoltageActual", elevatorMotor.getMotorVoltage().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/ClosedLoopError",
+                elevatorMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/SupplyCurrent", elevatorMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/TempC", elevatorMotor.getDeviceTemp().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/ControlMode", elevatorMotor.getControlMode().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/RotationsActual",
+                elevatorMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Arm/ElevatorHeight/RotationsDesired",
+                elevatorMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/RPSActual", elevatorMotor.getVelocity().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/AccelerationActual",
+                elevatorMotor.getAcceleration().getValue());
 
         Logger.recordOutput("Arm/CarriageHeight/InchesDesired", desiredCarriageHeight);
         Logger.recordOutput("Arm/CarriageHeight/InchesActual", getCarriageHeightInches());
@@ -412,7 +388,7 @@ public class Arm extends SubsystemBase {
         applyMotorConfigs(armMotor, "armMotor", talonConfigs, inversion);
     }
 
-    private void applyElevatorMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
+    private void applyelevatorMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
         talonConfigs.Slot0.kP = ArmConstants.ElevatorKP;
         talonConfigs.Slot0.kI = ArmConstants.ElevatorKI;
@@ -534,8 +510,7 @@ public class Arm extends SubsystemBase {
 
     private void setNeutralMode(NeutralModeValue armMotorMode, NeutralModeValue elevatorMotorMode) {
         armMotor.setNeutralMode(armMotorMode);
-        leftElevatorMotor.setNeutralMode(elevatorMotorMode);
-        rightElevatorMotor.setNeutralMode(elevatorMotorMode);
+        elevatorMotor.setNeutralMode(elevatorMotorMode);
     }
 
     /* SIMULATION */
@@ -543,8 +518,7 @@ public class Arm extends SubsystemBase {
     public void simulationInit() {
         PhysicsSim.getInstance().addTalonFX(armMotor, 0.001);
         PhysicsSim.getInstance().addTalonFX(carriageMotor, 0.001);
-        PhysicsSim.getInstance().addTalonFX(leftElevatorMotor, 0.001);
-        PhysicsSim.getInstance().addTalonFX(rightElevatorMotor, 0.001);
+        PhysicsSim.getInstance().addTalonFX(elevatorMotor, 0.001);
 
         double wristEncoderAngle = Units.degreesToRotations(desiredWristAngle);
         wristEncoderSim.setRawPosition(wristEncoderAngle);
@@ -591,18 +565,12 @@ public class Arm extends SubsystemBase {
 
         // Elevator Motor Sim
 
-        leftElevatorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        double leftVoltage = leftElevatorMotorSim.getMotorVoltage();
-        leftElevatorMotorModel.setInputVoltage(leftVoltage);
-        leftElevatorMotorModel.update(0.02);
-        leftElevatorMotorSim.setRotorVelocity(leftElevatorMotorModel.getAngularVelocityRPM() / 60.0);
-        leftElevatorMotorSim.setRawRotorPosition(leftElevatorMotorModel.getAngularPositionRotations());
-
-        rightElevatorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-        double rightVoltage = rightElevatorMotorSim.getMotorVoltage();
-        rightElevatorMotorModel.setInputVoltage(rightVoltage);
-        rightElevatorMotorModel.update(0.02);
-        rightElevatorMotorSim.setRotorVelocity(rightElevatorMotorModel.getAngularVelocityRPM() / 60.0);
+        elevatorMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        double leftVoltage = elevatorMotorSim.getMotorVoltage();
+        elevatorMotorModel.setInputVoltage(leftVoltage);
+        elevatorMotorModel.update(0.02);
+        elevatorMotorSim.setRotorVelocity(elevatorMotorModel.getAngularVelocityRPM() / 60.0);
+        elevatorMotorSim.setRawRotorPosition(elevatorMotorModel.getAngularPositionRotations());
 
         // Wrist Motor Sim
 

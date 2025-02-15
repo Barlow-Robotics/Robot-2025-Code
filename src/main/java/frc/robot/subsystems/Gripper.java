@@ -33,11 +33,8 @@ public class Gripper extends SubsystemBase {
   private boolean simulationInitialized = false;
   private boolean isEjecting;
 
-  private final Drive driveSub;
-  private final Vision visionSub;
-
   /** Creates a new Coral. */
-  public Gripper(Vision visionSub, Drive driveSub) {
+  public Gripper() {
     gripperMotor = new SparkMax(ElectronicsIDs.GripperMotorID, MotorType.kBrushless);
 
     gripperMotorSim = new SparkMaxSim(gripperMotor, DCMotor.getNeo550((1)));
@@ -47,9 +44,7 @@ public class Gripper extends SubsystemBase {
     gripperMotorConfig.closedLoop
             .pidf(GripperConstants.GripperKP, GripperConstants.GripperKI, GripperConstants.GripperKD, GripperConstants.GripperFF)
             .iZone(GripperConstants.GripperIZone)
-            .outputRange(-1, 1); 
-    this.driveSub = driveSub;
-    this.visionSub = visionSub;
+            .outputRange(-1, 1);
   }
 
   @Override

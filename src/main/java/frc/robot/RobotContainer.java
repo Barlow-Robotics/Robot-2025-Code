@@ -56,8 +56,8 @@ public class RobotContainer {
     public Vision visionSub = new Vision();
     public final Arm armSub = new Arm(visionSub, driveSub);
     public final Climb climbSub = new Climb();
-    public final Gripper gripperSub = new Gripper(visionSub, driveSub);
-    public final AlgaeIntake algaeIntakeSub = new AlgaeIntake(visionSub, driveSub);
+    public final Gripper gripperSub = new Gripper();
+    public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
 
     /* COMMANDS */
     // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub, ArmState.Home);
@@ -111,7 +111,8 @@ public class RobotContainer {
     private Trigger moveToAlgaeLowButton;
 
     private Trigger intakeAlgaeButton;
-    private Trigger ejectAlgaeButton;    
+    private Trigger ejectAlgaeButton;
+    private Trigger retractIntakeButton;  
     
     private Trigger runGripperButton;
     private Trigger ejectCoralButton;
@@ -263,11 +264,14 @@ public class RobotContainer {
 
         /***************** ALGAE INTAKE *****************/
 
-        intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
+        intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.LeftBumper); // CHANGE
         intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
         ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+
+        retractIntakeButton = new JoystickButton(operatorController, LogitechDAConstants.LeftTrigger); // CHANGE
+        retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/
         
