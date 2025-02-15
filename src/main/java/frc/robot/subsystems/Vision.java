@@ -9,12 +9,14 @@ import static frc.robot.Constants.VisionConstants.FallbackVisionStrategy;
 import static frc.robot.Constants.VisionConstants.PoseCameraName;
 import static frc.robot.Constants.VisionConstants.PoseCameraToRobot;
 import static frc.robot.Constants.VisionConstants.RobotToTargetCam;
+import static frc.robot.Constants.VisionConstants.TargetCamToRobot;
 import static frc.robot.Constants.VisionConstants.FieldTagLayout;
 import static frc.robot.Constants.VisionConstants.TargetCameraName;
 import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
 
 import java.util.Hashtable;
 import java.io.IOException;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -42,6 +44,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -97,9 +102,9 @@ public class Vision extends SubsystemBase {
     ByteBuffer buffer = ByteBuffer.allocate(1024);
 
     public Vision() /* throws IOException */ {
-        targetCamera = new PhotonCamera(TargetCameraName);
-        poseCamera = new PhotonCamera(PoseCameraName);
-        photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, PoseCameraToRobot);
+        targetCamera = new PhotonCamera(TargetCameraName); // left camera
+        poseCamera = new PhotonCamera(PoseCameraName); // right camera
+        photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, TargetCamToRobot);
         // photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, poseCamera, PoseCameraToRobot);
         photonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
 
@@ -254,15 +259,13 @@ public class Vision extends SubsystemBase {
     public void periodic() {
 
         // TODO: feed this pose estimate back to the combined pose estimator in drive
-        // var poseEstimate = getEstimatedGlobalPose();
-
-        setLayoutOrigin();
-
+        // setLayoutOrigin();
         // Find all the results from the tracking camera
         var tracking_result = getLatestTrackingResult();
 
         // Update the current bestAlignTarget based on the chosen target
         currentBestAlignTarget = null;
+
 
         if (tracking_result.isPresent()) {
             allDetectedTargets = tracking_result.get().getTargets();
@@ -420,10 +423,11 @@ public class Vision extends SubsystemBase {
      *         timestamp, and targets
      *         used for estimation.
      */
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-        if (poseCamera.isConnected()) {
-            var visionEst = photonEstimator.update(poseCamera.getLatestResult());
-            double latestTimestamp = poseCamera.getLatestResult().getTimestampSeconds();
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d robotPose) {
+        if (targetCamera.isConnected()) {
+            photonEstimator.setReferencePose(robotPose);
+            var visionEst = photonEstimator.update(targetCamera.getLatestResult());
+            double latestTimestamp = targetCamera.getLatestResult().getTimestampSeconds();
             boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
             if (Robot.isSimulation()) {
                 visionEst.ifPresentOrElse(

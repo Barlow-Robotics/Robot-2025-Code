@@ -22,6 +22,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechExtreme3DConstants;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
+
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -30,6 +34,8 @@ public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
   boolean pathPlannerConfigured = false ;
   boolean currentlyFollowingAPath = false;
+  Pose2d currentPose;
+  Command selectedAutoCommand;
 
   /*****  MECHANISM 2D FOR ADVANTAGE SCOPE  *****/
 
@@ -69,44 +75,63 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    robotContainer.visionSub.periodic();
     String currentDriverController = DriverStation.getJoystickName(ElectronicsIDs.DriverControllerPort);
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
+    Logger.recordOutput("Controllers/Driver", currentDriverController);
+    Logger.recordOutput("Controllers/Operator", currentOperatorController);
+    Logger.recordOutput("vision/differenceInPosition", Units.metersToFeet(Math.abs(robotContainer.driveSub.getPredictedPose().getX()- robotContainer.reefAutoTargetPose.getX())));
+    Logger.recordOutput("vision/reefAutoTargetPose", robotContainer.reefAutoTargetPose);
+
+
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
-    // Logger.recordOutput("Controllers/Driver/X_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisX));
-    // Logger.recordOutput("Controllers/Driver/Y_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisY));
-    // Logger.recordOutput("Controllers/Driver/Twist_Value", RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisZRotate));
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
-
-    // Logger.recordOutput("RobotPose", new Pose2d());
-    // Logger.recordOutput("ZeroedComponentPoses", new Pose3d[] {new Pose3d()});
-    // Logger.recordOutput(
-    //   "FinalComponentPoses", 
-    //   new Pose3d[] {
-    //     new Pose3d(
-    //       -0.238, 0.0, 0.298, new Rotation3d(0.0, Math.sin(Timer.getTimestamp
-    //       ())- 1.0, 0.0))});
-
     elevator.setLength(ArmConstants.ElevatorMinimumHeight + (robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12.0);
     arm.setAngle(robotContainer.armSub.getArmEncoderDegrees()-90);
     gripper.setAngle(robotContainer.armSub.getWristEncoderDegrees());
 
     SmartDashboard.putData("ArmMech2D", mech);
 
+
     CommandScheduler.getInstance().run();
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
+    if (selectedAutoCommand != null) {
+      selectedAutoCommand.cancel();
+      currentlyFollowingAPath = false;
+      selectedAutoCommand = null;
+    }
+
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+      selectedAutoCommand = null;
+      currentTeleopCommand = null;
+
+    }
+    if (selectedAutoCommand != null) {
+      selectedAutoCommand.cancel();
+      currentlyFollowingAPath = false;
+      selectedAutoCommand = null;
+      currentTeleopCommand = null;
+
+    }
+
+  }
 
   @Override
   public void disabledExit() {}
 
   @Override
   public void autonomousInit() {
+    // robotContainer.configurePathPlanner();
     m_autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -125,40 +150,48 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    if (selectedAutoCommand != null) {
+      selectedAutoCommand.cancel();
+      currentlyFollowingAPath = false;
+      selectedAutoCommand = null;
+      currentTeleopCommand = null;
+      
+    }
   }
 
   @Override
-  public void teleopPeriodic() {
-    // System.err.println(robotContainer.getCoralVision());
-    boolean test = true;
+  public void teleopPeriodic() {    
     if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-      Command selectedAutoCommand = robotContainer.getVisionPathPlannerPathing();
-
-      if (selectedAutoCommand != null) {
-        // System.out.println("PATH");
+      if (currentTeleopCommand == null) {
+        selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
       }
-      else {
-        // System.out.println("NO PATH");
-        // System.out.println(robotContainer.visionSub.getBestTrackableTarget());
-      }
-
+      
       if (!currentlyFollowingAPath && selectedAutoCommand != null) {
           currentlyFollowingAPath = true;
           currentTeleopCommand = selectedAutoCommand;
-          // System.out.println("SCHEDULE PROBLEM");
           CommandScheduler.getInstance().schedule(selectedAutoCommand);
-          // System.out.println("SCHEDULE PROBLEM");
       }
     }
     if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
         currentlyFollowingAPath = false;
-        currentTeleopCommand = null;
+        if (currentTeleopCommand != null) {
+          currentTeleopCommand.cancel();
+          selectedAutoCommand = null;
+          currentTeleopCommand = null;
+
+        }
     }
     if (currentlyFollowingAPath) {
-        
-        // check the driver controller that it hasnt moved too much. 
-   }
-  }
+      if (Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisX)) > 0.5 ||Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisY )) > 0.5  ) {
+        if (currentTeleopCommand != null) {
+          currentTeleopCommand.cancel();
+          selectedAutoCommand = null;
+          currentTeleopCommand = null;
+    
+        }
+      }
+    }
+}
 
   @Override
   public void teleopExit() {}

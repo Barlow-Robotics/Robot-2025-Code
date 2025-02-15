@@ -56,9 +56,10 @@ public class Constants {
                 new Rotation3d(0, Units.degreesToRadians(5), 0));
         public static final Transform3d RobotToPoseCamera = PoseCameraToRobot.inverse();
 
-        public static final Transform3d TargetCamToRobot = new Transform3d(
-                new Translation3d(0.0, Units.inchesToMeters(DriveConstants.TrackWidth / 2), Units.inchesToMeters(23)),
-                new Rotation3d(0, Units.degreesToRadians(5), 0));
+        public static final Transform3d TargetCamToRobot =
+                new Transform3d(
+                    new Translation3d(Units.inchesToMeters(2), Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
+                    new Rotation3d(0, Units.degreesToRadians(5), 0));
         public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
 
         // // The layout of the AprilTags on the field
@@ -77,6 +78,11 @@ public class Constants {
         public static final int NullAprilTagID = -1;
         public static final double InvalidAngle = -361;
         public static final double NoTargetDistance = -1;
+
+        public static final int[] blueAprilTagList = {17, 18, 19, 20, 21, 22};
+        public static final int[] redAprilTagList = {6, 7, 8, 9, 10, 11};
+
+        public static final double NoteAlignPixelTolerance = 250; // NEED TO CHANGE
 
     }
 
@@ -131,7 +137,7 @@ public class Constants {
     public static final class DriveConstants {
 
         public static final boolean GyroReversed = false;
-
+        public static final double distanceToFrontOfRobot = Units.inchesToMeters(22); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
@@ -482,5 +488,11 @@ public class Constants {
         public static final double ForwardAxisAttenuation = -0.5;
         public static final double LateralAxisAttenuation = 0.5;
         public static final double YawAxisAttenuation = 0.5;
+    }
+
+    public final class FieldConstants {
+        public static final double reefSideLengthInches = 37; 
+        public static final double reefOffsetInches = reefSideLengthInches/4; // goes to the middle of the Side
+        public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
 }
