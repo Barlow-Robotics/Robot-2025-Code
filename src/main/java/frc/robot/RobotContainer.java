@@ -2,11 +2,15 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -53,7 +57,7 @@ public class RobotContainer {
 
     /* SUBSYSTEMS */
     public Drive driveSub = TunerConstants.createDrivetrain();
-    public Vision visionSub = new Vision();
+    public Vision visionSub = new Vision(driveSub);
     public final Arm armSub = new Arm(visionSub, driveSub);
     public final Climb climbSub = new Climb();
     public final Gripper gripperSub = new Gripper();
@@ -156,8 +160,6 @@ public class RobotContainer {
         // frame.add(robotController); frame.pack(); frame.setVisible(true);
         // });
         moveToCoral = false; 
-        visionSub = new Vision();
-        driveSub = new Drive(visionSub);
         noteYawPID = new PIDController(
                 DriveConstants.YawOverrideAlignNoteKP,
                 DriveConstants.YawOverrideAlignNoteKI,
@@ -285,7 +287,7 @@ public class RobotContainer {
         moveToRightButton.onTrue(new InstantCommand(() -> changeToRight(true))).onFalse(new InstantCommand(() -> changeToRight(false)));
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
-        resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetOdometry(driveSub.getPredictedPose())));
+        resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
     }
 
 
@@ -300,24 +302,6 @@ public class RobotContainer {
             config = null;
         }
             
-        AutoBuilder.configure(
-                driveSub::getPose, // Robot pose supplier
-                driveSub::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-                driveSub::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> driveSub.driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new PPHolonomicDriveController(
-                        new PIDConstants(5, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5, 0.0, 0.5) // Rotation PID constants
-                ),
-                config,
-                () -> {
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return false;
-                    }
-                    return false;
-                },
-                driveSub);
     }
 
 
@@ -334,25 +318,6 @@ public class RobotContainer {
         }
             
         /* PATHPLANNER INIT */
-        AutoBuilder.configure(
-                driveSub::getPose, // Robot pose supplier
-                driveSub::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-                driveSub::getSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> driveSub.driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new PPHolonomicDriveController(
-                        new PIDConstants(5, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5, 0.0, 0.5) // Rotation PID constants
-                ),
-                config,
-                () -> {
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent() && DriverStation.isAutonomous()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-
-                    return false; 
-                },
-                driveSub);
 
         // NamedCommands.registerCommand("StartShooterIntake", startShooterIntakeCmd);
         // NamedCommands.registerCommand("StopShooterIntake", stopShooterIntakeCmd);
@@ -476,15 +441,15 @@ public class RobotContainer {
     public Command getVisionPathPlannerPathing(boolean usingVision, boolean usingOdometryUpdate) {
         Pose2d drivePose = driveSub.getPose();
         if (usingOdometryUpdate) {
-            drivePose = driveSub.getPredictedPose();
-            driveSub.resetOdometry(drivePose);
+            drivePose = driveSub.getPose();
+            driveSub.resetPose(drivePose);
         }
 
         double targetX = -1000;
         double targetY = -1000;
         double targetZ = -1000;
         if (usingVision) {
-            List<PhotonTrackedTarget> detectedTargets = visionSub.getAllDetectedTargets();
+            var detectedTargets = visionSub.getAllDetectedTargets();
 
             double minDist = 10000000;
             // int bestID;

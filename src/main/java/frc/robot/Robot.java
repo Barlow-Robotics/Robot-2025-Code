@@ -79,7 +79,7 @@ public class Robot extends LoggedRobot {
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
     Logger.recordOutput("Controllers/Driver", currentDriverController);
     Logger.recordOutput("Controllers/Operator", currentOperatorController);
-    Logger.recordOutput("vision/differenceInPosition", Units.metersToFeet(Math.abs(robotContainer.driveSub.getPredictedPose().getX()- robotContainer.reefAutoTargetPose.getX())));
+    Logger.recordOutput("vision/differenceInPosition", Units.metersToFeet(Math.abs(robotContainer.driveSub.getPose().getX()- robotContainer.reefAutoTargetPose.getX())));
     Logger.recordOutput("vision/reefAutoTargetPose", robotContainer.reefAutoTargetPose);
 
 

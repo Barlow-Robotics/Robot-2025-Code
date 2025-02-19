@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -21,15 +22,18 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command; 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -113,6 +117,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    private SwerveDrivePoseEstimator poseEstimator;
 
     /**********************************************************************/
     /**************************   CONSTRUCTORS   **************************/
@@ -212,7 +218,15 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                () -> {
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent() && DriverStation.isAutonomous()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+
+                    return false; 
+                },
+
                 this // Subsystem for requirements
             );
         } catch (Exception ex) {
@@ -276,6 +290,21 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
+
+        // SwerveModuleState[] moduleStates = getState().ModuleStates;
+        // SwerveModulePosition[] modulePositions = new SwerveModulePosition[moduleStates.length];
+        // for (int i = 0; i < moduleStates.length; i++) {
+        //     modulePositions[i] = new SwerveModulePosition(
+        //         moduleStates[i].speedMetersPerSecond,
+        //         moduleStates[i].angle
+        //     );
+        // }
+        // drive.addVisionMeasurement()
+        // poseEstimator.update(
+        //     new Rotation2d(Math.toDegrees(getPose().getRotation().getRadians())),
+        //     new SwerveModulePosition[] {
+        //         frontleft.getState()
+        // });
         logData();
     }
 
@@ -390,4 +419,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         // Logger.recordOutput("Drive/CurrentSupply/BackRightDrive", backRight.getDriveCurrent());
         // Logger.recordOutput("Drive/CurrentSupply/BackRightTurn", backRight.getTurnCurrent());
     }
+
+    // public Pose2d getPredictedPose() {
+    //     return poseEstimator.getEstimatedPosition();
+    // }
 }

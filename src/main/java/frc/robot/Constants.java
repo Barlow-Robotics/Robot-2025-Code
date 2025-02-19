@@ -148,7 +148,7 @@ public class Constants {
 
         public static final double WheelRadius = Units.inchesToMeters(2.0);
         public static final double WheelCircumference = 2.0 * WheelRadius * Math.PI;
-        public static final double GearRatio = 6.12;
+        public static final double GearRatio = 7.13;
 
         public static final double VelocityConversionFactor = WheelCircumference / Constants.SecondsPerMinute
                 / GearRatio;

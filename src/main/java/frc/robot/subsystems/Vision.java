@@ -90,6 +90,8 @@ public class Vision extends SubsystemBase {
     private final AprilTagFieldLayout aprilTagFieldLayout;
     private boolean layoutOriginSet = false;
 
+    private final Drive driveSub;
+
     ////// ------ NOTE VARIABLES ------ //////
 
     boolean noteDetected;
@@ -101,7 +103,8 @@ public class Vision extends SubsystemBase {
     private DatagramChannel visionChannel = null;
     ByteBuffer buffer = ByteBuffer.allocate(1024);
 
-    public Vision() /* throws IOException */ {
+    public Vision(Drive driveSub) /* throws IOException */ {
+        this.driveSub = driveSub;
         targetCamera = new PhotonCamera(TargetCameraName); // left camera
         poseCamera = new PhotonCamera(PoseCameraName); // right camera
         photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, TargetCamToRobot);
@@ -283,6 +286,17 @@ public class Vision extends SubsystemBase {
                     }
                 }
             }
+
+
+            Pose2d currentPose = driveSub.getPose();
+            var photonEstimate = getEstimatedGlobalPose(currentPose);
+            if (photonEstimate.isPresent()) {
+                driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
+                    photonEstimate.get().timestampSeconds
+                );
+                Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
+            }
+    
 
         }
 
