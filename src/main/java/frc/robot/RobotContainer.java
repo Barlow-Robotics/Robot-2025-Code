@@ -7,6 +7,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -278,7 +280,7 @@ public class RobotContainer {
         /***************** GRIPPER *****************/
         
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
-        runGripperButton.onTrue(runGripperCmd).onFalse(stopGripperCmd);
+        runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
 
@@ -318,8 +320,15 @@ public class RobotContainer {
         }
             
         /* PATHPLANNER INIT */
+        NamedCommands.registerCommand("setPositionCoralL1", setArmPosLevel1Cmd);
+        NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
+        NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
+        NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
+        // NamedCommands.registerCommand("StartOuttake", );
+        // NamedCommands.registerCommand("setPositionCoralL4", );
+        // NamedCommands.registerCommand("setPositionCoralL4", );
+        // NamedCommands.registerCommand("setPositionCoralL4", );
 
-        // NamedCommands.registerCommand("StartShooterIntake", startShooterIntakeCmd);
         // NamedCommands.registerCommand("StopShooterIntake", stopShooterIntakeCmd);
         // NamedCommands.registerCommand("SetShooterMountPositionAmp",
         // setShooterPosAmpCmd);

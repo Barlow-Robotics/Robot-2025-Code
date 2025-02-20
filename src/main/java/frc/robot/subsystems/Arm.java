@@ -66,7 +66,9 @@ public class Arm extends SubsystemBase {
     private final DCMotorSim carriageMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
-
+    TalonFXSimState armMotorSim;
+    TalonFXSimState carriageMotorSim;
+        
     SparkMax wristMotor;
     SparkMaxConfig wristMotorConfig = new SparkMaxConfig();
     private final SparkMaxSim wristMotorSim;
@@ -74,7 +76,6 @@ public class Arm extends SubsystemBase {
     private final CANcoderSimState wristEncoderSim;
     private final DCMotorSim wristMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
-
     TalonFX elevatorMotor;
     private final TalonFXSimState elevatorMotorSim;
     private final DCMotorSim elevatorMotorModel = new DCMotorSim(
@@ -104,11 +105,11 @@ public class Arm extends SubsystemBase {
         // bottomHallEffect = new DigitalInput(ElectronicsIDs.BottomHallEffectID);
 
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
-        // armMotorSim = armMotor.getSimState();
+        armMotorSim = armMotor.getSimState();
         armMotor.setPosition(0);
 
         carriageMotor = new TalonFX(ElectronicsIDs.CarriageMotorID);
-        // carriageMotorSim = armMotor.getSimState();
+        carriageMotorSim = carriageMotor.getSimState();
         carriageMotor.setPosition(0);
 
         wristMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
@@ -533,8 +534,8 @@ public class Arm extends SubsystemBase {
 
         // Following pattern from:
         // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/simulation/simulation-intro.html
-        var armMotorSim = armMotor.getSimState();
-        var carriageMotorSim = carriageMotor.getSimState();
+        //  armMotorSim = armMotor.getSimState();
+        // var carriageMotorSim = carriageMotor.getSimState();
 
         armMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 

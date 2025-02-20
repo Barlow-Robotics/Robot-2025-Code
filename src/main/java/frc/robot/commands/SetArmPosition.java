@@ -38,3 +38,8 @@ public class SetArmPosition extends Command {
     }   
 
 }
+
+
+// Cant go to ready from L1. 
+// Go to ready position on all other ones. 
+// Need to make a new motion magic for L1 

@@ -49,13 +49,23 @@ public class Gripper extends SubsystemBase {
 
   @Override
   public void periodic() {
-
+    if (detectedCoral()) {
+      stop();
+    }
     logData();
   }
 
   public void setVelocity(double speed) {
     gripperMotor.getClosedLoopController().setReference(speed, ControlType.kVelocity);
     isEjecting = false;
+  }
+
+  public boolean detectedCoral() {
+    return (getCurrent() > Constants.GripperConstants.currentOfIntakedCoral);
+  }
+
+  public double getCurrent() {
+    return gripperMotor.getOutputCurrent();
   }
 
   // public void startEjecting() {
