@@ -354,6 +354,8 @@ public class Constants {
 
         public static final double IntakeSpeed = 1; // CHANGE
         public static final double EjectSpeed = -1; // CHANGE
+
+        public static final double currentOfIntakedCoral = 2000000; // Change with testing. 
     }
 
     public static final class AlgaeConstants {

@@ -45,6 +45,7 @@ import frc.robot.commands.RunGripper;
 import frc.robot.commands.SetArmPosition;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.commands.StopGripper;
+import frc.robot.commands.DeliverCoral;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.subsystems.Drive;
@@ -74,12 +75,12 @@ public class RobotContainer {
     private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
     private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaeLow);
     private final SetArmPosition setArmPosAlgaeHighCmd = new SetArmPosition(armSub, ArmState.AlgaeHigh);
-
   
 
     private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
     private final IntakeAlgae intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
     private final StopAlgaeIntake stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
+    private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub);
     
     private final RunGripper runGripperCmd = new RunGripper(gripperSub, armSub);
     private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
@@ -283,7 +284,7 @@ public class RobotContainer {
         runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
-
+        shooterButton.onTrue(deliverCoralCmd);
 
         moveToRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         moveToRightButton.onTrue(new InstantCommand(() -> changeToRight(true))).onFalse(new InstantCommand(() -> changeToRight(false)));

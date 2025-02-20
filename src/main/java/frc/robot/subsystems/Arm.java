@@ -83,7 +83,7 @@ public class Arm extends SubsystemBase {
             DCMotor.getKrakenX60Foc(1));
 
     public enum ArmState {
-        WaitingForCoral, Startup, CoralAuto, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running
+        WaitingForCoral, Startup, CoralAuto, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm
     }
 
     private final Drive driveSub;
@@ -169,6 +169,7 @@ public class Arm extends SubsystemBase {
         setCarriageHeightInches(carriageMotor, desiredCarriageHeight);
     }
 
+
     public boolean hasCompletedMovement() {
         return desiredState == actualState;
     }
@@ -253,12 +254,6 @@ public class Arm extends SubsystemBase {
     }
 
     public void setDesiredState(ArmState newState) {
-        if (newState == ArmState.Running) {
-            return;
-        }
-        if (newState != desiredState) {
-            actualState = ArmState.Running;
-        }
         desiredState = newState;
     }
 
@@ -583,3 +578,6 @@ public class Arm extends SubsystemBase {
         wristEncoderSim.setRawPosition(wristMotorModel.getAngularPositionRotations());
     }
 }
+
+
+// TODO: NEED TO SETUP RUNNING-BETWEEN POSITION
