@@ -83,7 +83,7 @@ public class Arm extends SubsystemBase {
             DCMotor.getKrakenX60Foc(1));
 
     public enum ArmState {
-        WaitingForCoral, Startup, CoralAuto, LoadCoral, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm
+        WaitingForCoral, Startup, LoadCoral, PreLevel1, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, 
     }
 
     private final Drive driveSub;
@@ -144,7 +144,8 @@ public class Arm extends SubsystemBase {
         // CHANGE all these magic #s (except for wrist)
         // need to change speeds to all of these (right now assuming grabing is + and
         // release is -)
-        positionDictionary.put(ArmState.Level1, new ElevatorState(50, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.PreLevel1, new ElevatorState(0, 10, 45, 90, -1));
+        positionDictionary.put(ArmState.Level1, new ElevatorState(0, 10, 0, 0, -1));
         positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90, -1));
         positionDictionary.put(ArmState.Level3, new ElevatorState(30, 0, 0, 90, -1));
         positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90, -1));
@@ -153,8 +154,7 @@ public class Arm extends SubsystemBase {
         positionDictionary.put(ArmState.AlgaeLow, new ElevatorState(0, 0, 0, 0, -1));
         positionDictionary.put(ArmState.AlgaeHigh, new ElevatorState(0, 0, 0, 0, -1));
         positionDictionary.put(ArmState.Startup, new ElevatorState(0, 0, 0, 90, 0));
-        positionDictionary.put(ArmState.CoralAuto, new ElevatorState(0, 0, 0, 90, 1));
-        positionDictionary.put(ArmState.Running, new ElevatorState(0, 0, 0, 90, -1));
+        positionDictionary.put(ArmState.Running, new ElevatorState(0, 0, 90, 90, -1));
     }
 
     private void setDesiredAnglesAndHeights() {
@@ -180,6 +180,9 @@ public class Arm extends SubsystemBase {
         setDesiredAnglesAndHeights();
         if (isAtDesiredState()) {
             actualState = desiredState;
+        }
+        if (desiredState == ArmState.PreLevel1 && isWithinArmAngleTolerance()) {
+            setDesiredState(ArmState.Level1);
         }
 
         logData();

@@ -75,12 +75,12 @@ public class RobotContainer {
     private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
     private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaeLow);
     private final SetArmPosition setArmPosAlgaeHighCmd = new SetArmPosition(armSub, ArmState.AlgaeHigh);
-  
+    
 
     private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
     private final IntakeAlgae intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
     private final StopAlgaeIntake stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
-    private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub);
+    private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub, gripperSub);
     
     private final RunGripper runGripperCmd = new RunGripper(gripperSub, armSub);
     private final StopGripper stopGripperCmd = new StopGripper(gripperSub);

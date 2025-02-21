@@ -7,6 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.Gripper.GripperState;
+import frc.robot.subsystems.Gripper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DeliverCoral extends Command {
@@ -15,9 +17,11 @@ public class DeliverCoral extends Command {
   private boolean firstTime;
   private ArmState currentState; 
   private final Arm armSub;
-  public DeliverCoral(Arm armSub) {
+  private final Gripper gripperSub;
+  public DeliverCoral(Arm armSub, Gripper gripperSub) {
+    this.gripperSub = gripperSub;
     this.armSub = armSub;
-    addRequirements(armSub);
+    addRequirements(armSub, gripperSub);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -34,15 +38,23 @@ public class DeliverCoral extends Command {
     currentState = armSub.getArmState();
     if (!currentlyDoingAState && firstTime) {
       if (currentState == ArmState.Level2 || currentState == ArmState.Level3 || currentState == ArmState.Level4) {
+        gripperSub.setState(GripperState.placingCoral);
         armSub.setDesiredState(ArmState.WaitingForCoral);
         currentlyDoingAState = true;
         firstTime = false;
       }
       else if (currentState == ArmState.Level1) {
-        armSub.setDesiredState(ArmState.SafeToLowerArm);
+        gripperSub.setState(GripperState.releasingL1);
         currentlyDoingAState = true;
         firstTime = false;
     }
+
+    if (currentState == ArmState.Level1 && gripperSub.getState() == GripperState.finishedReleasingL1) {
+      armSub.setDesiredState(ArmState.SafeToLowerArm);
+      gripperSub.setState(GripperState.placingCoral);
+      currentlyDoingAState = true;
+    }
+
     if (armSub.hasCompletedMovement()) {
       currentlyDoingAState = false;
     }
@@ -50,8 +62,6 @@ public class DeliverCoral extends Command {
       armSub.setDesiredState(ArmState.WaitingForCoral);
       currentlyDoingAState = true;
     }
-
-
       // Wait for it to complete. 
 
     }
@@ -70,3 +80,4 @@ public class DeliverCoral extends Command {
 
 
 // Need to make a new motion magic for L1 
+// Need to make the wrist turn later. 

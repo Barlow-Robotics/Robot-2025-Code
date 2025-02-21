@@ -16,23 +16,33 @@ import frc.robot.Constants.ElectronicsIDs;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class Gripper extends SubsystemBase {
 
   SparkMax gripperMotor;
-  SparkMaxConfig gripperMotorConfig;
+  SparkMaxConfig gripperMotorConfigBrake;
+  SparkMaxConfig gripperMotorConfigCoast;
   SparkMaxSim gripperMotorSim;
   DCMotorSim gripperMotorModel;
   public final SparkClosedLoopController gripperPidController;
   private boolean simulationInitialized = false;
   private boolean isEjecting;
-
+  private boolean firstRelease = false;
+  private int timerCount = 0;
+  public enum GripperState {
+    carryingCoral, placingCoral, releasingL1, takingInCoral, finishedReleasingL1
+  }
+  GripperState gripperState = GripperState.carryingCoral;
   /** Creates a new Coral. */
   public Gripper() {
     gripperMotor = new SparkMax(ElectronicsIDs.GripperMotorID, MotorType.kBrushless);
@@ -40,24 +50,74 @@ public class Gripper extends SubsystemBase {
     gripperMotorSim = new SparkMaxSim(gripperMotor, DCMotor.getNeo550((1)));
     gripperMotorModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
     gripperPidController = gripperMotor.getClosedLoopController();
-    gripperMotorConfig = new SparkMaxConfig();
-    gripperMotorConfig.closedLoop
+    gripperMotorConfigBrake = new SparkMaxConfig();
+    gripperMotorConfigBrake.closedLoop
             .pidf(GripperConstants.GripperKP, GripperConstants.GripperKI, GripperConstants.GripperKD, GripperConstants.GripperFF)
             .iZone(GripperConstants.GripperIZone)
             .outputRange(-1, 1);
+    gripperMotorConfigBrake.idleMode(IdleMode.kCoast);
+    gripperMotor.configure(gripperMotorConfigBrake, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   @Override
   public void periodic() {
     if (detectedCoral()) {
-      stop();
+      gripperState = GripperState.carryingCoral;
+    }
+    else if (gripperState == GripperState.carryingCoral) {
+      setBreakMode();
+      firstRelease = true;
+    }
+    else if (gripperState == GripperState.placingCoral) {
+      setCoastMode();
+      firstRelease = true;
+    }
+    else if (gripperState == GripperState.releasingL1 && firstRelease) {
+      startEjecting();
+      firstRelease = false;
+      timerCount++;
+    }
+    else if (gripperState == GripperState.releasingL1) {
+      timerCount++;
+    }
+    else if (gripperState == GripperState.takingInCoral) {
+      firstRelease = true;
+    }
+    else {
+      setBreakMode();
+      firstRelease = true;
     }
     logData();
+
+    if (timerCount == 30) {
+      timerCount = 0;
+      gripperState = GripperState.finishedReleasingL1;
+    }
+  }
+
+  public void setState(GripperState newState) {
+    this.gripperState = newState;
+  }
+
+
+  public void setCoastMode() {
+    gripperMotor.setVoltage(0);
+  }
+  public void setBreakMode() {
+    gripperMotor.setVoltage(0.5);
   }
 
   public void setVelocity(double speed) {
     gripperMotor.getClosedLoopController().setReference(speed, ControlType.kVelocity);
+    gripperState = GripperState.takingInCoral;
     isEjecting = false;
+  }
+
+  public GripperState getState() {
+    return this.gripperState;
+  }
+  public void setVoltage(double voltage) {
+    gripperMotor.getClosedLoopController().setReference(voltage, ControlType.kVoltage);
   }
 
   public boolean detectedCoral() {
@@ -68,11 +128,10 @@ public class Gripper extends SubsystemBase {
     return gripperMotor.getOutputCurrent();
   }
 
-  // public void startEjecting() {
-  //   // NEED TO FIX // should be differents speed (need to make new constant)
-  //   gripperMotor.getClosedLoopController().setReference(CoralConstants.EjectSpeed, ControlType.kVelocity);
-  //   isEjecting = true;
-  // }
+  public void startEjecting() {
+    gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed, ControlType.kVelocity);
+    isEjecting = true;
+  }
   
   public double getIntakeEncoderDegrees() {
     return Units.rotationsToDegrees(gripperMotor.getAbsoluteEncoder().getPosition());

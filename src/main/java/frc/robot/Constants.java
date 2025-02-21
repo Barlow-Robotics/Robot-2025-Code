@@ -157,7 +157,7 @@ public class Constants {
         public static final double PhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI; // CHANGE
 
         public static final double MaxAcceleration = Units.feetToMeters(36.24); // m/sec^2 from Mr. K's spreadsheet
-        public static final double MaxDriveableVelocity = 4.5; // m/s
+        public static final double MaxDriveableVelocity = 4.3; // m/s
         public static final double PhysicalMaxMetersPerSecond = NeoMaxRPM * VelocityConversionFactor;
 
         public static final double FrontLeftMagnetOffsetInRadians = 1.5171039327979088;
@@ -261,7 +261,6 @@ public class Constants {
 
         public static final double ArmAngleAcceleration = 12; // CHANGE
         public static final double ArmAngleJerk = 40; // CHANGE
-        
         /*
         public static final double CoralWristAngle = 90; // CHANGE
       
