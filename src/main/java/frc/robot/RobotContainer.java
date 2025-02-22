@@ -277,10 +277,6 @@ public class RobotContainer {
 
         /***************** POSITION *****************/
 
-        // moveToHomeButton = new JoystickButton(operatorController,
-        // XboxControllerConstants.RightStick); // CHANGE
-        // moveToHomeButton.onTrue(setArmPosHomeCmd);
-
         moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
         moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
@@ -314,10 +310,9 @@ public class RobotContainer {
         retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/
-
-        runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
-        runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd))
-                .onFalse(stopGripperCmd);
+        
+        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
         shooterButton.onTrue(deliverCoralCmd);
