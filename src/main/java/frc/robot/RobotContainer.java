@@ -637,13 +637,18 @@ public class RobotContainer {
             }
             // cosine of the degree is multiplied by side of reef.
             double radianRobot = finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians();
-            System.out.println(radianRobot);
-            reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()
-                    + Constants.DriveConstants.distanceToFrontOfRobot*Math.cos(radianRobot) + Constants.FieldConstants.reefOffsetMeters
-                    * (sideOfReef * Math.sin(radianRobot)),
-                    finalPoseOfAprilTagId.getY() + (Constants.FieldConstants.reefOffsetMeters
-                            * (sideOfReef * Math.cos(radianRobot))) + Constants.DriveConstants.distanceToFrontOfRobot*Math.sin(radianRobot),
-                    new Rotation2d(radianRobot + Math.PI));
+            // System.out.println(radianRobot);
+            double offsetX = Constants.DriveConstants.distanceToFrontOfRobot * Math.cos(radianRobot);
+            double offsetY = Constants.DriveConstants.distanceToFrontOfRobot * Math.sin(radianRobot);
+            double reefX = finalPoseOfAprilTagId.getX() + offsetX + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * Math.sin(radianRobot));
+            double reefY = finalPoseOfAprilTagId.getY() + offsetY + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * Math.cos(radianRobot));
+            reefAutoTargetPose = new Pose2d(reefX, reefY, new Rotation2d(radianRobot + Math.PI));
+            // reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()
+            //         + Constants.DriveConstants.distanceToFrontOfRobot*Math.cos(radianRobot) + Constants.FieldConstants.reefOffsetMeters
+            //         * (sideOfReef * Math.sin(radianRobot)),
+            //         finalPoseOfAprilTagId.getY() + (Constants.FieldConstants.reefOffsetMeters
+            //                 * (sideOfReef * Math.cos(radianRobot))) + Constants.DriveConstants.distanceToFrontOfRobot*Math.sin(radianRobot),
+            //         new Rotation2d(radianRobot + Math.PI));
             var waypoints = PathPlannerPath.waypointsFromPoses(
                     new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
                     // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) //
