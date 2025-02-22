@@ -47,7 +47,7 @@ public class Robot extends LoggedRobot {
 
     // MechanismLigament2d objects represent each "section"/"stage" of the mechanism, and are based
     // off the root node or another ligament object
-    MechanismLigament2d elevator = root.append(new MechanismLigament2d("elevator", ArmConstants.ElevatorMinimumHeight, 90));
+    MechanismLigament2d elevator = root.append(new MechanismLigament2d("elevator", ArmConstants.ArmMinimumHeight, 90));
     MechanismLigament2d arm = elevator.append(
             new MechanismLigament2d("arm", 2, 0, 6, new Color8Bit(Color.kPurple)));
     MechanismLigament2d gripper = arm.append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
@@ -85,7 +85,7 @@ public class Robot extends LoggedRobot {
 
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
-    elevator.setLength(ArmConstants.ElevatorMinimumHeight + (robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12.0);
+    elevator.setLength(/*ArmConstants.ArmMinimumHeight + */(robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12.0);
     arm.setAngle(robotContainer.armSub.getArmTalonEncoderDegrees()-90); // might need to change this to getArmEncoderDegrees() instead, but (as of right now) that doesn't work 
     gripper.setAngle(robotContainer.armSub.getWristEncoderDegrees());
 

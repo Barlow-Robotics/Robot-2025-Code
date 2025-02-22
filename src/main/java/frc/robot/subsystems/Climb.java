@@ -72,7 +72,7 @@ public class Climb extends SubsystemBase {
     }
 
     public void extendServo() {
-        servo.setPosition(1); // Should double check that we actually want it fully extended and not at a specific value instead
+        servo.setPosition(ClimbConstants.ServoExtendedPos); // Should double check that we actually want it fully extended and not at a specific value instead
     }
 
     public void retractServo() {
@@ -83,14 +83,17 @@ public class Climb extends SubsystemBase {
         return servo.getPosition();
     }
 
-    // public boolean isLatchedOnCage() {
-    //     boolean withinWinchTolerance = (winchPos() >= ClimbConstants.CageAngle - ClimbConstants.WinchTolerance) && (winchPos() <= ClimbConstants.CageAngle + ClimbConstants.WinchTolerance);
-    //     // boolean withinServoTolerance = (trueVal >= desiredVal - tolerance) && (trueVal <= desiredVal + tolerance);
-    // }
+    public boolean isLatchedOnCage() {
+        boolean withinWinchTolerance = (winchPos() >= ClimbConstants.CageAngle - ClimbConstants.WinchTolerance) && (winchPos() <= ClimbConstants.CageAngle + ClimbConstants.WinchTolerance);
+        boolean withinServoTolerance = (servoPos() >= ClimbConstants.ServoExtendedPos - ClimbConstants.ServoTolerance) && (servoPos() <= ClimbConstants.ServoExtendedPos + ClimbConstants.ServoTolerance);
+        return withinWinchTolerance && withinServoTolerance;
+    }
 
-    // public boolean isWinched() {
-
-    // }
+    public boolean isWinched() {
+        boolean withinWinchTolerance = (winchPos() >= ClimbConstants.WinchedAngle - ClimbConstants.WinchTolerance) && (winchPos() <= ClimbConstants.WinchedAngle + ClimbConstants.WinchTolerance);
+        boolean withinServoTolerance = (servoPos() >= 0 - ClimbConstants.ServoTolerance) && (servoPos() <= 0 + ClimbConstants.ServoTolerance);
+        return withinWinchTolerance && withinServoTolerance;
+    }
 
     public boolean withinTolerance(double trueVal, double desiredVal, double tolerance) {
         return (trueVal >= desiredVal - tolerance) && (trueVal <= desiredVal + tolerance);

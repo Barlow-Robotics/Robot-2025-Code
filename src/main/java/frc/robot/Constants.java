@@ -345,7 +345,7 @@ public class Constants {
         public static final double WristKD = 0.0; // CHANGE
         public static final double WristFF = 0.0; // CHANGE
         public static final double WristIZone = 0.15; // CHANGE
-        public static final double ElevatorMinimumHeight = 0; // CHANGE
+        public static final double ArmMinimumHeight = 11; // carriage is 11 inches off of ground (not robo base)
     }
 
     public static final class ClimbConstants {
@@ -365,8 +365,12 @@ public class Constants {
 
         public static final double CageAngle = 0;
         public static final double WinchedAngle = 0;
+        public static final int ServoExtendedPos = 1;
 
         public static final double WinchTolerance = 0;
+
+        public static final int ServoTolerance = 0;
+
 
 
     }
