@@ -51,6 +51,7 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
 import frc.robot.commands.ArmStateParameters;
 import frc.robot.sim.PhysicsSim;
+import frc.robot.subsystems.Gripper.GripperState;
 
 public class Arm extends SubsystemBase {
 
@@ -85,11 +86,12 @@ public class Arm extends SubsystemBase {
             DCMotor.getKrakenX60Foc(1));
 
     public enum ArmState {
-        WaitingForCoral, Startup, LoadCoral, PreLevel1, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
+        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, PreLevel2, Level2, PreLevel3, Level3, PreLevel4, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
     }
 
     private final Drive driveSub;
     private final Vision visionSub;
+    private final Gripper gripperSub;
 
     private ArmState actualState = ArmState.Startup;
     public ArmState desiredState = ArmState.Startup;
@@ -103,12 +105,13 @@ public class Arm extends SubsystemBase {
     public boolean targetIsVisible = false;
     private boolean simulationInitialized = false;
 
-    public Arm(Vision visionSub, Drive driveSub) {
+    public Arm(Vision visionSub, Drive driveSub, Gripper gripperSub) {
         // bottomHallEffect = new DigitalInput(ElectronicsIDs.BottomHallEffectID);
 
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
         armMotorSim = armMotor.getSimState();
         armMotor.setPosition(0);
+        armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
 
         carriageMotor = new TalonFX(ElectronicsIDs.CarriageMotorID);
         carriageMotorSim = carriageMotor.getSimState();
@@ -118,8 +121,6 @@ public class Arm extends SubsystemBase {
         wristMotorSim = new SparkMaxSim(wristMotor, DCMotor.getNeo550((1)));
         wristEncoder = new CANcoder(ElectronicsIDs.WristEncoderID, "rio");
         wristEncoderSim = wristEncoder.getSimState();
-
-        armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
 
         elevatorMotor = new TalonFX(ElectronicsIDs.ElevatorMotorID);
         elevatorMotorSim = elevatorMotor.getSimState();
@@ -139,6 +140,7 @@ public class Arm extends SubsystemBase {
 
         this.driveSub = driveSub;
         this.visionSub = visionSub;
+        this.gripperSub = gripperSub;
         initializePositionDictionary();
     }
 
@@ -153,16 +155,20 @@ public class Arm extends SubsystemBase {
         //  VALUES IN DEGREES & INCHES.  Convert as necessary.
         positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 90, -1));
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 0, -1));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 90, -1));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(1.264, 26.5, 60, 90, -1));
-        positionDictionary.put(ArmState.Level4, new ArmStateParameters(25.664, 26.5, 60, 90, -1));
-        positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, -60, 90, 1));
-        positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 0, 0, 90, 1));
+        positionDictionary.put(ArmState.PreLevel2, new ArmStateParameters(0, 12.163, 60, 90, 0));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 10, 45, 90, -0.2));
+        positionDictionary.put(ArmState.PreLevel3, new ArmStateParameters(1.264, 26.5, 60, 90, 0));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(1.264, 24.5, 60, 90, -0.2));
+        positionDictionary.put(ArmState.PreLevel4, new ArmStateParameters(25.664, 26.5, 60, 90, 0));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(25.664, 24.5, 60, 90, -0.2));
+        positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 18.29, -60, 90, 1));
+        positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 15.69, -75, 90, 1));
+        positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 18, -75, 90, 1));
         positionDictionary.put(ArmState.AlgaeLow, new ArmStateParameters(0, 0, 0, 0, -1));
         positionDictionary.put(ArmState.AlgaeHigh, new ArmStateParameters(0, 0, 0, 0, -1));
         positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 90, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, -1));
-        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(50, 50, 0, 0, -1));
+        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 0, 0, -1));
     }
 
     private void setDesiredAnglesAndHeights() {
@@ -190,8 +196,16 @@ public class Arm extends SubsystemBase {
         if (isAtDesiredState()) {
             actualState = desiredState;
         }
+        // Once we've moved to a precursor state, then force the change to the
+        //   state for the follow-on motion.
         if (desiredState == ArmState.PreLevel1 && isWithinArmAngleTolerance()) {
             setDesiredState(ArmState.Level1);
+        }
+        if (desiredState == ArmState.LoadCoral && (gripperSub.getState() == GripperState.carryingCoral)) {
+            setDesiredState(ArmState.PostLoadCoral);
+        }
+        if (desiredState == ArmState.PostLoadCoral && isWithinCarriageHeightTolerance()) {
+            setDesiredState(ArmState.Running);
         }
 
         logData();
