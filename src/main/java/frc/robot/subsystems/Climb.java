@@ -55,6 +55,11 @@ public class Climb extends SubsystemBase {
         // This method will be called once per scheduler run
     }
 
+    public void stop() {
+        servo.setSpeed(0);
+        winchMotor.stopMotor();
+    }
+
     public void latchOntoCage() {
         // CHANGE: do something with the servo here        
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.CageAngle));

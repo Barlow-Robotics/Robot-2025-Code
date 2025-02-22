@@ -97,9 +97,9 @@ public class Arm extends SubsystemBase {
     public ArmState desiredState = ArmState.Startup;
 
     private double desiredWristAngle = 0; // CHANGE PLACEHOLDER
-    private double desiredCarriageHeight = ArmConstants.StartingCarriageHeight;
+    private double desiredCarriageHeight = 0;
     private double desiredArmAngle = 0; // CHANGE PLACEHOLDER
-    private double desiredElevatorHeight = ArmConstants.StartingElevatorHeight;
+    private double desiredElevatorHeight = 0;
     private double desiredGripperVelocity = 0;
 
     public boolean targetIsVisible = false;
@@ -208,6 +208,8 @@ public class Arm extends SubsystemBase {
             setDesiredState(ArmState.Running);
         }
 
+        boundsCheck();
+
         logData();
 
         // Shuffleboard.getTab("Match").add("Can See Tag", targetIsVisible);
@@ -219,18 +221,10 @@ public class Arm extends SubsystemBase {
                 ControlType.kPosition);
     }
 
-    public void stopWristMotor() {
-        wristMotor.stopMotor();
-    }
-
     public void setArmAngle(double desiredDegrees) {
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
         // this.desiredArmAngle = desiredDegrees;
-    }
-
-    public void stopArmMotor() {
-        armMotor.set(0);
     }
 
     public double getWristEncoderDegrees() {
@@ -328,6 +322,52 @@ public class Arm extends SubsystemBase {
         return withinTolerance;
     }
 
+    /* SAFETY */
+
+    public void stopElevatorMotor() {
+        elevatorMotor.stopMotor();
+    }
+    public void stopCarriageMotor() {
+        carriageMotor.stopMotor();
+    }
+    public void stopArmMotor() {
+        armMotor.stopMotor();
+    }
+    public void stopWristMotor() {
+        wristMotor.stopMotor();
+    }
+
+    /** Makes sure we never go past our limits of motion */
+    private void boundsCheck() {
+        if ((getElevatorHeightInches() <= 0 && elevatorMotor.getVelocity().getValueAsDouble() < 0) ||
+            (getElevatorHeightInches() > ArmConstants.MaxElevatorHeight && elevatorMotor.getVelocity().getValueAsDouble() > 0)) {
+            stopElevatorMotor();
+        }
+
+        if ((getCarriageHeightInches() <= 0
+            && carriageMotor.getVelocity().getValueAsDouble() < 0) ||
+            (getCarriageHeightInches() == ArmConstants.MaxCarriageHeight
+                        && carriageMotor.getVelocity().getValueAsDouble() > 0)) {
+            stopCarriageMotor();
+        }
+
+        // // Not sure if we need this
+        // if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle // need to fix these constant values
+        //         && armMotor.getVelocity().getValueAsDouble() < 0) ||
+        //         (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle // need to fix these constant values
+        //                 && armMotor.getVelocity().getValueAsDouble() > 0)) {
+        //     stopArmMotor();
+        // }
+
+        // // Not sure if we need this
+        // if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle // need to fix these constant values
+        //         && wristMotor.getEncoder().getVelocity() < 0) ||
+        //         (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle // need to fix these constant values
+        //                 && wristMotor.getEncoder().getVelocity() > 0)) {
+        //     stopWristMotor();
+        // }
+    }
+
     private void logData() {
         Logger.recordOutput("Arm/StateActual", actualState);
         Logger.recordOutput("Arm/StateDesired", desiredState);
@@ -400,7 +440,7 @@ public class Arm extends SubsystemBase {
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = ArmConstants.ArmAngleCruiseRotationsPerSec;
+        motionMagicConfigs.MotionMagicCruiseVelocity = ArmConstants.ArmAngleCruiseSpeed;
         motionMagicConfigs.MotionMagicAcceleration = ArmConstants.ArmAngleAcceleration;
         motionMagicConfigs.MotionMagicJerk = ArmConstants.ArmAngleJerk;
 
@@ -499,7 +539,7 @@ public class Arm extends SubsystemBase {
         magnetConfig.AbsoluteSensorDiscontinuityPoint = 0.5;
 
         if (!Robot.isSimulation()) {
-            magnetConfig.MagnetOffset = ArmConstants.AngleCANCoderMagnetOffset;
+            magnetConfig.MagnetOffset = ArmConstants.WristAngleCANCoderMagnetOffset;
         } else {
             magnetConfig.MagnetOffset = 0.0;
         }

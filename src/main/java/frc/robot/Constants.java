@@ -229,13 +229,82 @@ public class Constants {
     /***************************************************************************/
 
     public static final class ArmConstants {
-        // Arm and Wrist Angles
+
+        // CHANGE - this is currently universal to all of the motors on the Arm? why?
         public static final double SupplyCurrentLimit = 40;
-        public static final double AngleCANCoderMagnetOffset = 0.48583;
 
-        /*
+        /* MOTION LIMITS */
 
-        public static final double Level1ArmAngle = 10; // CHANGE
+        public static final double MaxHeightInches = 45; // CHANGE
+        public static final double MaxCarriageHeight = 26.5; //inches from its base (0) position // will need to decrease this by 4 inches
+        public static final double MaxElevatorHeight = 23; //(roughly) //inches from its base (0) position
+        // public static final double StartingElevatorHeight = 24.75; // pretty sure we don't need this
+        // public static final double StartingCarriageHeight = 24.75; // pretty sure we don't need this
+        public static final double ArmMinimumHeight = 11; // carriage is 11 inches off of ground (not robo base)
+
+        // so far these arent being used, but we should decided if we need to set limits on this movement
+        public static final double MinArmAngle = 0; // CHANGE
+        public static final double MaxArmAngle = 0; // CHANGE
+        public static final double MinWristAngle = 0; // CHANGE
+        public static final double MaxWristAngle = 0; // CHANGE
+
+
+        /* ARM */
+
+        public static final double ArmAngleKP = 3; // CHANGE
+        public static final double ArmAngleKI = 0.1; // CHANGE
+        public static final double ArmAngleKD = 0.01; // CHANGE
+        public static final double ArmAngleFF = 0; // CHANGE
+        public static final double ArmAngleKG = 0.29; // CHANGE
+        public static final double ArmAngleCruiseSpeed = .1; // rotations per sec // CHANGE
+        public static final double ArmAngleAcceleration = 12; // CHANGE
+        public static final double ArmAngleJerk = 40; // CHANGE
+        
+
+        /* ELEVATOR */
+
+        public static final double ElevatorKP = 32; // CHANGE
+        public static final double ElevatorKI = 0.1; // CHANGE
+        public static final double ElevatorKD = 0.2; // CHANGE
+        public static final double ElevatorFF = 0.0; // CHANGE
+        public static final double ElevatorKG = 2.7; // CHANGE
+        public static final double ElevatorKS = 0; // CHANGE
+        public static final double ElevatorGearRatio = 15;
+        // public static final double ElevatorSprocketDiameter = 2.36; // inches // CHANGE
+        public static final double ElevatorSprocketDiameter = 2.16; // inches // CHANGE
+        public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
+        public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
+
+        public static final double RotationsPerCarriageInch = 2.2; // CHANGE (set this ~equal to rpElevatorIn for testing
+                                                                   // purposes, but need the gear ratios and whatnot)
+
+        // public static final double RotationsPerElevatorInch = ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
+
+        public static final double ElevatorMaxInchesPerSec = Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio
+                * ElevatorSprocketCircumference;
+        public static final double ElevatorCruiseInchesPerSec = 10; // CHANGE
+        public static final double ElevatorInchesPerSecPerSec = 10; // CHANGE
+        public static final double ElevatorJerk = 800; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
+
+        /* WRIST */
+
+        public static final double WristAngleCANCoderMagnetOffset = 0.48583;
+
+        public static final double WristKP = 2; // CHANGE
+        public static final double WristKI = 0.000; // CHANGE
+        public static final double WristKD = 0.1; // CHANGE
+        public static final double WristFF = 0.0; // CHANGE
+        public static final double WristIZone = 0.15; // CHANGE
+
+
+        /* TOLERANCES */
+
+        public static final double WristAngleTolerance = 1.5; // CHANGE
+        public static final double ArmAngleTolerance = 1.5; // CHANGE
+        public static final double ElevatorHeightTolerance = 0.25;// CHANGE
+        public static final double CarriageHeightTolerance = 0.25;// CHANGE
+
+     /* public static final double Level1ArmAngle = 10; // CHANGE
         public static final double Level2ArmAngle = 20; // CHANGE
         public static final double Level3ArmAngle = 30; // CHANGE
         public static final double Level4ArmAngle = 40; // CHANGE
@@ -253,21 +322,9 @@ public class Constants {
         public static final double Level1CarriageHeight = 5; // CHANGE
         public static final double Level2CarriageHeight = 10; // CHANGE
         public static final double Level3CarriageHeight = 15; // CHANGE
-        public static final double Level4CarriageHeight = 20; // CHANGE
-
-        */
-        public static final double ArmAngleKP = 1; // CHANGE
-        public static final double ArmAngleKI = 0.000; // CHANGE
-        public static final double ArmAngleKD = 0; // CHANGE
-        public static final double ArmAngleFF = 0; // CHANGE
-        public static final double ArmAngleKG = 0; // CHANGE
-        public static final double ArmAngleCruiseRotationsPerSec = 3; // CHANGE
-
-        public static final double ArmAngleAcceleration = 12; // CHANGE
-        public static final double ArmAngleJerk = 40; // CHANGE
-        /*
-        public static final double CoralWristAngle = 90; // CHANGE
-      
+        public static final double Level4CarriageHeight = 20; // CHANGE 
+    
+        public static final double CoralWristAngle = 90; // CHANGE      
         public static final double CoralElevatorHeight = 25; // CHANGE
         public static final double CoralCarriageHeight = 22; // CHANGE
         public static final double CoralArmAngle = -20; // CHANGE
@@ -290,62 +347,7 @@ public class Constants {
         public static final double AlgaeLowWristAngle = 0; // CHANGE
         public static final double AlgaeLowArmAngle = 25; // CHANGE
         public static final double AlgaeLowElevatorHeight = 15; // CHANGE
-        public static final double AlgaeLowCarriageHeight = 13; // CHANGE
-        */
-
-        public static final double WristAngleTolerance = 1.5; // CHANGE
-        public static final double ArmAngleTolerance = 1.5; // CHANGE
-        public static final double ElevatorHeightTolerance = 0.25;// CHANGE
-        public static final double CarriageHeightTolerance = 0.25;// CHANGE
-
-        public static final double AngleKP = 30; // CHANGE
-        public static final double AngleKI = 0.000; // CHANGE
-        public static final double AngleKD = 1.5; // CHANGE
-        public static final double AngleFF = 0; // CHANGE
-        public static final double AngleKG = 0.29; // CHANGE
-        public static final double AngleCruiseRotationsPerSec = 3; // CHANGE
-
-        public static final double AngleAcceleration = 12; // CHANGE
-        public static final double AngleJerk = 40; // CHANGE
-        
-        /* ELEVATOR */
-
-        public static final double MaxHeightInches = 45; // CHANGE
-        public static final double StartingElevatorHeight = 24.75; // CHANGE
-        public static final double StartingCarriageHeight = 24.75; // CHANGE
-
-        public static final double ElevatorKP = 32; // CHANGE
-        public static final double ElevatorKI = 0.1; // CHANGE
-        public static final double ElevatorKD = 0.2; //  
-        // public static final double ElevatorIZone = 0.1; // motor already does this
-        public static final double ElevatorFF = 0.0; // CHANGE
-        public static final double ElevatorKG = 2.7; // CHANGE
-        public static final double ElevatorKS = 0; // CHANGE
-        public static final double ElevatorGearRatio = 15;
-        // public static final double ElevatorSprocketDiameter = 2.36; // inches //
-        // CHANGE
-        public static final double ElevatorSprocketDiameter = 2.16; // inches // CHANGE
-        public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
-        public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
-
-        public static final double RotationsPerCarriageInch = 2.2; // CHANGE (set this ~equal to rpElevatorIn for testing
-                                                                   // purposes, but need the gear ratios and whatnot)
-
-        // public static final double RotationsPerElevatorInch =
-        // ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
-
-        public static final double ElevatorMaxInchesPerSec = Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio
-                * ElevatorSprocketCircumference;
-        public static final double ElevatorCruiseInchesPerSec = 10; // CHANGE
-        public static final double ElevatorInchesPerSecPerSec = 10; // CHANGE
-        public static final double ElevatorJerk = 800; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
-
-        public static final double WristKP = 2; // CHANGE
-        public static final double WristKI = 0.000; // CHANGE
-        public static final double WristKD = 0.0; // CHANGE
-        public static final double WristFF = 0.0; // CHANGE
-        public static final double WristIZone = 0.15; // CHANGE
-        public static final double ArmMinimumHeight = 11; // carriage is 11 inches off of ground (not robo base)
+        public static final double AlgaeLowCarriageHeight = 13; // CHANGE */
     }
 
     public static final class ClimbConstants {

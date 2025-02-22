@@ -9,9 +9,14 @@ import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -189,6 +194,19 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         if (Utils.isSimulation()) {
             startSimThread();
         }
+    }
+
+    // CHANGE - not sure if this is the right/best way to do this, though it might be fine
+    public void stopDrive() {
+        
+        for (int i=0; i<4; i++) {
+            super.getModule(i).getDriveMotor().stopMotor();
+            super.getModule(i).getSteerMotor().stopMotor();
+        }
+        
+        // not sure if this would work better/differently:
+        // for (SwerveModule<TalonFX,TalonFX,CANcoder> module : super.getModules()) {
+        //     module.getSteerMotor().stopMotor(); module.getDriveMotor().stopMotor(); } 
     }
 
 

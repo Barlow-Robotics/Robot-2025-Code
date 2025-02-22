@@ -248,10 +248,15 @@ public class RobotContainer {
     // }
  
     public void disableSubsytems() {
-        // driveSub.stop();
+        driveSub.stopDrive();
         armSub.stopArmMotor();
         armSub.stopWristMotor();
-
+        armSub.stopCarriageMotor();
+        armSub.stopElevatorMotor();
+        climbSub.stop();
+        gripperSub.stop();
+        algaeIntakeSub.stopIntakeMotor();
+        algaeIntakeSub.stopLiftMotor();
     }
 
     private void configureBindings() {
