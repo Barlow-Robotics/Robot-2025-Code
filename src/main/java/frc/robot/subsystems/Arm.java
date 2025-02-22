@@ -153,10 +153,10 @@ public class Arm extends SubsystemBase {
         //  VALUES IN DEGREES & INCHES.  Convert as necessary.
         positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 90, -1));
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 0, -1));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 90, -1));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(30, 0, 0, 90, -1));
-        positionDictionary.put(ArmState.Level4, new ArmStateParameters(0, 0, 0, 90, -1));
-        positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, 0, 90, 1));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 90, -1));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(1.264, 26.5, 60, 90, -1));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(25.664, 26.5, 60, 90, -1));
+        positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, -60, 90, 1));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 0, 0, 90, 1));
         positionDictionary.put(ArmState.AlgaeLow, new ArmStateParameters(0, 0, 0, 0, -1));
         positionDictionary.put(ArmState.AlgaeHigh, new ArmStateParameters(0, 0, 0, 0, -1));

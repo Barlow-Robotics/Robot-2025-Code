@@ -128,6 +128,11 @@ public class RobotContainer {
     private Trigger ejectAlgaeButton;
     private Trigger retractIntakeButton;
 
+
+    private Trigger autoAlignAlgaeButton;
+    private Trigger autoAlignAlgaeButton_2;
+
+
     private Trigger runGripperButton;
     private Trigger ejectCoralButton;
     private Trigger shooterButton;
@@ -139,7 +144,7 @@ public class RobotContainer {
     /* AUTO */
     private SendableChooser<Command> autoChooser;
     boolean moveToCoral;
-    boolean goToRight;
+    Boolean goToRight;
 
     public Pose2d reefAutoTargetPose = new Pose2d();
 
@@ -317,13 +322,20 @@ public class RobotContainer {
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
         shooterButton.onTrue(deliverCoralCmd);
 
-        autoAlignRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
-        autoAlignRightButton.onTrue(new InstantCommand(() -> changeToRight(true)))
+        autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
+        autoAlignAlgaeButton.onTrue(new InstantCommand(() -> changeToLeft(null)))
                 .onFalse(new InstantCommand(() -> disableCoralVision()));
-        ;
 
-        autoAlignLeftButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button3);
-        autoAlignLeftButton.onTrue(new InstantCommand(() -> changeToRight(false)))
+        autoAlignAlgaeButton_2 = new JoystickButton(driverController, LogitechExtreme3DConstants.Button6);
+        autoAlignAlgaeButton_2.onTrue(new InstantCommand(() -> changeToLeft(null)))
+                .onFalse(new InstantCommand(() -> disableCoralVision()));
+
+        autoAlignRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button3);
+        autoAlignRightButton.onTrue(new InstantCommand(() -> changeToLeft(true)))
+                .onFalse(new InstantCommand(() -> disableCoralVision()));
+        
+        autoAlignLeftButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
+        autoAlignLeftButton.onTrue(new InstantCommand(() -> changeToLeft(false)))
                 .onFalse(new InstantCommand(() -> disableCoralVision()));
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
@@ -512,7 +524,7 @@ public class RobotContainer {
     // public void changeCoralVision(boolean val) {
     // this.moveToCoral = val;
     // }
-    public void changeToRight(boolean val) {
+    public void changeToLeft(Boolean val) {
         this.goToRight = val;
         this.moveToCoral = true;
     }
@@ -521,7 +533,7 @@ public class RobotContainer {
         this.moveToCoral = false;
     }
 
-    public boolean getChangeToRight() {
+    public Boolean getChangeToRight() {
         return this.goToRight;
     }
 
@@ -586,8 +598,10 @@ public class RobotContainer {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
         PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for
-                                                                                               // this path.
-        if (getChangeToRight()) {
+        if (getChangeToRight() == null) {
+            sideOfReef = 0;
+        }
+        else if (getChangeToRight()) {
             sideOfReef = 1;
         }
         if (usingVision) {
@@ -641,7 +655,7 @@ public class RobotContainer {
             double offsetX = Constants.DriveConstants.distanceToFrontOfRobot * Math.cos(radianRobot);
             double offsetY = Constants.DriveConstants.distanceToFrontOfRobot * Math.sin(radianRobot);
             double reefX = finalPoseOfAprilTagId.getX() + offsetX + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * Math.sin(radianRobot));
-            double reefY = finalPoseOfAprilTagId.getY() + offsetY + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * Math.cos(radianRobot));
+            double reefY = finalPoseOfAprilTagId.getY() + offsetY + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * -Math.cos(radianRobot));
             reefAutoTargetPose = new Pose2d(reefX, reefY, new Rotation2d(radianRobot + Math.PI));
             // reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()
             //         + Constants.DriveConstants.distanceToFrontOfRobot*Math.cos(radianRobot) + Constants.FieldConstants.reefOffsetMeters
