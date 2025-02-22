@@ -63,9 +63,9 @@ public class RobotContainer {
     /* SUBSYSTEMS */
     public Drive driveSub = TunerConstants.createDrivetrain();
     public Vision visionSub = new Vision(driveSub);
-    public final Arm armSub = new Arm(visionSub, driveSub);
-    public final Climb climbSub = new Climb();
     public final Gripper gripperSub = new Gripper();
+    public final Arm armSub = new Arm(visionSub, driveSub, gripperSub);
+    public final Climb climbSub = new Climb();
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
 
     /* COMMANDS */
