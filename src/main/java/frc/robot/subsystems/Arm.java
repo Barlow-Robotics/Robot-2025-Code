@@ -62,13 +62,13 @@ public class Arm extends SubsystemBase {
     private final DCMotorSim armMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
+    TalonFXSimState armMotorSim;
     private final CANcoder armEncoder;
 
     TalonFX carriageMotor;
     private final DCMotorSim carriageMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
-    TalonFXSimState armMotorSim;
     TalonFXSimState carriageMotorSim;
         
     SparkMax wristMotor;
@@ -127,8 +127,8 @@ public class Arm extends SubsystemBase {
 
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
         applyWristEncoderConfigs();
-        applyelevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.CounterClockwise_Positive);
-        applyelevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
+        applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.CounterClockwise_Positive);
+        applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
 
         wristMotorConfig.closedLoop
@@ -396,7 +396,7 @@ public class Arm extends SubsystemBase {
         applyMotorConfigs(armMotor, "armMotor", talonConfigs, inversion);
     }
 
-    private void applyelevatorMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
+    private void applyElevatorMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
         talonConfigs.Slot0.kP = ArmConstants.ElevatorKP;
         talonConfigs.Slot0.kI = ArmConstants.ElevatorKI;

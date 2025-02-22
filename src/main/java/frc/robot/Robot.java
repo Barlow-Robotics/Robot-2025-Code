@@ -86,7 +86,7 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
     elevator.setLength(ArmConstants.ElevatorMinimumHeight + (robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12.0);
-    arm.setAngle(robotContainer.armSub.getArmEncoderDegrees()-90);
+    arm.setAngle(robotContainer.armSub.getArmTalonEncoderDegrees()-90); // might need to change this to getArmEncoderDegrees() instead, but (as of right now) that doesn't work 
     gripper.setAngle(robotContainer.armSub.getWristEncoderDegrees());
 
     SmartDashboard.putData("ArmMech2D", mech);
