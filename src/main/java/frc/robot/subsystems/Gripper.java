@@ -175,10 +175,6 @@ public class Gripper extends SubsystemBase {
       //liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
   
   }
-  // NEED TO FIX: Can't figure out how to get this to return velocity -Ang
-  // public void setSpeed(double speed) {
-  //   intakeMotor.set(speed);
-  // }
 
   
 }

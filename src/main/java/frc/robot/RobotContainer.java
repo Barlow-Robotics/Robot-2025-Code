@@ -299,13 +299,13 @@ public class RobotContainer {
 
         /***************** ALGAE INTAKE *****************/
 
-        intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.LeftBumper); // CHANGE
+        intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
         intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
+        ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
         ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        retractIntakeButton = new JoystickButton(operatorController, LogitechDAConstants.LeftTrigger); // CHANGE
+        retractIntakeButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
         retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/

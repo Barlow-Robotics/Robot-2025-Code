@@ -126,7 +126,11 @@ public class Constants {
         public static final int AlgaeIntakeMotorID = 53;
 
         /***************************** GRIPPER *****************************/
-        public static final int GripperMotorID = 0;
+        public static final int GripperMotorID = 61;
+
+        /****************************** CLIMB ******************************/
+        public static final int WinchMotorID = 71;
+        public static final int ServoID = 1; // CHANGE?
     }
 
     /***************************************************************************/
@@ -342,6 +346,29 @@ public class Constants {
         public static final double WristFF = 0.0; // CHANGE
         public static final double WristIZone = 0.15; // CHANGE
         public static final double ElevatorMinimumHeight = 0; // CHANGE
+    }
+
+    public static final class ClimbConstants {
+        public static final double WinchMotorGearRatio = 1; // CHANGE
+
+        public static final double WinchKP = 0;
+        public static final double WinchKI = 0;
+        public static final double WinchKD = 0;
+        public static final double WinchFF = 0;
+        public static final double WinchKG = 0;
+
+        public static final double WinchCruiseRotationsPerSec = 0;
+        public static final double WinchAcceleration = 0;
+        public static final double WinchJerk = 0;
+
+        public static final double SupplyCurrentLimit = 100; // CHANGE
+
+        public static final double CageAngle = 0;
+        public static final double WinchedAngle = 0;
+
+        public static final double WinchTolerance = 0;
+
+
     }
 
     public static final class GripperConstants {
