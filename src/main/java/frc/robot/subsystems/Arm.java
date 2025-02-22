@@ -4,23 +4,22 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
+
 import java.util.HashMap;
 
 // import static edu.wpi.first.units.Units.Amp;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
-
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -38,21 +37,24 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.ArmConstants;
-import frc.robot.Robot;
-import frc.robot.commands.ElevatorState;
-import frc.robot.sim.PhysicsSim;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Robot;
+import frc.robot.commands.ArmStateParameters;
+import frc.robot.sim.PhysicsSim;
 
 public class Arm extends SubsystemBase {
 
-    private final HashMap<ArmState, ElevatorState> positionDictionary = new HashMap<ArmState, ElevatorState>();
+    private final HashMap<ArmState, ArmStateParameters> positionDictionary = new HashMap<ArmState, ArmStateParameters>();
     // include intake speeds, in dictionary, speed that intake runs at.
     // Remember to increase the capacity of the hashmap, it's default 16
 
@@ -83,7 +85,7 @@ public class Arm extends SubsystemBase {
             DCMotor.getKrakenX60Foc(1));
 
     public enum ArmState {
-        WaitingForCoral, Startup, LoadCoral, PreLevel1, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, 
+        WaitingForCoral, Startup, LoadCoral, PreLevel1, Level1, Level2, Level3, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
     }
 
     private final Drive driveSub;
@@ -144,17 +146,23 @@ public class Arm extends SubsystemBase {
         // CHANGE all these magic #s (except for wrist)
         // need to change speeds to all of these (right now assuming grabing is + and
         // release is -)
-        positionDictionary.put(ArmState.PreLevel1, new ElevatorState(0, 10, 45, 90, -1));
-        positionDictionary.put(ArmState.Level1, new ElevatorState(0, 10, 0, 0, -1));
-        positionDictionary.put(ArmState.Level2, new ElevatorState(0, 0, 0, 90, -1));
-        positionDictionary.put(ArmState.Level3, new ElevatorState(30, 0, 0, 90, -1));
-        positionDictionary.put(ArmState.Level4, new ElevatorState(0, 0, 0, 90, -1));
-        positionDictionary.put(ArmState.WaitingForCoral, new ElevatorState(0, 0, 0, 90, 1));
-        positionDictionary.put(ArmState.LoadCoral, new ElevatorState(0, 0, 0, 90, 1));
-        positionDictionary.put(ArmState.AlgaeLow, new ElevatorState(0, 0, 0, 0, -1));
-        positionDictionary.put(ArmState.AlgaeHigh, new ElevatorState(0, 0, 0, 0, -1));
-        positionDictionary.put(ArmState.Startup, new ElevatorState(0, 0, 0, 90, 0));
-        positionDictionary.put(ArmState.Running, new ElevatorState(0, 0, 90, 90, -1));
+        // The PreL1 and L1 values below are approximations.  The PreL1 arm angle and carriage ht are
+        //      to get the arm beyond the elevator frame before rotating the coral in the
+        //      the gripper (which happens in the L1 state).
+        //      Our target ht for the gripper over the trough is 25".
+        //  VALUES IN DEGREES & INCHES.  Convert as necessary.
+        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 90, -1));
+        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 0, -1));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 90, -1));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(30, 0, 0, 90, -1));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(0, 0, 0, 90, -1));
+        positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, 0, 90, 1));
+        positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 0, 0, 90, 1));
+        positionDictionary.put(ArmState.AlgaeLow, new ArmStateParameters(0, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.AlgaeHigh, new ArmStateParameters(0, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 90, 0));
+        positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, -1));
+        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(50, 50, 0, 0, -1));
     }
 
     private void setDesiredAnglesAndHeights() {
@@ -164,6 +172,7 @@ public class Arm extends SubsystemBase {
         desiredArmAngle = val.getArmAngle();
         desiredElevatorHeight = val.getElevatorHeight();
         desiredGripperVelocity = val.getGripperVelocity();
+        setArmAngle(desiredArmAngle);
         setWristAngle(desiredWristAngle);
         setElevatorHeightInches(elevatorMotor, desiredElevatorHeight);
         setCarriageHeightInches(carriageMotor, desiredCarriageHeight);

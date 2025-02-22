@@ -5,28 +5,33 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Gripper;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RemoveAlgae extends Command {
-  /** Creates a new RemoveAlgae. */
-  public RemoveAlgae(Arm armSub, Gripper gripperSub) {
-    addRequirements(armSub, gripperSub);
 
-
-
-
-    // Use addRequirements() here to declare subsystem dependencies.
+  private final Command setArmPosAlageEndCmd;
+  private final Command runGripperCmd;
+  private final Command setArmPosLoadCoralCmd;
+  private Command currentCommand;
+  
+  public RemoveAlgae(Command setArmPosAlageEndCmd, Command runGripperCmd, Command setArmPosLoadCoralCmd) {
+    this.setArmPosAlageEndCmd = setArmPosAlageEndCmd;
+    this.runGripperCmd = runGripperCmd;
+    this.setArmPosLoadCoralCmd = setArmPosLoadCoralCmd;
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    currentCommand = Commands.race(setArmPosAlageEndCmd, runGripperCmd).andThen(setArmPosLoadCoralCmd);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+
+  }
 
   // Called once the command ends or is interrupted.
   @Override
@@ -35,6 +40,6 @@ public class RemoveAlgae extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return currentCommand.isFinished();
   }
 }

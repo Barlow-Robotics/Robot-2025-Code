@@ -56,6 +56,7 @@ public class Gripper extends SubsystemBase {
             .iZone(GripperConstants.GripperIZone)
             .outputRange(-1, 1);
     gripperMotorConfigBrake.idleMode(IdleMode.kCoast);
+
     gripperMotor.configure(gripperMotorConfigBrake, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 

@@ -1,22 +1,22 @@
 package frc.robot.commands;
 
-public class ElevatorState {
+public class ArmStateParameters {
     private double elevatorHeight;
     private double carriageHeight;
     private double armAngle;
     private double wristAngle;
     private double gripperVelocity;
 
-    public ElevatorState(double elevatorHeight, double carriageHeight, double armAngle, double wristAngle,
-            double intakeSpeed) {
+    public ArmStateParameters(double elevatorHeight, double carriageHeight, double armAngle, double wristAngle,
+            double gripperVelocity) {
         this.elevatorHeight = elevatorHeight;
         this.carriageHeight = carriageHeight;
         this.armAngle = armAngle;
         this.wristAngle = wristAngle;
-        this.gripperVelocity = intakeSpeed;
+        this.gripperVelocity = gripperVelocity;
     }
 
-    public ElevatorState(double elevatorHeight, double carriageHeight, double armAngle, double wristAngle) {
+    public ArmStateParameters(double elevatorHeight, double carriageHeight, double armAngle, double wristAngle) {
         this.elevatorHeight = elevatorHeight;
         this.carriageHeight = carriageHeight;
         this.armAngle = armAngle;
