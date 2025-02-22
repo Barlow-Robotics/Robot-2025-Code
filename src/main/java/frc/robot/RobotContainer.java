@@ -310,10 +310,9 @@ public class RobotContainer {
         retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/
-
-        runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
-        runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd))
-                .onFalse(stopGripperCmd);
+        
+        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
         shooterButton.onTrue(deliverCoralCmd);
