@@ -277,10 +277,6 @@ public class RobotContainer {
 
         /***************** POSITION *****************/
 
-        // moveToHomeButton = new JoystickButton(operatorController,
-        // XboxControllerConstants.RightStick); // CHANGE
-        // moveToHomeButton.onTrue(setArmPosHomeCmd);
-
         moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
         moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
