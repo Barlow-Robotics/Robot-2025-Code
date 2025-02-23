@@ -640,14 +640,27 @@ public class RobotContainer {
             var alliance = DriverStation.getAlliance();
             Logger.recordOutput("alliance", alliance.get());
             if (alliance.isPresent()) {
-                if (alliance.get() == DriverStation.Alliance.Blue) {
-                    int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagList);
-                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                if (armSub.isAvailableToGoToReef()) {
+                    if (alliance.get() == DriverStation.Alliance.Blue) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListReef);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
+                    if (alliance.get() == DriverStation.Alliance.Red) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListReef);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
                 }
-                if (alliance.get() == DriverStation.Alliance.Red) {
-                    int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagList);
-                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                if (armSub.isAvailableToGoToCoralStation()) {
+                    if (alliance.get() == DriverStation.Alliance.Blue) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListCoralStation);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
+                    if (alliance.get() == DriverStation.Alliance.Red) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListCoralStation);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
                 }
+
 
             }
             // cosine of the degree is multiplied by side of reef.
