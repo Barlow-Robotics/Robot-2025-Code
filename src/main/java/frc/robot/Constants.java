@@ -79,9 +79,14 @@ public class Constants {
         public static final double InvalidAngle = -361;
         public static final double NoTargetDistance = -1;
 
-        public static final int[] blueAprilTagList = {17, 18, 19, 20, 21, 22};
-        public static final int[] redAprilTagList = {6, 7, 8, 9, 10, 11};
+        public static final int[] blueAprilTagListReef = {17, 18, 19, 20, 21, 22};
+        public static final int[] redAprilTagListReef = {6, 7, 8, 9, 10, 11};
 
+
+        public static final int[] blueAprilTagListCoralStation = {12, 13};
+        public static final int[] redAprilTagListCoralStation = {1, 2};
+
+    
         public static final double NoteAlignPixelTolerance = 250; // NEED TO CHANGE
 
     }

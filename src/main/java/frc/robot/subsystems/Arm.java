@@ -71,7 +71,7 @@ public class Arm extends SubsystemBase {
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
     TalonFXSimState carriageMotorSim;
-        
+
     SparkMax wristMotor;
     SparkMaxConfig wristMotorConfig = new SparkMaxConfig();
     private final SparkMaxSim wristMotorSim;
@@ -85,6 +85,7 @@ public class Arm extends SubsystemBase {
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
 
+    // CHANGE - also need to double check that this is fine with the Algae high/low/position stuff
     public enum ArmState {
         WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, Level2, ScoreLevel2, Level3, ScoreLevel3, Level4, ScoreLevel4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
     }
@@ -148,11 +149,12 @@ public class Arm extends SubsystemBase {
         // CHANGE all these magic #s (except for wrist)
         // need to change speeds to all of these (right now assuming grabing is + and
         // release is -)
-        // The PreL1 and L1 values below are approximations.  The PreL1 arm angle and carriage ht are
-        //      to get the arm beyond the elevator frame before rotating the coral in the
-        //      the gripper (which happens in the L1 state).
-        //      Our target ht for the gripper over the trough is 25".
-        //  VALUES IN DEGREES & INCHES.  Convert as necessary.
+        // The PreL1 and L1 values below are approximations. The PreL1 arm angle and
+        // carriage ht are
+        // to get the arm beyond the elevator frame before rotating the coral in the
+        // the gripper (which happens in the L1 state).
+        // Our target ht for the gripper over the trough is 25".
+        // VALUES IN DEGREES & INCHES. Convert as necessary.
         positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 90, -1));
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 0, -1));
         positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 90, 0));
@@ -164,8 +166,7 @@ public class Arm extends SubsystemBase {
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 18.29, -60, 90, 1));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 15.69, -75, 90, 1));
         positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 18, -75, 90, 1));
-        positionDictionary.put(ArmState.AlgaeLow, new ArmStateParameters(0, 0, 0, 0, -1));
-        positionDictionary.put(ArmState.AlgaeHigh, new ArmStateParameters(0, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.AlgaePosition, new ArmStateParameters(0, 0, 0, 0, -1));
         positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 90, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, -1));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 0, 0, -1));
@@ -184,7 +185,6 @@ public class Arm extends SubsystemBase {
         setCarriageHeightInches(desiredCarriageHeight);
     }
 
-
     public boolean hasCompletedMovement() {
         return desiredState == actualState;
     }
@@ -197,7 +197,7 @@ public class Arm extends SubsystemBase {
             actualState = desiredState;
         }
         // Once we've moved to a precursor state, then force the change to the
-        //   state for the follow-on motion.
+        // state for the follow-on motion.
         if (desiredState == ArmState.PreLevel1 && isWithinArmAngleTolerance()) {
             setDesiredState(ArmState.Level1);
         }
@@ -322,17 +322,35 @@ public class Arm extends SubsystemBase {
         return withinTolerance;
     }
 
+    public boolean isAvailableToGoToReef() {
+        ArmState desiredState = getDesiredState();
+        // return (desiredState == ArmState.Running || desiredState == ArmState.Level1 || desiredState == ArmState.Level2
+        //         || desiredState == ArmState.Level3 || desiredState == ArmState.Level4
+        //         || desiredState == ArmState.PreLevel1 || desiredState == ArmState.PreLevel2
+        //         || desiredState == ArmState.PreLevel3 || desiredState == ArmState.PreLevel4
+        //         || desiredState == ArmState.AlgaeHigh || desiredState == ArmState.AlgaeLow);
+        return (!(desiredState == ArmState.WaitingForCoral) && !(desiredState == ArmState.LoadCoral));
+    }
+
+    public boolean isAvailableToGoToCoralStation() {
+        ArmState desiredState = getDesiredState();
+        return (desiredState == ArmState.WaitingForCoral || desiredState == ArmState.LoadCoral);
+    }
+
     /* SAFETY */
 
     public void stopElevatorMotor() {
         elevatorMotor.set(0);
     }
+
     public void stopCarriageMotor() {
         carriageMotor.set(0);
     }
+
     public void stopArmMotor() {
         armMotor.set(0);
     }
+
     public void stopWristMotor() {
         wristMotor.set(0);
     }
@@ -340,31 +358,36 @@ public class Arm extends SubsystemBase {
     /** Makes sure we never go past our limits of motion */
     private void boundsCheck() {
         if ((getElevatorHeightInches() <= 0 && elevatorMotor.getVelocity().getValueAsDouble() < 0) ||
-            (getElevatorHeightInches() > ArmConstants.MaxElevatorHeight && elevatorMotor.getVelocity().getValueAsDouble() > 0)) {
+                (getElevatorHeightInches() > ArmConstants.MaxElevatorHeight
+                        && elevatorMotor.getVelocity().getValueAsDouble() > 0)) {
             stopElevatorMotor();
         }
 
         if ((getCarriageHeightInches() <= 0
-            && carriageMotor.getVelocity().getValueAsDouble() < 0) ||
-            (getCarriageHeightInches() == ArmConstants.MaxCarriageHeight
+                && carriageMotor.getVelocity().getValueAsDouble() < 0) ||
+                (getCarriageHeightInches() == ArmConstants.MaxCarriageHeight
                         && carriageMotor.getVelocity().getValueAsDouble() > 0)) {
             stopCarriageMotor();
         }
 
         // // Not sure if we need this
-        // if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle // need to fix these constant values
-        //         && armMotor.getVelocity().getValueAsDouble() < 0) ||
-        //         (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle // need to fix these constant values
-        //                 && armMotor.getVelocity().getValueAsDouble() > 0)) {
-        //     stopArmMotor();
+        // if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle // need to fix these
+        // constant values
+        // && armMotor.getVelocity().getValueAsDouble() < 0) ||
+        // (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle // need to fix these
+        // constant values
+        // && armMotor.getVelocity().getValueAsDouble() > 0)) {
+        // stopArmMotor();
         // }
 
         // // Not sure if we need this
-        // if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle // need to fix these constant values
-        //         && wristMotor.getEncoder().getVelocity() < 0) ||
-        //         (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle // need to fix these constant values
-        //                 && wristMotor.getEncoder().getVelocity() > 0)) {
-        //     stopWristMotor();
+        // if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle // need to fix
+        // these constant values
+        // && wristMotor.getEncoder().getVelocity() < 0) ||
+        // (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle // need to fix these
+        // constant values
+        // && wristMotor.getEncoder().getVelocity() > 0)) {
+        // stopWristMotor();
         // }
     }
 
@@ -595,7 +618,7 @@ public class Arm extends SubsystemBase {
 
         // Following pattern from:
         // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/simulation/simulation-intro.html
-        //  armMotorSim = armMotor.getSimState();
+        // armMotorSim = armMotor.getSimState();
         // var carriageMotorSim = carriageMotor.getSimState();
 
         armMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
@@ -644,6 +667,5 @@ public class Arm extends SubsystemBase {
         wristEncoderSim.setRawPosition(wristMotorModel.getAngularPositionRotations());
     }
 }
-
 
 // TODO: NEED TO SETUP RUNNING-BETWEEN POSITION

@@ -44,6 +44,7 @@ import frc.robot.Constants.LogitechExtreme3DConstants;
 // import frc.robot.commands.DriveRobot;
 import frc.robot.commands.RunGripper;
 import frc.robot.commands.SetArmPosition;
+import frc.robot.commands.StartClimbing;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.commands.StopGripper;
 import frc.robot.commands.DeliverCoral;
@@ -71,14 +72,15 @@ public class RobotContainer {
     /* COMMANDS */
     // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub,
     // ArmState.Home);
-
+    private final SetArmPosition setArmPosTravellingCmd = new SetArmPosition(armSub, ArmState.Running);
     private final SetArmPosition setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
     private final SetArmPosition setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
     private final SetArmPosition setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
     private final SetArmPosition setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
-    private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.PreLevel1);
-    private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaeLow);
-    private final SetArmPosition setArmPosAlgaeHighCmd = new SetArmPosition(armSub, ArmState.AlgaeHigh);
+    private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
+
+                // CHANGE - need to make sure this is right
+    private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaePosition);
     private final SetArmPosition setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
 
     private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
@@ -89,8 +91,12 @@ public class RobotContainer {
     private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
 
     private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub, gripperSub);
-    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(setArmPosAlageEndCmd, runGripperCmd,
+    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, setArmPosAlageEndCmd, runGripperCmd,
             setArmPosLoadCoralCmd);
+    
+    
+    private final StartClimbing startClimbingCmd = new StartClimbing(climbSub, armSub);
+
 
     /* CONTROLLERS */
     /* private */ static Joystick driverController;
@@ -112,17 +118,18 @@ public class RobotContainer {
     private Trigger shootIntakeButton; // trigger
     private Trigger reverseFloorIntakeButton; // driver button 7
 
-    private Trigger autoAlignButton; // driver button 11
-    private Trigger restartGyroButton; // driver button 9
+
 
     // private Trigger moveToHomeButton;
-    private Trigger moveToLoadCoralButton;
+    private Trigger moveToTravellingButton;
     private Trigger moveToLevel1Button;
     private Trigger moveToLevel2Button;
     private Trigger moveToLevel3Button;
     private Trigger moveToLevel4Button;
-    private Trigger moveToAlgaeHighButton;
-    private Trigger moveToAlgaeLowButton;
+    private Trigger moveToAlgaeButton;
+    private Trigger removeAlgaeButton;
+
+    private Trigger startClimbButton;
 
     private Trigger intakeAlgaeButton;
     private Trigger ejectAlgaeButton;
@@ -132,7 +139,6 @@ public class RobotContainer {
     private Trigger autoAlignAlgaeButton_2;
 
     private Trigger runGripperButton;
-    private Trigger ejectCoralButton;
     private Trigger shooterButton;
 
     /* PID */
@@ -263,12 +269,6 @@ public class RobotContainer {
 
         /***************** DRIVE *****************/
 
-        autoAlignButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
-
-        // restartGyroButton = new JoystickButton(driverController,
-        // LogitechExtreme3DConstants.Button9);
-        // restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
-
         // reset the field-centric heading on left bumper press
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
@@ -280,14 +280,20 @@ public class RobotContainer {
 
         /***************** ARM POSITION *****************/
 
-        moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
-        moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
+        moveToTravellingButton = new JoystickButton(operatorController, LogitechDAConstants.LeftTrigger);
+        moveToTravellingButton.onTrue(setArmPosTravellingCmd);
+        
+        // moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
+        // moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
-        moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
-        moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
+        // moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
+        // moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
 
-        moveToAlgaeLowButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
-        moveToAlgaeLowButton.onTrue(setArmPosAlgaeLowCmd);
+        moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
+        moveToAlgaeButton.onTrue(setArmPosAlgaeLowCmd);
+
+        removeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightTrigger);
+        removeAlgaeButton.onTrue(removeAlgaeCmd);
 
         moveToLevel1Button = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
@@ -300,6 +306,9 @@ public class RobotContainer {
 
         moveToLevel4Button = new JoystickButton(operatorController, LogitechDAConstants.LeftStick); // CHANGE
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
+
+        startClimbButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA);
+        startClimbButton.onTrue(startClimbingCmd);
 
         /***************** ALGAE INTAKE *****************/
 
@@ -314,8 +323,8 @@ public class RobotContainer {
 
         /***************** GRIPPER *****************/
         
-        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
+        runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
         shooterButton.onTrue(deliverCoralCmd);
@@ -357,7 +366,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
-        // NamedCommands.registerCommand("StartOuttake", );
+        NamedCommands.registerCommand("startOuttake", deliverCoralCmd);
         // NamedCommands.registerCommand("setPositionCoralL4", );
         // NamedCommands.registerCommand("setPositionCoralL4", );
         // NamedCommands.registerCommand("setPositionCoralL4", );
@@ -393,7 +402,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
         SmartDashboard.putData("Selected Auto", autoChooser);
-        autoChooser.setDefaultOption("VisionTest", new PathPlannerAuto("TestVision"));
+        autoChooser.setDefaultOption("Choreo 1Auto", driveSub.ChoreoAuto("Top Left 1 Coral"));
         // autoChooser.addOption("Routine A", new DynamicPathPlanner("Routine A",
         // visionSub));
         // autoChooser.addOption("Routine B", new DynamicPathPlanner("Routine B",
@@ -402,6 +411,7 @@ public class RobotContainer {
         // driveSub));
         // autoChooser.addOption("Routine D", new DynamicChoreoCommand("Routine D",
         // visionSub, driveSub));
+        autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         autoChooser.addOption("ChoreoTEST", driveSub.ChoreoAuto("Straight Line Path"));
         // autoChooser.addOption("Test1", driveSub.ChoreoAutoWithoutReset("Test1"));
@@ -637,14 +647,27 @@ public class RobotContainer {
             var alliance = DriverStation.getAlliance();
             Logger.recordOutput("alliance", alliance.get());
             if (alliance.isPresent()) {
-                if (alliance.get() == DriverStation.Alliance.Blue) {
-                    int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagList);
-                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                if (armSub.isAvailableToGoToReef()) {
+                    if (alliance.get() == DriverStation.Alliance.Blue) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListReef);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
+                    if (alliance.get() == DriverStation.Alliance.Red) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListReef);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
                 }
-                if (alliance.get() == DriverStation.Alliance.Red) {
-                    int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagList);
-                    finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                if (armSub.isAvailableToGoToCoralStation()) {
+                    if (alliance.get() == DriverStation.Alliance.Blue) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListCoralStation);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
+                    if (alliance.get() == DriverStation.Alliance.Red) {
+                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListCoralStation);
+                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    }
                 }
+
 
             }
             // cosine of the degree is multiplied by side of reef.
