@@ -87,7 +87,7 @@ public class Arm extends SubsystemBase {
 
     public enum ArmState {
         WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, PreLevel2, Level2, PreLevel3, Level3,
-        PreLevel4, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
+        PreLevel4, Level4, AlgaePosition, Running, SafeToLowerArm, FinishRemovingAlgae
     }
 
     private final Drive driveSub;
@@ -166,8 +166,7 @@ public class Arm extends SubsystemBase {
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 18.29, -60, 90, 1));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 15.69, -75, 90, 1));
         positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 18, -75, 90, 1));
-        positionDictionary.put(ArmState.AlgaeLow, new ArmStateParameters(0, 0, 0, 0, -1));
-        positionDictionary.put(ArmState.AlgaeHigh, new ArmStateParameters(0, 0, 0, 0, -1));
+        positionDictionary.put(ArmState.AlgaePosition, new ArmStateParameters(0, 0, 0, 0, -1));
         positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 90, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, -1));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 0, 0, -1));

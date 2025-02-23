@@ -71,14 +71,13 @@ public class RobotContainer {
     /* COMMANDS */
     // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub,
     // ArmState.Home);
-
+    private final SetArmPosition setArmPosTravellingCmd = new SetArmPosition(armSub, ArmState.Running);
     private final SetArmPosition setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
     private final SetArmPosition setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
     private final SetArmPosition setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
     private final SetArmPosition setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
     private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
-    private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaeLow);
-    private final SetArmPosition setArmPosAlgaeHighCmd = new SetArmPosition(armSub, ArmState.AlgaeHigh);
+    private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaePosition);
     private final SetArmPosition setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
 
     private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
@@ -89,7 +88,7 @@ public class RobotContainer {
     private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
 
     private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub, gripperSub);
-    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(setArmPosAlageEndCmd, runGripperCmd,
+    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, setArmPosAlageEndCmd, runGripperCmd,
             setArmPosLoadCoralCmd);
 
     /* CONTROLLERS */
@@ -112,29 +111,25 @@ public class RobotContainer {
     private Trigger shootIntakeButton; // trigger
     private Trigger reverseFloorIntakeButton; // driver button 7
 
-    private Trigger autoAlignButton; // driver button 11
-    private Trigger restartGyroButton; // driver button 9
-
     // private Trigger moveToHomeButton;
+    private Trigger moveToTravellingButton;
     private Trigger moveToLoadCoralButton;
     private Trigger moveToLevel1Button;
     private Trigger moveToLevel2Button;
     private Trigger moveToLevel3Button;
     private Trigger moveToLevel4Button;
-    private Trigger moveToAlgaeHighButton;
-    private Trigger moveToAlgaeLowButton;
+    private Trigger moveToAlgaeButton;
+    private Trigger removeAlgaeButton;
 
     private Trigger intakeAlgaeButton;
     private Trigger ejectAlgaeButton;
     private Trigger retractIntakeButton;
-
 
     private Trigger autoAlignAlgaeButton;
     private Trigger autoAlignAlgaeButton_2;
 
 
     private Trigger runGripperButton;
-    private Trigger ejectCoralButton;
     private Trigger shooterButton;
 
     /* PID */
@@ -265,12 +260,6 @@ public class RobotContainer {
 
         /***************** DRIVE *****************/
 
-        autoAlignButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
-
-        // restartGyroButton = new JoystickButton(driverController,
-        // LogitechExtreme3DConstants.Button9);
-        // restartGyroButton.onTrue(new InstantCommand(() -> driveSub.zeroHeading()));
-
         // reset the field-centric heading on left bumper press
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
@@ -282,14 +271,20 @@ public class RobotContainer {
 
         /***************** POSITION *****************/
 
-        moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
-        moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
+        moveToTravellingButton = new JoystickButton(operatorController, LogitechDAConstants.LeftTrigger);
+        moveToTravellingButton.onTrue(setArmPosTravellingCmd);
+        
+        // moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
+        // moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
-        moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
-        moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
+        // moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
+        // moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
 
-        moveToAlgaeLowButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
-        moveToAlgaeLowButton.onTrue(setArmPosAlgaeLowCmd);
+        moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
+        moveToAlgaeButton.onTrue(setArmPosAlgaeLowCmd);
+
+        removeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightTrigger);
+        removeAlgaeButton.onTrue(removeAlgaeCmd);
 
         moveToLevel1Button = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
@@ -316,8 +311,8 @@ public class RobotContainer {
 
         /***************** GRIPPER *****************/
         
-        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
+        runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
         shooterButton.onTrue(deliverCoralCmd);
