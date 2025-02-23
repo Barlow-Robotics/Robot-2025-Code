@@ -44,6 +44,7 @@ import frc.robot.Constants.LogitechExtreme3DConstants;
 // import frc.robot.commands.DriveRobot;
 import frc.robot.commands.RunGripper;
 import frc.robot.commands.SetArmPosition;
+import frc.robot.commands.StartClimbing;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.commands.StopGripper;
 import frc.robot.commands.DeliverCoral;
@@ -90,6 +91,10 @@ public class RobotContainer {
     private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub, gripperSub);
     private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, setArmPosAlageEndCmd, runGripperCmd,
             setArmPosLoadCoralCmd);
+    
+    
+    private final StartClimbing startClimbingCmd = new StartClimbing(climbSub, armSub);
+
 
     /* CONTROLLERS */
     /* private */ static Joystick driverController;
@@ -111,9 +116,10 @@ public class RobotContainer {
     private Trigger shootIntakeButton; // trigger
     private Trigger reverseFloorIntakeButton; // driver button 7
 
+
+
     // private Trigger moveToHomeButton;
     private Trigger moveToTravellingButton;
-    private Trigger moveToLoadCoralButton;
     private Trigger moveToLevel1Button;
     private Trigger moveToLevel2Button;
     private Trigger moveToLevel3Button;
@@ -121,13 +127,14 @@ public class RobotContainer {
     private Trigger moveToAlgaeButton;
     private Trigger removeAlgaeButton;
 
+    private Trigger startClimbButton;
+
     private Trigger intakeAlgaeButton;
     private Trigger ejectAlgaeButton;
     private Trigger retractIntakeButton;
 
     private Trigger autoAlignAlgaeButton;
     private Trigger autoAlignAlgaeButton_2;
-
 
     private Trigger runGripperButton;
     private Trigger shooterButton;
@@ -297,6 +304,9 @@ public class RobotContainer {
 
         moveToLevel4Button = new JoystickButton(operatorController, LogitechDAConstants.LeftStick); // CHANGE
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
+
+        startClimbButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA);
+        startClimbButton.onTrue(startClimbingCmd);
 
         /***************** ALGAE INTAKE *****************/
 

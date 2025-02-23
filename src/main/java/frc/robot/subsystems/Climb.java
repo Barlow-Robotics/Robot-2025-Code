@@ -35,7 +35,10 @@ public class Climb extends SubsystemBase {
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared,
                     Constants.ClimbConstants.WinchMotorGearRatio), DCMotor.getKrakenX60Foc(1));
     TalonFXSimState winchMotorSim;
-
+    public enum ClimbState {
+        Default, latchedOnCage, winchedOnCage 
+    }
+    ClimbState currentState = ClimbState.Default;
     private Servo servo;
 
     public Climb() {
@@ -52,7 +55,19 @@ public class Climb extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
+        if (isLatchedOnCage() && !isWinched()) {
+            currentState = ClimbState.latchedOnCage;
+        }
+        else if (isWinched() && isLatchedOnCage()) {
+            currentState = ClimbState.winchedOnCage;
+        }
+        else {
+            currentState = ClimbState.Default;
+        }
+    }
+
+    public ClimbState getCurrentState() {
+        return currentState;
     }
 
     public void stop() {
