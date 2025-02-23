@@ -37,7 +37,7 @@ public class DeliverCoral extends Command {
   public void execute() {
     currentState = armSub.getArmState();
     if (!currentlyDoingAState && firstTime) {
-      if (currentState == ArmState.Level2 || currentState == ArmState.Level3 || currentState == ArmState.Level4) {
+      if (currentState == ArmState.ScoreLevel2 || currentState == ArmState.ScoreLevel3 || currentState == ArmState.ScoreLevel4) {
         gripperSub.setState(GripperState.placingCoral);
         armSub.setDesiredState(ArmState.WaitingForCoral);
         currentlyDoingAState = true;

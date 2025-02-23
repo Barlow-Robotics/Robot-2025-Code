@@ -86,7 +86,7 @@ public class Arm extends SubsystemBase {
             DCMotor.getKrakenX60Foc(1));
 
     public enum ArmState {
-        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, PreLevel2, Level2, PreLevel3, Level3, PreLevel4, Level4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
+        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, Level2, ScoreLevel2, Level3, ScoreLevel3, Level4, ScoreLevel4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
     }
 
     private final Drive driveSub;
@@ -155,12 +155,12 @@ public class Arm extends SubsystemBase {
         //  VALUES IN DEGREES & INCHES.  Convert as necessary.
         positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 90, -1));
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 0, -1));
-        positionDictionary.put(ArmState.PreLevel2, new ArmStateParameters(0, 12.163, 60, 90, 0));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 10, 45, 90, -0.2));
-        positionDictionary.put(ArmState.PreLevel3, new ArmStateParameters(1.264, 26.5, 60, 90, 0));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(1.264, 24.5, 60, 90, -0.2));
-        positionDictionary.put(ArmState.PreLevel4, new ArmStateParameters(25.664, 26.5, 60, 90, 0));
-        positionDictionary.put(ArmState.Level4, new ArmStateParameters(25.664, 24.5, 60, 90, -0.2));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 10, 45, 90, -0.2));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(1.264, 26.5, 60, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(1.264, 24.5, 60, 90, -0.2));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(25.664, 26.5, 60, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(25.664, 24.5, 60, 90, -0.2));
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 18.29, -60, 90, 1));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 15.69, -75, 90, 1));
         positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 18, -75, 90, 1));
@@ -180,8 +180,8 @@ public class Arm extends SubsystemBase {
         desiredGripperVelocity = val.getGripperVelocity();
         setArmAngle(desiredArmAngle);
         setWristAngle(desiredWristAngle);
-        setElevatorHeightInches(elevatorMotor, desiredElevatorHeight);
-        setCarriageHeightInches(carriageMotor, desiredCarriageHeight);
+        setElevatorHeightInches(desiredElevatorHeight);
+        setCarriageHeightInches(desiredCarriageHeight);
     }
 
 
@@ -239,18 +239,18 @@ public class Arm extends SubsystemBase {
         return armMotor.getPosition().getValue().in(Degrees);
     }
 
-    public void setElevatorHeightInches(TalonFX motor, double desiredInches) {
+    public void setElevatorHeightInches(double desiredInches) {
         double rotations = ((desiredInches /*- ArmConstants.StartingElevatorHeight*/))
                 * ArmConstants.RotationsPerElevatorInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
-        motor.setControl(request.withSlot(0));
+        elevatorMotor.setControl(request.withSlot(0));
     }
 
-    public void setCarriageHeightInches(TalonFX motor, double desiredInches) {
+    public void setCarriageHeightInches(double desiredInches) {
         double rotations = ((desiredInches /*- ArmConstants.StartingCarriageHeight*/))
                 * ArmConstants.RotationsPerCarriageInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
-        motor.setControl(request.withSlot(0));
+        carriageMotor.setControl(request.withSlot(0));
     }
 
     public double getElevatorHeightInches() {
@@ -262,7 +262,7 @@ public class Arm extends SubsystemBase {
 
     public double getCarriageHeightInches() {
         double carriageHeight = ((carriageMotor.getPosition().getValue().in(Rotations)
-                / ArmConstants.RotationsPerElevatorInch));
+                / ArmConstants.RotationsPerCarriageInch));
         /* + ArmConstants.StartingCarriageHeight; */
         return carriageHeight;
     }
@@ -325,16 +325,16 @@ public class Arm extends SubsystemBase {
     /* SAFETY */
 
     public void stopElevatorMotor() {
-        elevatorMotor.stopMotor();
+        elevatorMotor.set(0);
     }
     public void stopCarriageMotor() {
-        carriageMotor.stopMotor();
+        carriageMotor.set(0);
     }
     public void stopArmMotor() {
-        armMotor.stopMotor();
+        armMotor.set(0);
     }
     public void stopWristMotor() {
-        wristMotor.stopMotor();
+        wristMotor.set(0);
     }
 
     /** Makes sure we never go past our limits of motion */

@@ -251,9 +251,9 @@ public class Constants {
 
         /* ARM */
 
-        public static final double ArmAngleKP = 3; // CHANGE
+        public static final double ArmAngleKP = 32; // CHANGE
         public static final double ArmAngleKI = 0.1; // CHANGE
-        public static final double ArmAngleKD = 0.01; // CHANGE
+        public static final double ArmAngleKD = 0.05; // CHANGE
         public static final double ArmAngleFF = 0; // CHANGE
         public static final double ArmAngleKG = 0.29; // CHANGE
         public static final double ArmAngleCruiseSpeed = .1; // rotations per sec // CHANGE
@@ -300,7 +300,7 @@ public class Constants {
         /* TOLERANCES */
 
         public static final double WristAngleTolerance = 1.5; // CHANGE
-        public static final double ArmAngleTolerance = 1.5; // CHANGE
+        public static final double ArmAngleTolerance = 3.5; // CHANGE
         public static final double ElevatorHeightTolerance = 0.25;// CHANGE
         public static final double CarriageHeightTolerance = 0.25;// CHANGE
 

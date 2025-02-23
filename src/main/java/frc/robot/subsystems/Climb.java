@@ -56,7 +56,7 @@ public class Climb extends SubsystemBase {
     }
 
     public void stop() {
-        servo.setSpeed(0);
+        servo.setDisabled();
         winchMotor.stopMotor();
     }
 

@@ -76,7 +76,7 @@ public class RobotContainer {
     private final SetArmPosition setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
     private final SetArmPosition setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
     private final SetArmPosition setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
-    private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
+    private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.PreLevel1);
     private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaeLow);
     private final SetArmPosition setArmPosAlgaeHighCmd = new SetArmPosition(armSub, ArmState.AlgaeHigh);
     private final SetArmPosition setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
@@ -128,10 +128,8 @@ public class RobotContainer {
     private Trigger ejectAlgaeButton;
     private Trigger retractIntakeButton;
 
-
     private Trigger autoAlignAlgaeButton;
     private Trigger autoAlignAlgaeButton_2;
-
 
     private Trigger runGripperButton;
     private Trigger ejectCoralButton;
@@ -280,7 +278,7 @@ public class RobotContainer {
         // moveToCoralButton.onTrue(new InstantCommand(() -> changeCoralVision(true)))
         // .onFalse(new InstantCommand(() -> changeCoralVision(false)));
 
-        /***************** POSITION *****************/
+        /***************** ARM POSITION *****************/
 
         moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
         moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
