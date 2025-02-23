@@ -359,7 +359,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
-        NamedCommands.registerCommand("StartOuttake", deliverCoralCmd);
+        NamedCommands.registerCommand("startOuttake", deliverCoralCmd);
         // NamedCommands.registerCommand("setPositionCoralL4", );
         // NamedCommands.registerCommand("setPositionCoralL4", );
         // NamedCommands.registerCommand("setPositionCoralL4", );
@@ -395,7 +395,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
         SmartDashboard.putData("Selected Auto", autoChooser);
-        autoChooser.setDefaultOption("VisionTest", new PathPlannerAuto("TestVision"));
+        autoChooser.setDefaultOption("Choreo 1Auto", driveSub.ChoreoAuto("Top Left 1 Coral"));
         // autoChooser.addOption("Routine A", new DynamicPathPlanner("Routine A",
         // visionSub));
         // autoChooser.addOption("Routine B", new DynamicPathPlanner("Routine B",
@@ -404,6 +404,7 @@ public class RobotContainer {
         // driveSub));
         // autoChooser.addOption("Routine D", new DynamicChoreoCommand("Routine D",
         // visionSub, driveSub));
+        autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         autoChooser.addOption("ChoreoTEST", driveSub.ChoreoAuto("Straight Line Path"));
         // autoChooser.addOption("Test1", driveSub.ChoreoAutoWithoutReset("Test1"));
