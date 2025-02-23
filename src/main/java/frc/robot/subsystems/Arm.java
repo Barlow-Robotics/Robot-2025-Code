@@ -210,6 +210,8 @@ public class Arm extends SubsystemBase {
 
         boundsCheck();
 
+        boundsCheck();
+
         logData();
 
         // Shuffleboard.getTab("Match").add("Can See Tag", targetIsVisible);
@@ -358,8 +360,7 @@ public class Arm extends SubsystemBase {
     /** Makes sure we never go past our limits of motion */
     private void boundsCheck() {
         if ((getElevatorHeightInches() <= 0 && elevatorMotor.getVelocity().getValueAsDouble() < 0) ||
-                (getElevatorHeightInches() > ArmConstants.MaxElevatorHeight
-                        && elevatorMotor.getVelocity().getValueAsDouble() > 0)) {
+            (getElevatorHeightInches() > ArmConstants.MaxElevatorHeight && elevatorMotor.getVelocity().getValueAsDouble() > 0)) {
             stopElevatorMotor();
         }
 
@@ -371,23 +372,19 @@ public class Arm extends SubsystemBase {
         }
 
         // // Not sure if we need this
-        // if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle // need to fix these
-        // constant values
-        // && armMotor.getVelocity().getValueAsDouble() < 0) ||
-        // (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle // need to fix these
-        // constant values
-        // && armMotor.getVelocity().getValueAsDouble() > 0)) {
-        // stopArmMotor();
+        // if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle // need to fix these constant values
+        //         && armMotor.getVelocity().getValueAsDouble() < 0) ||
+        //         (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle // need to fix these constant values
+        //                 && armMotor.getVelocity().getValueAsDouble() > 0)) {
+        //     stopArmMotor();
         // }
 
         // // Not sure if we need this
-        // if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle // need to fix
-        // these constant values
-        // && wristMotor.getEncoder().getVelocity() < 0) ||
-        // (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle // need to fix these
-        // constant values
-        // && wristMotor.getEncoder().getVelocity() > 0)) {
-        // stopWristMotor();
+        // if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle // need to fix these constant values
+        //         && wristMotor.getEncoder().getVelocity() < 0) ||
+        //         (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle // need to fix these constant values
+        //                 && wristMotor.getEncoder().getVelocity() > 0)) {
+        //     stopWristMotor();
         // }
     }
 

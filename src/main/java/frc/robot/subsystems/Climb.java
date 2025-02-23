@@ -75,6 +75,11 @@ public class Climb extends SubsystemBase {
         winchMotor.stopMotor();
     }
 
+    public void stop() {
+        servo.setSpeed(0);
+        winchMotor.stopMotor();
+    }
+
     public void latchOntoCage() {
         // CHANGE: do something with the servo here        
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.CageAngle));
