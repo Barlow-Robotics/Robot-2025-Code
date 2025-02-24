@@ -257,7 +257,7 @@ public class RobotContainer {
         armSub.stopWristMotor();
         armSub.stopCarriageMotor();
         armSub.stopElevatorMotor();
-        climbSub.stop();
+        // climbSub.stop();
         gripperSub.stop();
         algaeIntakeSub.stopIntakeMotor();
         algaeIntakeSub.stopLiftMotor();
