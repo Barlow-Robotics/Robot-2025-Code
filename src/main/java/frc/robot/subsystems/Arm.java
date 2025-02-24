@@ -87,7 +87,7 @@ public class Arm extends SubsystemBase {
 
     // CHANGE - also need to double check that this is fine with the Algae high/low/position stuff
     public enum ArmState {
-        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, Level2, ScoreLevel2, Level3, ScoreLevel3, Level4, ScoreLevel4, AlgaeHigh, AlgaeLow, Running, SafeToLowerArm, FinishRemovingAlgae
+        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, Level2, ScoreLevel2, Level3, ScoreLevel3, Level4, ScoreLevel4, AlgaePosition, Running, SafeToLowerArm, FinishRemovingAlgae
     }
 
     private final Drive driveSub;

@@ -70,10 +70,6 @@ public class Climb extends SubsystemBase {
         return currentState;
     }
 
-    public void stop() {
-        servo.setDisabled();
-        winchMotor.stopMotor();
-    }
 
     public void stop() {
         servo.setSpeed(0);
