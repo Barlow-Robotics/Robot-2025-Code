@@ -326,7 +326,7 @@ public class RobotContainer {
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
         runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
-        shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
+        shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
         shooterButton.onTrue(deliverCoralCmd);
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);

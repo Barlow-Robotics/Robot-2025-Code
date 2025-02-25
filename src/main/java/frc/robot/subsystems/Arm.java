@@ -230,6 +230,8 @@ public class Arm extends SubsystemBase {
         //  TBD:  Do we need to keep the gripper wheels ejecting the whole time we are moving to this
         //      position?  If so, leave them running in this position.  They will stop on next transition.
         positionDictionary.put(ArmState.AlgaePosition, new ArmStateParameters(25, 26.5, 60, 0, -0.5));
+        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 0, 0));
+
     }
 
     private void setDesiredAnglesAndHeights() {
