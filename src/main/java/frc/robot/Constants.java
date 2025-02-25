@@ -63,7 +63,7 @@ public class Constants {
         public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
 
         // // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025Reefscape
+        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025ReefscapeAndyMark
                 .loadAprilTagLayoutField();
 
         // The standard deviations of our vision estimated poses, which affect
@@ -422,7 +422,7 @@ public class Constants {
         
         public static final double IntakeAcceleration = 400; // CHANGE
         public static final double IntakeJerk = 4000; // CHANGE
-        public static final double LiftAngleTolerance = 1.5;
+        public static final double LiftAngleTolerance = 3.5;
         public static final double SupplyCurrentLimit = 30; // CHANGE
 
         public static final double deployedAngle2 = 60; 
