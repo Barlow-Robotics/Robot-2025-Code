@@ -11,18 +11,20 @@ import frc.robot.subsystems.Gripper.GripperState;
 import frc.robot.subsystems.Gripper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DeliverCoral extends Command {
-  /** Creates a new DeliverCoral. */
+public class ScoreCoral extends Command {
+
   private boolean currentlyDoingAState;
   private boolean firstTime;
+
   private ArmState currentState; 
+
   private final Arm armSub;
   private final Gripper gripperSub;
-  public DeliverCoral(Arm armSub, Gripper gripperSub) {
+
+  public ScoreCoral(Arm armSub, Gripper gripperSub) {
     this.gripperSub = gripperSub;
     this.armSub = armSub;
     addRequirements(armSub, gripperSub);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
@@ -30,16 +32,23 @@ public class DeliverCoral extends Command {
   public void initialize() {
     currentlyDoingAState = false;
     firstTime = true;
-  }
+  } 
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     currentState = armSub.getArmState();
     if (!currentlyDoingAState && firstTime) {
-      if (currentState == ArmState.ScoreLevel2 || currentState == ArmState.ScoreLevel3 || currentState == ArmState.ScoreLevel4) {
+      if (currentState == ArmState.Level2 || currentState == ArmState.Level3 || currentState == ArmState.Level4) {
         gripperSub.setState(GripperState.placingCoral);
-        armSub.setDesiredState(ArmState.WaitingForCoral);
+        if (currentState  == ArmState.Level2)
+          armSub.setDesiredState(ArmState.ScoreLevel2);
+        if (currentState  == ArmState.Level3)
+          armSub.setDesiredState(ArmState.ScoreLevel3);
+        if (currentState  == ArmState.Level4)
+          armSub.setDesiredState(ArmState.ScoreLevel4);
+
+
         currentlyDoingAState = true;
         firstTime = false;
       }
@@ -47,6 +56,7 @@ public class DeliverCoral extends Command {
         gripperSub.setState(GripperState.releasingL1);
         currentlyDoingAState = true;
         firstTime = false;
+      }
     }
 
     if (currentState == ArmState.Level1 && gripperSub.getState() == GripperState.finishedReleasingL1) {
@@ -59,12 +69,11 @@ public class DeliverCoral extends Command {
       currentlyDoingAState = false;
     }
     if (currentState == ArmState.SafeToLowerArm && !firstTime && !currentlyDoingAState) {
-      armSub.setDesiredState(ArmState.WaitingForCoral);
+      // armSub.setDesiredState(ArmState.WaitingForCoral); // TO ADD LATER
       currentlyDoingAState = true;
     }
       // Wait for it to complete. 
 
-    }
   }
 
   // Called once the command ends or is interrupted.

@@ -35,7 +35,7 @@ public class Constants {
     public static final double KrakenX60MaxRPM = 6000;
 
     public static final double TalonFXResolution = 2048;
-    public static final double CANCoderResolution = 4096;
+    public static final double CANcoderResolution = 4096;
 
     /***************************************************************************/
     /***************************************************************************/
@@ -63,7 +63,7 @@ public class Constants {
         public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
 
         // // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025Reefscape
+        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025ReefscapeAndyMark
                 .loadAprilTagLayoutField();
 
         // The standard deviations of our vision estimated poses, which affect
@@ -97,7 +97,7 @@ public class Constants {
         public static final int OperatorControllerPort = 2;
 
         /***************************** DRIVE *****************************/
-        // CANCoder = 1{locationOnBot}
+        // CANcoder = 1{locationOnBot}
         public static final int FrontLeftTurnEncoderID = 11;
         public static final int FrontRightTurnEncoderID = 12;
         public static final int BackLeftTurnEncoderID = 13;
@@ -181,32 +181,32 @@ public class Constants {
         public static final Translation2d brModuleOffset = new Translation2d(-0.4, -0.4);
 
         /* DRIVE ENCODER */
-        public static final double DriveKP = 0.04; // REQUIRES TUNING
-        public static final double DriveKI = 0.0015;
+        public static final double DriveKP =/*testing*/0; //0.04; // REQUIRES TUNING
+        public static final double DriveKI =/*testing*/0; // 0.0015;
         public static final double DriveKD = 0;
-        public static final double DriveIZone = 0.15;
+        public static final double DriveIZone =/*testing*/0; // 0.15;
         public static final double DriveFF = 1.0 / PhysicalMaxMetersPerSecond;
 
-        public static final double AutoAlignRotKP = 0.08; // CHANGE
+        public static final double AutoAlignRotKP =/*testing*/0; // 0.08; // CHANGE
         public static final double AutoAlignRotKI = 0.0;
         public static final double AutoAlignRotKD = 0.0;
 
-        public static final double AutoAlignNoteKP = 0.005; // CHANGE
+        public static final double AutoAlignNoteKP = /*testing*/0; //0.005; // CHANGE
         public static final double AutoAlignNoteKI = 0.0;
         public static final double AutoAlignNoteKD = 0;
 
-        public static final double YawOverrideAlignNoteKP = 0.0005; // NEED TO FIX
+        public static final double YawOverrideAlignNoteKP =/*testing*/0; // 0.0005; // NEED TO FIX
         public static final double YawOverrideAlignNoteKI = 0.0;
         public static final double YawOverrideAlignNoteKD = 0;
 
-        public static final double TargetYawOverrideAlignNoteKP = 0.004; // NEED TO FIX
+        public static final double TargetYawOverrideAlignNoteKP =/*testing*/0; // 0.004; // NEED TO FIX
         public static final double TargetYawOverrideAlignNoteKI = 0.0;
         public static final double TargetYawOverrideAlignNoteKD = 0;
 
         /* TURN ENCODER */
-        public static final int CANCoderResolution = 4096;
+        public static final int CANcoderResolution = 4096;
         public static final double PositionConversionFactor = WheelCircumference / GearRatio;
-        public static final double TurnKP = 1; // NEED TO FIX
+        public static final double TurnKP =/*testing*/0; // 1; // NEED TO FIX
         public static final double TurnKI = 0;
         public static final double TurnKD = 0;
 
@@ -242,7 +242,7 @@ public class Constants {
 
         public static final double MaxHeightInches = 45; // CHANGE
         public static final double MaxCarriageHeight = 26.5; //inches from its base (0) position // will need to decrease this by 4 inches
-        public static final double MaxElevatorHeight = 23; //(roughly) //inches from its base (0) position
+        public static final double MaxElevatorHeight = 30; //(roughly) //inches from its base (0) position
         // public static final double StartingElevatorHeight = 24.75; // pretty sure we don't need this
         // public static final double StartingCarriageHeight = 24.75; // pretty sure we don't need this
         public static final double ArmMinimumHeight = 11; // carriage is 11 inches off of ground (not robo base)
@@ -251,38 +251,43 @@ public class Constants {
         public static final double MinArmAngle = 0; // CHANGE
         public static final double MaxArmAngle = 0; // CHANGE
         public static final double MinWristAngle = 0; // CHANGE
-        public static final double MaxWristAngle = 0; // CHANGE
+        public static final double MaxWristAngle = 90; // Max counterclockwise rotation
 
 
         /* ARM */
 
-        public static final double ArmAngleKP = 32; // CHANGE
-        public static final double ArmAngleKI = 0.1; // CHANGE
-        public static final double ArmAngleKD = 0.05; // CHANGE
+        public static final double ArmAngleCANcoderMagnetOffset = -0.058105;
+
+        public static final double ArmAngleKP =/*testing*/0; // 32; // CHANGE
+        public static final double ArmAngleKI =/*testing*/0; // 0.1; // CHANGE
+        public static final double ArmAngleKD =/*testing*/0; // 0.05; // CHANGE
         public static final double ArmAngleFF = 0; // CHANGE
-        public static final double ArmAngleKG = 0.29; // CHANGE
-        public static final double ArmAngleCruiseSpeed = .1; // rotations per sec // CHANGE
-        public static final double ArmAngleAcceleration = 12; // CHANGE
-        public static final double ArmAngleJerk = 40; // CHANGE
+        public static final double ArmAngleKG =/*testing*/0; // 0.29; // CHANGE
+        public static final double ArmAngleCruiseSpeed =/*testing*/0; // .1; // rotations per sec // CHANGE
+        public static final double ArmAngleAcceleration =/*testing*/0; // 12; // CHANGE
+        public static final double ArmAngleJerk =/*testing*/0; // 40; // CHANGE
         
 
         /* ELEVATOR */
 
-        public static final double ElevatorKP = 32; // CHANGE
-        public static final double ElevatorKI = 0.1; // CHANGE
-        public static final double ElevatorKD = 0.2; // CHANGE
-        public static final double ElevatorFF = 0.0; // CHANGE
-        public static final double ElevatorKG = 2.7; // CHANGE
-        public static final double ElevatorKS = 0; // CHANGE
-        public static final double ElevatorGearRatio = 15;
+        public static final double ElevatorKP =/*testing*/0; // 32; // CHANGE
+        public static final double ElevatorKI =/*testing*/0; // 0.1; // CHANGE
+        public static final double ElevatorKD =/*testing*/0; // 0.2; // CHANGE
+        public static final double ElevatorFF =/*testing*/0; // 0.0; // CHANGE
+        public static final double ElevatorKG =/*testing*/0; // 2.7; // CHANGE
+        public static final double ElevatorKS =/*testing*/0; // 0; // CHANGE
+        public static final double ElevatorGearRatio = 5;//15;
         // public static final double ElevatorSprocketDiameter = 2.36; // inches // CHANGE
-        public static final double ElevatorSprocketDiameter = 2.16; // inches // CHANGE
+        public static final double ElevatorSprocketDiameter = 1.44;//2.16; // inches // CHANGE
         public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
         public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
 
-        public static final double RotationsPerCarriageInch = 2.2; // CHANGE (set this ~equal to rpElevatorIn for testing
-                                                                   // purposes, but need the gear ratios and whatnot)
-
+        //  Values for Carriage now based on Mr K's spreadsheet
+        public static final double CarriageGearRatio = 4.8;
+        public static final double CarriageSprocketDiameter = 1.44; // inches // CHANGE
+        public static final double CarriageSprocketCircumference = CarriageSprocketDiameter * Math.PI;
+        public static final double RotationsPerCarriageInch = 1 / CarriageSprocketCircumference * CarriageGearRatio;
+        
         // public static final double RotationsPerElevatorInch = ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
 
         public static final double ElevatorMaxInchesPerSec = Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio
@@ -293,13 +298,13 @@ public class Constants {
 
         /* WRIST */
 
-        public static final double WristAngleCANCoderMagnetOffset = 0.48583;
+        public static final double WristAngleCANcoderMagnetOffset = -0.219971;// old (not sure where this came from): 0.48583;
 
-        public static final double WristKP = 2; // CHANGE
-        public static final double WristKI = 0.000; // CHANGE
-        public static final double WristKD = 0.1; // CHANGE
-        public static final double WristFF = 0.0; // CHANGE
-        public static final double WristIZone = 0.15; // CHANGE
+        public static final double WristKP =/*testing*/0; // 2; // CHANGE
+        public static final double WristKI =/*testing*/0; // 0.000; // CHANGE
+        public static final double WristKD =/*testing*/0; // 0.1; // CHANGE
+        public static final double WristFF =/*testing*/0; // 0.0; // CHANGE
+        public static final double WristIZone =/*testing*/0; // 0.15; // CHANGE
 
 
         /* TOLERANCES */
@@ -383,11 +388,11 @@ public class Constants {
     }
 
     public static final class GripperConstants {
-        public static final double GripperKP = 32; // CHANGE
-        public static final double GripperKI = 0.001; // CHANGE
-        public static final double GripperKD = 0; // CHANGE
-        public static final double GripperFF = 0; // CHANGE
-        public static final double GripperIZone = 0.15; // CHANGE
+        public static final double GripperKP =/*testing*/0; // 32; // CHANGE
+        public static final double GripperKI =/*testing*/0; // 0.001; // CHANGE
+        public static final double GripperKD =/*testing*/0; // 0; // CHANGE
+        public static final double GripperFF =/*testing*/0; // 0; // CHANGE
+        public static final double GripperIZone =/*testing*/0; // 0.15; // CHANGE
 
         public static final double IntakeSpeed = 1; // CHANGE
         public static final double EjectSpeed = -1; // CHANGE
@@ -396,20 +401,20 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double LiftKP = 0.01; // CHANGE
-        public static final double LiftKI = 0.06; // CHANGE
-        public static final double LiftKD = 0; // CHANGE
-        public static final double LiftFF = 0.13; // CHANGE
-        public static final double LiftKG = 0; // CHANGE
-        public static final double LiftIZone = 0.15; // CHANGE
+        public static final double LiftKP =/*testing*/0; // 0.04; // CHANGE
+        public static final double LiftKI =/*testing*/0; // 0.06; // CHANGE
+        public static final double LiftKD =/*testing*/0; // 0; // CHANGE
+        public static final double LiftFF =/*testing*/0; // 0.13; // CHANGE
+        public static final double LiftKG =/*testing*/0; // 0; // CHANGE
+        public static final double LiftIZone =/*testing*/0; // 0.15; // CHANGE
 
         public static final double IntakeKS = 0; // CHANGE
-        public static final double IntakeFF = 0.13; // CHANGE
+        public static final double IntakeFF =/*testing*/0; // 0.13; // CHANGE
         public static final double IntakeKA = 0; // CHANGE
         public static final double IntakeKP = 0; // CHANGE
         public static final double IntakeKI = 0; // CHANGE
         public static final double IntakeKD = 0; // CHANGE
-        public static final double IntakeIZone = 0.15; // CHANGE
+        public static final double IntakeIZone =/*testing*/0; // 0.15; // CHANGE
 
         public static final double IntakeSpeed2 = 2; // CHANGE
         public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 5, 0, true, "AlgaeIntake/IntakeSpeed");
@@ -422,7 +427,7 @@ public class Constants {
         
         public static final double IntakeAcceleration = 400; // CHANGE
         public static final double IntakeJerk = 4000; // CHANGE
-        public static final double LiftAngleTolerance = 1.5;
+        public static final double LiftAngleTolerance = 3.5;
         public static final double SupplyCurrentLimit = 30; // CHANGE
 
         public static final double deployedAngle2 = 60; 
@@ -438,9 +443,9 @@ public class Constants {
         public static final double MaxSpeedMetersPerSecond = DriveConstants.MaxModuleMetersPerSecond / 4; // CHANGE
         public static final double MaxAngularSpeedRadiansPerSecond = DriveConstants.PhysicalMaxAngularSpeedRadiansPerSecond
                 / 10; // Default is 540 degress
-        public static final double kPXController = 1;
-        public static final double kPYController = 1;
-        public static final double kPThetaController = 1;
+        public static final double kPXController =/*testing*/0; // 1;
+        public static final double kPYController =/*testing*/0; // 1;
+        public static final double kPThetaController =/*testing*/0; // 1;
 
         public static final double MaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4; // default: 720 deg
 

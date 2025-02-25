@@ -143,13 +143,16 @@ public class Gripper extends SubsystemBase {
   }
  /* LOGGING */
   private void logData() {
-    Logger.recordOutput("Gripper/GripperMotor/DegreesCANCoder", getIntakeEncoderDegrees());
+    Logger.recordOutput("Gripper/GripperMotor/DegreesCANcoder", getIntakeEncoderDegrees());
     Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
     Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
     Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
     
     Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
     Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
+    Logger.recordOutput("Gripper/GripperState", getState());
+
+
                           // Is there supposed to be an exclamation mark
   }
   /* SIMULATION */

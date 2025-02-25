@@ -14,6 +14,7 @@ public class StartClimbing extends Command {
     /** Creates a new StartClimbing. */
     private final Climb climbSub;
     private final Arm armSub;
+
     public StartClimbing(Climb climbSub, Arm armSub) {
         this.climbSub = climbSub;
         this.armSub = armSub;
@@ -35,14 +36,19 @@ public class StartClimbing extends Command {
         if (currentState == ArmState.Running) {
             if (climbSub.getCurrentState() == ClimbState.Default) {
                 climbSub.latchOntoCage();
-            }
-            else if (climbSub.getCurrentState() == ClimbState.latchedOnCage) {
+            } else if (climbSub.getCurrentState() == ClimbState.LatchedOnCage) {
                 climbSub.windWinch();
             }
         }
     }
+
     @Override
     public boolean isFinished() {
-        return (climbSub.getCurrentState() == ClimbState.winchedOnCage);
+        return (climbSub.getCurrentState() == ClimbState.WinchedOnCage);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        
     }
 }
