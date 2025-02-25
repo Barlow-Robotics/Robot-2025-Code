@@ -257,6 +257,8 @@ public class Constants {
         /* ARM */
 
         public static final double ArmAngleCANcoderMagnetOffset = -0.058105;
+        public static final double ArmAngleGearRatio = 86.4;
+        public static final double ArmAngleDegreesPerMotorRotation = 360.0 / ArmAngleGearRatio;
 
         public static final double ArmAngleKP =/*testing*/0; // 32; // CHANGE
         public static final double ArmAngleKI =/*testing*/0; // 0.1; // CHANGE
@@ -299,6 +301,8 @@ public class Constants {
         /* WRIST */
 
         public static final double WristAngleCANcoderMagnetOffset = -0.219971;// old (not sure where this came from): 0.48583;
+        public static final double WristAngleGearRatio = 12;
+        public static final double WristAngleDegreesPerMotorRotation = 360.0 / WristAngleGearRatio;
 
         public static final double WristKP =/*testing*/0; // 2; // CHANGE
         public static final double WristKI =/*testing*/0; // 0.000; // CHANGE

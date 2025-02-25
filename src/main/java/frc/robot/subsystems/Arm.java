@@ -287,12 +287,12 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees),
+        wristMotor.getClosedLoopController().setReference(desiredDegrees / ArmConstants.WristAngleDegreesPerMotorRotation, //Units.degreesToRotations(desiredDegrees),
                 ControlType.kPosition);
     }
 
     public void setArmAngle(double desiredDegrees) {
-        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
+        final MotionMagicVoltage request = new MotionMagicVoltage(desiredDegrees / ArmConstants.ArmAngleDegreesPerMotorRotation); // Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
         // this.desiredArmAngle = desiredDegrees;
     }
