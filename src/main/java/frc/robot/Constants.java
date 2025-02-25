@@ -251,7 +251,7 @@ public class Constants {
         public static final double MinArmAngle = 0; // CHANGE
         public static final double MaxArmAngle = 0; // CHANGE
         public static final double MinWristAngle = 0; // CHANGE
-        public static final double MaxWristAngle = 0; // CHANGE
+        public static final double MaxWristAngle = 90; // Max counterclockwise rotation
 
 
         /* ARM */
@@ -274,15 +274,19 @@ public class Constants {
         public static final double ElevatorFF = 0.0; // CHANGE
         public static final double ElevatorKG = 2.7; // CHANGE
         public static final double ElevatorKS = 0; // CHANGE
-        public static final double ElevatorGearRatio = 15;
-        // public static final double ElevatorSprocketDiameter = 2.36; // inches // CHANGE
-        public static final double ElevatorSprocketDiameter = 2.16; // inches // CHANGE
+
+        //  Values for Elevator now based on Mr K's spreadsheet
+        public static final double ElevatorGearRatio = 5;
+        public static final double ElevatorSprocketDiameter = 1.44; // inches
         public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
         public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
 
-        public static final double RotationsPerCarriageInch = 2.2; // CHANGE (set this ~equal to rpElevatorIn for testing
-                                                                   // purposes, but need the gear ratios and whatnot)
-
+        //  Values for Carriage now based on Mr K's spreadsheet
+        public static final double CarriageGearRatio = 4.8;
+        public static final double CarriageSprocketDiameter = 1.44; // inches // CHANGE
+        public static final double CarriageSprocketCircumference = CarriageSprocketDiameter * Math.PI;
+        public static final double RotationsPerCarriageInch = 1 / CarriageSprocketCircumference * CarriageGearRatio;
+        
         // public static final double RotationsPerElevatorInch = ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
 
         public static final double ElevatorMaxInchesPerSec = Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio
