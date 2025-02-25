@@ -80,7 +80,7 @@ public class RobotContainer {
     private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
 
                 // CHANGE - need to make sure this is right
-    private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaePosition);
+    private final SetArmPosition setArmPosAlgaeCmd = new SetArmPosition(armSub, ArmState.StartAlgaePosition);
     private final SetArmPosition setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
 
     private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
@@ -91,7 +91,8 @@ public class RobotContainer {
     private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
 
     private final ScoreCoral scoreCoralCmd = new ScoreCoral(armSub, gripperSub);
-    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, setArmPosAlageEndCmd, runGripperCmd, setArmPosLoadCoralCmd);
+    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, gripperSub);
+    
     
     private final StartClimbing startClimbingCmd = new StartClimbing(climbSub, armSub);
 
@@ -288,7 +289,7 @@ public class RobotContainer {
         // moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
 
         moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
-        moveToAlgaeButton.onTrue(setArmPosAlgaeLowCmd);
+        moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
 
         removeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightTrigger);
         removeAlgaeButton.onTrue(removeAlgaeCmd);
@@ -324,7 +325,7 @@ public class RobotContainer {
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
         runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
-        scoreCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
+        scoreCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
         scoreCoralButton.onTrue(scoreCoralCmd);
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);

@@ -150,6 +150,9 @@ public class Gripper extends SubsystemBase {
     
     Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
     Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
+    Logger.recordOutput("Gripper/GripperState", getState());
+
+
                           // Is there supposed to be an exclamation mark
   }
   /* SIMULATION */

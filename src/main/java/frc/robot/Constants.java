@@ -63,7 +63,7 @@ public class Constants {
         public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
 
         // // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025Reefscape
+        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025ReefscapeAndyMark
                 .loadAprilTagLayoutField();
 
         // The standard deviations of our vision estimated poses, which affect
@@ -251,7 +251,7 @@ public class Constants {
         public static final double MinArmAngle = 0; // CHANGE
         public static final double MaxArmAngle = 0; // CHANGE
         public static final double MinWristAngle = 0; // CHANGE
-        public static final double MaxWristAngle = 0; // CHANGE
+        public static final double MaxWristAngle = 90; // Max counterclockwise rotation
 
 
         /* ARM */
@@ -276,15 +276,18 @@ public class Constants {
         public static final double ElevatorFF =/*testing*/0; // 0.0; // CHANGE
         public static final double ElevatorKG =/*testing*/0; // 2.7; // CHANGE
         public static final double ElevatorKS =/*testing*/0; // 0; // CHANGE
-        public static final double ElevatorGearRatio = 15;
+        public static final double ElevatorGearRatio = 5;//15;
         // public static final double ElevatorSprocketDiameter = 2.36; // inches // CHANGE
-        public static final double ElevatorSprocketDiameter = 2.16; // inches // CHANGE
+        public static final double ElevatorSprocketDiameter = 1.44;//2.16; // inches // CHANGE
         public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
         public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
 
-        public static final double RotationsPerCarriageInch = 2.2; // CHANGE (set this ~equal to rpElevatorIn for testing
-                                                                   // purposes, but need the gear ratios and whatnot)
-
+        //  Values for Carriage now based on Mr K's spreadsheet
+        public static final double CarriageGearRatio = 4.8;
+        public static final double CarriageSprocketDiameter = 1.44; // inches // CHANGE
+        public static final double CarriageSprocketCircumference = CarriageSprocketDiameter * Math.PI;
+        public static final double RotationsPerCarriageInch = 1 / CarriageSprocketCircumference * CarriageGearRatio;
+        
         // public static final double RotationsPerElevatorInch = ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
 
         public static final double ElevatorMaxInchesPerSec = Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio
