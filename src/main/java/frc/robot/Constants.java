@@ -422,7 +422,7 @@ public class Constants {
         
         public static final double IntakeAcceleration = 400; // CHANGE
         public static final double IntakeJerk = 4000; // CHANGE
-        public static final double LiftAngleTolerance = 1.5;
+        public static final double LiftAngleTolerance = 3.5;
         public static final double SupplyCurrentLimit = 30; // CHANGE
 
         public static final double deployedAngle2 = 60; 
