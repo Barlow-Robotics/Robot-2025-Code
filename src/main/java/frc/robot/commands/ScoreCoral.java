@@ -11,18 +11,20 @@ import frc.robot.subsystems.Gripper.GripperState;
 import frc.robot.subsystems.Gripper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class DeliverCoral extends Command {
-  /** Creates a new DeliverCoral. */
+public class ScoreCoral extends Command {
+
   private boolean currentlyDoingAState;
   private boolean firstTime;
+
   private ArmState currentState; 
+
   private final Arm armSub;
   private final Gripper gripperSub;
-  public DeliverCoral(Arm armSub, Gripper gripperSub) {
+
+  public ScoreCoral(Arm armSub, Gripper gripperSub) {
     this.gripperSub = gripperSub;
     this.armSub = armSub;
     addRequirements(armSub, gripperSub);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.

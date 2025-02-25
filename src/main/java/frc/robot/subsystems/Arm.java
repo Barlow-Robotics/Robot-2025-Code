@@ -128,6 +128,7 @@ public class Arm extends SubsystemBase {
         elevatorMotor.setPosition(0);
 
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
+        applyArmEncoderConfigs();
         applyWristEncoderConfigs();
         applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.CounterClockwise_Positive);
         applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
@@ -400,8 +401,8 @@ public class Arm extends SubsystemBase {
 
         // SparkMax Config
         Logger.recordOutput("Arm/WristAngle/DegreesDesired", desiredWristAngle);
-        Logger.recordOutput("Arm/WristAngle/DegreesCANCoder", getWristEncoderDegrees());
-        Logger.recordOutput("Arm/WristAngle/RotationsCANCoder", wristEncoder.getAbsolutePosition().getValue());
+        Logger.recordOutput("Arm/WristAngle/DegreesCANcoder", getWristEncoderDegrees());
+        Logger.recordOutput("Arm/WristAngle/RotationsCANcoder", wristEncoder.getAbsolutePosition().getValue());
         // Logger.recordOutput("Arm/WristAngle/VoltageActual",
         // wristMotor.getEncoder().getVelocity());
         // Logger.recordOutput("Arm/WristAngle/RPSActual",
@@ -409,8 +410,8 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
 
         Logger.recordOutput("Arm/ArmAngle/DegreesDesired", desiredArmAngle);
-        Logger.recordOutput("Arm/ArmAngle/DegreesCANCoder", getArmEncoderDegrees());
-        Logger.recordOutput("Arm/ArmAngle/RotationsCANCoder", armEncoder.getAbsolutePosition().getValue());
+        Logger.recordOutput("Arm/ArmAngle/DegreesCANcoder", getArmEncoderDegrees());
+        Logger.recordOutput("Arm/ArmAngle/RotationsCANcoder", armEncoder.getAbsolutePosition().getValue());
         Logger.recordOutput("Arm/ArmAngle/DegreesTalon", getArmTalonEncoderDegrees());
         Logger.recordOutput("Arm/ArmAngle/VoltageActual", armMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopError", armMotor.getClosedLoopError().getValue());
@@ -451,6 +452,7 @@ public class Arm extends SubsystemBase {
     /* CONFIG */
 
     private void applyArmMotorConfigs(InvertedValue inversion) {
+        
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
         talonConfigs.Slot0.kP = ArmConstants.ArmAngleKP;
         talonConfigs.Slot0.kI = ArmConstants.ArmAngleKI;
@@ -553,30 +555,67 @@ public class Arm extends SubsystemBase {
         }
     }
 
-    private void applyWristEncoderConfigs() {
+    private void applyArmEncoderConfigs() {
         MagnetSensorConfigs magnetConfig = new MagnetSensorConfigs();
-        var canCoderConfiguration = new CANcoderConfiguration();
+        var CANcoderConfiguration = new CANcoderConfiguration();
         magnetConfig.AbsoluteSensorDiscontinuityPoint = 0.5;
 
         if (!Robot.isSimulation()) {
-            magnetConfig.MagnetOffset = ArmConstants.WristAngleCANCoderMagnetOffset;
+            magnetConfig.MagnetOffset = ArmConstants.ArmAngleCANcoderMagnetOffset;
         } else {
             magnetConfig.MagnetOffset = 0.0;
         }
 
         magnetConfig.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        canCoderConfiguration.MagnetSensor = magnetConfig;
+        CANcoderConfiguration.MagnetSensor = magnetConfig;
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
 
         for (int i = 0; i < 5; ++i) {
-            status = wristEncoder.getConfigurator().apply(canCoderConfiguration, 0.05);
+            status = armEncoder.getConfigurator().apply(CANcoderConfiguration, 0.05);
             if (status.isOK())
                 break;
         }
         if (!status.isOK()) {
             System.out.println(
-                    "Could not apply CANCoder configs to angle encoder, error code: " + status.toString());
+                    "Could not apply CANcoder configs to arm angle encoder, error code: " + status.toString());
+        }
+
+        for (int i = 0; i < 5; ++i) {
+            status = armEncoder.getConfigurator().apply(magnetConfig, 0.05);
+            if (status.isOK())
+                break;
+        }
+        if (!status.isOK()) {
+            System.out.println(
+                    "Could not apply magnet configs to arm angle encoder, error code: " + status.toString());
+        }
+    }
+
+    private void applyWristEncoderConfigs() {
+        MagnetSensorConfigs magnetConfig = new MagnetSensorConfigs();
+        var CANcoderConfiguration = new CANcoderConfiguration();
+        magnetConfig.AbsoluteSensorDiscontinuityPoint = 0.5;
+
+        if (!Robot.isSimulation()) {
+            magnetConfig.MagnetOffset = ArmConstants.WristAngleCANcoderMagnetOffset;
+        } else {
+            magnetConfig.MagnetOffset = 0.0;
+        }
+
+        magnetConfig.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        CANcoderConfiguration.MagnetSensor = magnetConfig;
+
+        StatusCode status = StatusCode.StatusCodeNotInitialized;
+
+        for (int i = 0; i < 5; ++i) {
+            status = wristEncoder.getConfigurator().apply(CANcoderConfiguration, 0.05);
+            if (status.isOK())
+                break;
+        }
+        if (!status.isOK()) {
+            System.out.println(
+                    "Could not apply CANcoder configs to wrist angle encoder, error code: " + status.toString());
         }
 
         for (int i = 0; i < 5; ++i) {
@@ -586,7 +625,7 @@ public class Arm extends SubsystemBase {
         }
         if (!status.isOK()) {
             System.out.println(
-                    "Could not apply magnet configs to angle encoder, error code: " + status.toString());
+                    "Could not apply magnet configs to wrist angle encoder, error code: " + status.toString());
         }
     }
 

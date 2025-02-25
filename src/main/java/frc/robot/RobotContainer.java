@@ -47,7 +47,7 @@ import frc.robot.commands.SetArmPosition;
 import frc.robot.commands.StartClimbing;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.commands.StopGripper;
-import frc.robot.commands.DeliverCoral;
+import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.RemoveAlgae;
@@ -90,10 +90,8 @@ public class RobotContainer {
     private final RunGripper runGripperCmd = new RunGripper(gripperSub, armSub);
     private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
 
-    private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub, gripperSub);
-    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, setArmPosAlageEndCmd, runGripperCmd,
-            setArmPosLoadCoralCmd);
-    
+    private final ScoreCoral scoreCoralCmd = new ScoreCoral(armSub, gripperSub);
+    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, setArmPosAlageEndCmd, runGripperCmd, setArmPosLoadCoralCmd);
     
     private final StartClimbing startClimbingCmd = new StartClimbing(climbSub, armSub);
 
@@ -139,7 +137,7 @@ public class RobotContainer {
     private Trigger autoAlignAlgaeButton_2;
 
     private Trigger runGripperButton;
-    private Trigger shooterButton;
+    private Trigger scoreCoralButton;
 
     /* PID */
     private PIDController noteYawPID;
@@ -257,7 +255,7 @@ public class RobotContainer {
         armSub.stopWristMotor();
         armSub.stopCarriageMotor();
         armSub.stopElevatorMotor();
-        // climbSub.stop();
+        climbSub.stop();
         gripperSub.stop();
         algaeIntakeSub.stopIntakeMotor();
         algaeIntakeSub.stopLiftMotor();
@@ -326,8 +324,8 @@ public class RobotContainer {
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
         runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
-        shooterButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
-        shooterButton.onTrue(deliverCoralCmd);
+        scoreCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Trigger);
+        scoreCoralButton.onTrue(scoreCoralCmd);
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
         autoAlignAlgaeButton.onTrue(new InstantCommand(() -> changeToLeft(null)))
@@ -366,7 +364,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
-        NamedCommands.registerCommand("startOuttake", deliverCoralCmd);
+        NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
         // NamedCommands.registerCommand("setPositionCoralL4", );
         // NamedCommands.registerCommand("setPositionCoralL4", );
         // NamedCommands.registerCommand("setPositionCoralL4", );

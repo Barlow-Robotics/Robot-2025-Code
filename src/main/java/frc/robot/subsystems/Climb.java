@@ -36,7 +36,7 @@ public class Climb extends SubsystemBase {
                     Constants.ClimbConstants.WinchMotorGearRatio), DCMotor.getKrakenX60Foc(1));
     TalonFXSimState winchMotorSim;
     public enum ClimbState {
-        Default, latchedOnCage, winchedOnCage 
+        Default, LatchedOnCage, WinchedOnCage 
     }
     ClimbState currentState = ClimbState.Default;
     private Servo servo;
@@ -55,11 +55,11 @@ public class Climb extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (isLatchedOnCage() && !isWinched()) {
-            currentState = ClimbState.latchedOnCage;
+        if (isLatchedOnCage()) {
+            currentState = ClimbState.LatchedOnCage;
         }
-        else if (isWinched() && isLatchedOnCage()) {
-            currentState = ClimbState.winchedOnCage;
+        else if (isWinched()) {
+            currentState = ClimbState.WinchedOnCage;
         }
         else {
             currentState = ClimbState.Default;
@@ -70,20 +70,19 @@ public class Climb extends SubsystemBase {
         return currentState;
     }
 
-
-    // public void stop() {
+    public void stop() {
     //     servo.setSpeed(0);
-    //     winchMotor.stopMotor();
-    // }
+        winchMotor.stopMotor();
+    }
 
     public void latchOntoCage() {
-        // CHANGE: do something with the servo here        
+        // CHANGE: extend the servo here (to disengage ratcheting)      
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.CageAngle));
         winchMotor.setControl(request);
     }
 
     public void windWinch() {
-        // CHANGE: do something with the servo here   
+        // CHANGE: retract the servo here (to engage ratcheting)
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.WinchedAngle));
         winchMotor.setControl(request);
     }

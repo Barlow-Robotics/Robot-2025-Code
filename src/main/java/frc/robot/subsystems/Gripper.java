@@ -143,7 +143,7 @@ public class Gripper extends SubsystemBase {
   }
  /* LOGGING */
   private void logData() {
-    Logger.recordOutput("Gripper/GripperMotor/DegreesCANCoder", getIntakeEncoderDegrees());
+    Logger.recordOutput("Gripper/GripperMotor/DegreesCANcoder", getIntakeEncoderDegrees());
     Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
     Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
     Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
