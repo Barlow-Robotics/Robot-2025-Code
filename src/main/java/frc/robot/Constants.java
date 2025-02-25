@@ -242,7 +242,7 @@ public class Constants {
 
         public static final double MaxHeightInches = 45; // CHANGE
         public static final double MaxCarriageHeight = 26.5; //inches from its base (0) position // will need to decrease this by 4 inches
-        public static final double MaxElevatorHeight = 23; //(roughly) //inches from its base (0) position
+        public static final double MaxElevatorHeight = 30; //(roughly) //inches from its base (0) position
         // public static final double StartingElevatorHeight = 24.75; // pretty sure we don't need this
         // public static final double StartingCarriageHeight = 24.75; // pretty sure we don't need this
         public static final double ArmMinimumHeight = 11; // carriage is 11 inches off of ground (not robo base)
