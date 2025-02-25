@@ -170,6 +170,8 @@ public class Arm extends SubsystemBase {
         positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 90, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, -1));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 0, 0, -1));
+        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 0, 0));
+
     }
 
     private void setDesiredAnglesAndHeights() {
