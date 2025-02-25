@@ -396,7 +396,7 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double LiftKP = 0.01; // CHANGE
+        public static final double LiftKP = 0.04; // CHANGE
         public static final double LiftKI = 0.06; // CHANGE
         public static final double LiftKD = 0; // CHANGE
         public static final double LiftFF = 0.13; // CHANGE
