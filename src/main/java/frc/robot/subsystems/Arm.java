@@ -87,7 +87,7 @@ public class Arm extends SubsystemBase {
 
     // CHANGE - also need to double check that this is fine with the Algae high/low/position stuff
     public enum ArmState {
-        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, Level2, ScoreLevel2, Level3, ScoreLevel3, Level4, ScoreLevel4, AlgaePosition, Running, SafeToLowerArm, FinishRemovingAlgae
+        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, Level2, ScoreLevel2, Level3, ScoreLevel3, Level4, ScoreLevel4, StartAlgaePosition, Running, SafeToLowerArm, FinishRemovingAlgae
     }
 
     private final Drive driveSub;
@@ -229,7 +229,8 @@ public class Arm extends SubsystemBase {
         //  TBD:  How high is high enough?  For starters, we max out elev+carr.  Optimize to lower level.
         //  TBD:  Do we need to keep the gripper wheels ejecting the whole time we are moving to this
         //      position?  If so, leave them running in this position.  They will stop on next transition.
-        positionDictionary.put(ArmState.AlgaePosition, new ArmStateParameters(25, 26.5, 60, 0, -0.5));
+        positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 22.25, -30, 0, -0.2));
+        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 60, 0, -0.5));
         positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 0, 0));
 
     }

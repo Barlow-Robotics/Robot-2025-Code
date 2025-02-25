@@ -80,7 +80,7 @@ public class RobotContainer {
     private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
 
                 // CHANGE - need to make sure this is right
-    private final SetArmPosition setArmPosAlgaeLowCmd = new SetArmPosition(armSub, ArmState.AlgaePosition);
+    private final SetArmPosition setArmPosAlgaeCmd = new SetArmPosition(armSub, ArmState.StartAlgaePosition);
     private final SetArmPosition setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
 
     private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
@@ -91,8 +91,7 @@ public class RobotContainer {
     private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
 
     private final DeliverCoral deliverCoralCmd = new DeliverCoral(armSub, gripperSub);
-    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, setArmPosAlageEndCmd, runGripperCmd,
-            setArmPosLoadCoralCmd);
+    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, gripperSub);
     
     
     private final StartClimbing startClimbingCmd = new StartClimbing(climbSub, armSub);
@@ -290,7 +289,7 @@ public class RobotContainer {
         // moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
 
         moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
-        moveToAlgaeButton.onTrue(setArmPosAlgaeLowCmd);
+        moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
 
         removeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightTrigger);
         removeAlgaeButton.onTrue(removeAlgaeCmd);
