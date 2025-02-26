@@ -322,8 +322,18 @@ public class RobotContainer {
 
         /***************** GRIPPER *****************/
         
+        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
+
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
+        runGripperButton.onTrue(
+            Commands.parallel(
+                runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
+                setArmPosLoadCoralCmd  // Runs independently
+            )
+        ).onFalse(stopGripperCmd); // Stop the gripper immediately when released
+
+
 
         scoreCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
         scoreCoralButton.onTrue(scoreCoralCmd);
@@ -691,8 +701,7 @@ public class RobotContainer {
             // new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 *
             // (Constants.DriveConstants.WheelBase),
             // finalPose?OfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef),
-            // new
-            // Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
+            // new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
             );
 
             PathPlannerPath path = new PathPlannerPath(

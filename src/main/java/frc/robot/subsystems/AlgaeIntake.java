@@ -12,7 +12,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+// import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -25,7 +25,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
+// import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -141,18 +141,27 @@ public class AlgaeIntake extends SubsystemBase {
         Logger.recordOutput("AlgaeIntake/LiftAngle/DegreesTalon", getLiftTalonEncoderDegrees());
         Logger.recordOutput("AlgaeIntake/LiftAngle/VoltageActual", liftMotor.getMotorVoltage().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/ClosedLoopError", liftMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/ProportionalOutput", liftMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/DerivativeOutput", liftMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/IntegratedOutput", liftMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/SupplyCurrent", liftMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/RPSActual", liftMotor.getVelocity().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/AccelerationActual", liftMotor.getAcceleration().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/WithinLiftAngleTolerance", isWithinLiftAngleTolerance());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/StatorCurrent", liftMotor.getStatorCurrent().getValue());
+
         
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/SpeedDesired", desiredIntakeSpeed);
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/SpeedTalon", getIntakeTalonEncoderSpeed());
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/VoltageActual", intakeMotor.getMotorVoltage().getValue());
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/ClosedLoopError", intakeMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("AlgaeIntake/IntakeSpeed/ProportionalOutput", intakeMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("AlgaeIntake/IntakeSpeed/DerivativeOutput", intakeMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("AlgaeIntake/IntakeSpeed/IntegratedOutput", intakeMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/SupplyCurrent", intakeMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/RPSActual", intakeMotor.getVelocity().getValue());
         Logger.recordOutput("AlgaeIntake/IntakeSpeed/AccelerationActual", intakeMotor.getAcceleration().getValue());
+        Logger.recordOutput("AlgaeIntake/IntakeSpeedHeight/StatorCurrent", intakeMotor.getStatorCurrent().getValue());
 
         Logger.recordOutput("AlgaeIntake/isEjecting", this.isDeployed());
         Logger.recordOutput("AlgaeIntake/isIntaking", !this.isDeployed());
@@ -162,11 +171,11 @@ public class AlgaeIntake extends SubsystemBase {
 
     private void applyLiftMotorConfigs(InvertedValue inversion) {
         TalonFXSConfiguration talonConfigs = new TalonFXSConfiguration();
-        talonConfigs.Slot0.kP = AlgaeConstants.LiftKP;
-        talonConfigs.Slot0.kI = AlgaeConstants.LiftKI;
-        talonConfigs.Slot0.kD = AlgaeConstants.LiftKD;
-        talonConfigs.Slot0.kV = AlgaeConstants.LiftFF;
-        talonConfigs.Slot0.kG = AlgaeConstants.LiftKG;
+        talonConfigs.Slot0.kP = AlgaeConstants.LiftKP.get();
+        talonConfigs.Slot0.kI = AlgaeConstants.LiftKI.get();
+        talonConfigs.Slot0.kD = AlgaeConstants.LiftKD.get();
+        talonConfigs.Slot0.kV = AlgaeConstants.LiftFF.get();
+        talonConfigs.Slot0.kG = AlgaeConstants.LiftKG.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
@@ -179,12 +188,12 @@ public class AlgaeIntake extends SubsystemBase {
 
     private void applyIntakeMotorConfigs(InvertedValue inversion) {
         TalonFXSConfiguration talonConfigs = new TalonFXSConfiguration();
-        talonConfigs.Slot0.kS = AlgaeConstants.IntakeKS;
-        talonConfigs.Slot0.kV = AlgaeConstants.IntakeFF;
-        talonConfigs.Slot0.kA = AlgaeConstants.IntakeKA;
-        talonConfigs.Slot0.kP = AlgaeConstants.IntakeKP;
-        talonConfigs.Slot0.kI = AlgaeConstants.IntakeKI;
-        talonConfigs.Slot0.kD = AlgaeConstants.IntakeKD;
+        talonConfigs.Slot0.kS = AlgaeConstants.IntakeKS.get();
+        talonConfigs.Slot0.kV = AlgaeConstants.IntakeFF.get();
+        talonConfigs.Slot0.kA = AlgaeConstants.IntakeKA.get();
+        talonConfigs.Slot0.kP = AlgaeConstants.IntakeKP.get();
+        talonConfigs.Slot0.kI = AlgaeConstants.IntakeKI.get();
+        talonConfigs.Slot0.kD = AlgaeConstants.IntakeKD.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;

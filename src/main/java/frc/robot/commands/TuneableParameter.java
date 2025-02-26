@@ -8,15 +8,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class TuneableParameter {
     final double startingNum;
-    final double maxValue;
     final double minValue;
+    final double maxValue;
     final boolean editable;
     final String key;
 
-    public TuneableParameter(double startingNum, double maxValue, double minValue, boolean editable, String key) {
+    public TuneableParameter(double startingNum, double minValue, double maxValue, boolean editable, String key) {
         this.startingNum = startingNum;
-        this.maxValue = maxValue;
         this.minValue = minValue;
+        this.maxValue = maxValue;
         this.editable = editable;
         this.key = key;
         SmartDashboard.putNumber(key, startingNum);

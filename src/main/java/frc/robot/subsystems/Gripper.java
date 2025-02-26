@@ -16,7 +16,7 @@ import frc.robot.Constants.ElectronicsIDs;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
+// import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -52,8 +52,8 @@ public class Gripper extends SubsystemBase {
     gripperPidController = gripperMotor.getClosedLoopController();
     gripperMotorConfigBrake = new SparkMaxConfig();
     gripperMotorConfigBrake.closedLoop
-            .pidf(GripperConstants.GripperKP, GripperConstants.GripperKI, GripperConstants.GripperKD, GripperConstants.GripperFF)
-            .iZone(GripperConstants.GripperIZone)
+            .pidf(GripperConstants.GripperKP.get(), GripperConstants.GripperKI.get(), GripperConstants.GripperKD.get(), GripperConstants.GripperFF.get())
+            .iZone(GripperConstants.GripperIZone.get())
             .outputRange(-1, 1);
     gripperMotorConfigBrake.idleMode(IdleMode.kCoast);
 
@@ -122,7 +122,7 @@ public class Gripper extends SubsystemBase {
   }
 
   public boolean detectedCoral() {
-    return (getCurrent() > Constants.GripperConstants.currentOfIntakedCoral);
+    return (getCurrent() > Constants.GripperConstants.currentOfIntakedCoral.get());
   }
 
   public double getCurrent() {
@@ -130,7 +130,7 @@ public class Gripper extends SubsystemBase {
   }
 
   public void startEjecting() {
-    gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed, ControlType.kVelocity);
+    gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed.get(), ControlType.kVelocity);
     isEjecting = true;
   }
   
@@ -147,11 +147,11 @@ public class Gripper extends SubsystemBase {
     Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
     Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
     Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
-    
+    Logger.recordOutput("Gripper/GripperMotor/StatorCurrent", gripperMotor.getOutputCurrent());
+
     Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
     Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
     Logger.recordOutput("Gripper/GripperState", getState());
-
 
                           // Is there supposed to be an exclamation mark
   }

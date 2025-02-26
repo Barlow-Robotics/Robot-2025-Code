@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -130,15 +131,16 @@ public class Arm extends SubsystemBase {
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
         applyArmEncoderConfigs();
         applyWristEncoderConfigs();
-        applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.CounterClockwise_Positive);
+        applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.Clockwise_Positive);
         applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
-        setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
+        setNeutralMode(NeutralModeValue.Coast, NeutralModeValue.Brake, NeutralModeValue.Brake);
 
-        wristMotorConfig.closedLoop
-                .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
-                .iZone(ArmConstants.WristIZone)
-                .outputRange(-1, 1);
-        wristMotor.configure(wristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // wristMotorConfig.closedLoop
+        //         .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
+        //         .iZone(ArmConstants.WristIZone)
+        //         .outputRange(-1, 1);
+        wristMotorConfig.inverted(true);
+        wristMotor.configure(wristMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
         this.driveSub = driveSub;
         this.visionSub = visionSub;
@@ -146,7 +148,27 @@ public class Arm extends SubsystemBase {
         initializePositionDictionary();
     }
 
+    /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
+        positionDictionary.put(ArmState.PreLevel1,              new ArmStateParameters(0, 0, 45, 0, 0));
+        positionDictionary.put(ArmState.Level1,                 new ArmStateParameters(0, 0, -30, 0, -0.2));
+        positionDictionary.put(ArmState.Level2,                 new ArmStateParameters(0, 0, 0, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel2,            new ArmStateParameters(0, 0, 60, 90, -0.1));
+        positionDictionary.put(ArmState.Level3,                 new ArmStateParameters(0, 0, 60, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel3,            new ArmStateParameters(0, 0, 60, 90, -0.1));
+        positionDictionary.put(ArmState.Level4,                 new ArmStateParameters(0, 0, 60, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel4,            new ArmStateParameters(0, 0, 60, 90, -0.1));
+        positionDictionary.put(ArmState.WaitingForCoral,        new ArmStateParameters(0, 0, -60, 90, 0));
+        positionDictionary.put(ArmState.LoadCoral,              new ArmStateParameters(0, 0, -75, 90, 0.5));
+        positionDictionary.put(ArmState.PostLoadCoral,          new ArmStateParameters(0, 0, -75, 90, 0));
+        positionDictionary.put(ArmState.Startup,                new ArmStateParameters(0, 0, 0, 0, 0));
+        positionDictionary.put(ArmState.Running,                new ArmStateParameters(0, 0, 90, 90, 0));
+        positionDictionary.put(ArmState.StartAlgaePosition,     new ArmStateParameters(0, 0, -30, 0, -0.2));
+        positionDictionary.put(ArmState.FinishRemovingAlgae,    new ArmStateParameters(0, 0, 60, 0, -0.5));
+        positionDictionary.put(ArmState.SafeToLowerArm,         new ArmStateParameters(0, 0, 0, 0, 0));
+    }
+
+    private void realInitializePositionDictionary() {
         // CHANGE all these magic #s (except for wrist)
         // need to change speeds to all of these (right now assuming grabing is + and
         // release is -)
@@ -167,7 +189,7 @@ public class Arm extends SubsystemBase {
         //  Starting from Running, move the arm angle so that the coral in the gripper is outside the
         //      body of the elevator before rotating the wrist.  This is to avoid the coral colliding
         //      with the elevator frame when turned horizontal.
-        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 90, 0));
+        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 0, 0));
         //  We should never enter this state without having gone through PreLevel1 first.
         //      Once the coral is safely rotated, proceed to the position for ejecting the coral
         //      into the trough.
@@ -180,11 +202,11 @@ public class Arm extends SubsystemBase {
         //      obstacle like algae or another bot, but is relatively safe as we are likely backing
         //      away from the reef leaving empty space in front of us.  We need ~4" of clearance to
         //      be safe (relative to the reef).
-        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 0, -0.2));
+        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 90, -0.2));
         //  PreL2 is initiated by the operator's L2 button and positions the coral above (1") 
         //      the L2 reef branch ready for scoring/release.  
         //  PreL3/4 are similar.
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 90, 0));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 0, 0));
         //  L2 is the scoring state.  It causes the movement of the carriage & arm down over the L2
         //      reef branch.  It also softly (velocity to be tested), ejects the coral from the
         //      gripper.
@@ -192,24 +214,24 @@ public class Arm extends SubsystemBase {
         //      reef branch assuming geometry allows.  
         //  This state should NEVER be entered unless PreL2 is complete.
         //  Level3/4 states are similar.
-        positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 10, 60, 90, -0.1));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(1.264, 26.5, 60, 90, 0));
-        positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(1.264, 24.5, 60, 90, -0.1));
-        positionDictionary.put(ArmState.Level4, new ArmStateParameters(25.664, 26.5, 60, 90, 0));
-        positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(25.664, 24.5, 60, 90, -0.1));
+        positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 10, 60, 0, -0.1));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(1.264, 26.5, 60, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(1.264, 24.5, 60, 0, -0.1));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(25.664, 26.5, 60, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(25.664, 24.5, 60, 0, -0.1));
         //  WFC positions the arm so that the gripper is hovering just above where coral will arrive in
         //      the chute.  
         //  After any coral scoring action, we will return to this state.  
         //  TBD:  Auto or by operator action?
         //  TEST:  How safely can this occur when we are still parked at the reef?  Since the arm
         //      rotates down past horizontal, it could collide with the reef.
-        positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 18.29, -60, 90, 0));
+        positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 18.29, -60, 0, 0));
         //  LoadCoral lowers the gripper onto coral in the chute and spins the gripper wheels to
         //      pull in the coral.
         //  This state should never be entered unless previously in PreLoadCoral.
         //  This state should always be followed by PostLoadCoral.
         //  TBD:  Is the above true if the load fails, i.e. the gripper fails to pick up the coral?
-        positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 15.69, -75, 90, 0.5));
+        positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 15.69, -75, 0, 0.5));
         //  PostLoadCoral raises the carriage enough so the the gripper with loaded coral clears the
         //      outside edge of the chute.  This allows the arm to rotate up with coral without that
         //      coral colliding with the chute.  It allows us to return to the Running (travelling)
@@ -218,21 +240,21 @@ public class Arm extends SubsystemBase {
         //  TBD:  Do we automatically go to Running from here?  If so, can we be sure that when
         //      the arm rotates up, that we won't run the gripper into another bot?
         //      Or is operator input required to go to running?
-        positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 18, -75, 90, 0));
+        positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 18, -75, 0, 0));
         // positionDictionary.put(ArmState.AlgaeLow, new ArmStateParameters(0, 0, 0, 0, -1));
         // positionDictionary.put(ArmState.AlgaeHigh, new ArmStateParameters(0, 0, 0, 0, -1));
-        positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 90, 0));
+        positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 0, 0));
         //  Running, aka "travelling", has the carriage down and the arm up with gripper rotated for L2-4
         //      We expect to move here after PostLoadCoral, so whenever there is coral being carried.
-        positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, 0));
+        positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 0, 0));
         //  FRA is the state/position we move to as we perform algae removal.  Here, we move from low
         //      to high.
         //  TBD:  How high is high enough?  For starters, we max out elev+carr.  Optimize to lower level.
         //  TBD:  Do we need to keep the gripper wheels ejecting the whole time we are moving to this
         //      position?  If so, leave them running in this position.  They will stop on next transition.
-        positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 22.25, -30, 0, -0.2));
-        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 60, 0, -0.5));
-        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 0, 0));
+        positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 22.25, -30, 90, -0.2));
+        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 60, 90, -0.5));
+        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 90, 0));
 
     }
 
@@ -257,6 +279,8 @@ public class Arm extends SubsystemBase {
     public void periodic() {
 
         setDesiredAnglesAndHeights();
+        
+
         if (isAtDesiredState()) {
             actualState = desiredState;
         }
@@ -287,14 +311,16 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees),
-                ControlType.kPosition);
+        // CHANGE for testing
+        // wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees),
+        //         ControlType.kPosition);
+        wristMotor.set(0);
     }
 
     public void setArmAngle(double desiredDegrees) {
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
-        // this.desiredArmAngle = desiredDegrees;
+          // this.desiredArmAngle = desiredDegrees; // Why is this commented out
     }
 
     public double getWristEncoderDegrees() {
@@ -474,7 +500,9 @@ public class Arm extends SubsystemBase {
         // wristMotor.getEncoder().getVelocity());
         // Logger.recordOutput("Arm/WristAngle/RPSActual",
         // wristMotor.getEncoder().getVelocity());
-        Logger.recordOutput("Arm/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
+        if (Robot.isSimulation()) {
+            Logger.recordOutput("Arm/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
+        }
 
         Logger.recordOutput("Arm/ArmAngle/DegreesDesired", desiredArmAngle);
         Logger.recordOutput("Arm/ArmAngle/DegreesCANcoder", getArmEncoderDegrees());
@@ -482,7 +510,11 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ArmAngle/DegreesTalon", getArmTalonEncoderDegrees());
         Logger.recordOutput("Arm/ArmAngle/VoltageActual", armMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopError", armMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ArmAngle/ProportionalOutput", armMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("Arm/ArmAngle/DerivativeOutput", armMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("Arm/ArmAngle/IntegratedOutput", armMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("Arm/ArmAngle/SupplyCurrent", armMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("Arm/ArmAngle/StatorCurrent", armMotor.getStatorCurrent().getValue());
         Logger.recordOutput("Arm/ArmAngle/RPSActual", armMotor.getVelocity().getValue());
         Logger.recordOutput("Arm/ArmAngle/AccelerationActual", armMotor.getAcceleration().getValue());
 
@@ -491,6 +523,9 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ElevatorHeight/VoltageActual", elevatorMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/ClosedLoopError",
                 elevatorMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/ProportionalOutput", elevatorMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/DerivativeOutput", elevatorMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/IntegratedOutput", elevatorMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/SupplyCurrent", elevatorMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/TempC", elevatorMotor.getDeviceTemp().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/ControlMode", elevatorMotor.getControlMode().getValue());
@@ -501,11 +536,16 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ElevatorHeight/RPSActual", elevatorMotor.getVelocity().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/AccelerationActual",
                 elevatorMotor.getAcceleration().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/StatorCurrent", elevatorMotor.getStatorCurrent().getValue());
+
 
         Logger.recordOutput("Arm/CarriageHeight/InchesDesired", desiredCarriageHeight);
         Logger.recordOutput("Arm/CarriageHeight/InchesActual", getCarriageHeightInches());
         Logger.recordOutput("Arm/CarriageHeight/VoltageActual", carriageMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/CarriageHeight/ClosedLoopError", carriageMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/ProportionalOutput", carriageMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/DerivativeOutput", carriageMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/IntegratedOutput", carriageMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("Arm/CarriageHeight/SupplyCurrent", carriageMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("Arm/CarriageHeight/TempC", carriageMotor.getDeviceTemp().getValue());
         Logger.recordOutput("Arm/CarriageHeight/ControlMode", carriageMotor.getControlMode().getValue());
@@ -513,6 +553,8 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/CarriageHeight/RotationsDesired", carriageMotor.getClosedLoopReference().getValue());
         Logger.recordOutput("Arm/CarriageHeight/RPSActual", carriageMotor.getVelocity().getValue());
         Logger.recordOutput("Arm/CarriageHeight/AccelerationActual", carriageMotor.getAcceleration().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/StatorCurrent", carriageMotor.getStatorCurrent().getValue());
+
 
     }
 
@@ -521,11 +563,11 @@ public class Arm extends SubsystemBase {
     private void applyArmMotorConfigs(InvertedValue inversion) {
         
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
-        talonConfigs.Slot0.kP = ArmConstants.ArmAngleKP;
-        talonConfigs.Slot0.kI = ArmConstants.ArmAngleKI;
-        talonConfigs.Slot0.kD = ArmConstants.ArmAngleKD;
-        talonConfigs.Slot0.kV = ArmConstants.ArmAngleFF;
-        talonConfigs.Slot0.kG = ArmConstants.ArmAngleKG;
+        talonConfigs.Slot0.kP = ArmConstants.ArmAngleKP.get();
+        talonConfigs.Slot0.kI = ArmConstants.ArmAngleKI.get();
+        talonConfigs.Slot0.kD = ArmConstants.ArmAngleKD.get();
+        talonConfigs.Slot0.kV = ArmConstants.ArmAngleFF.get();
+        talonConfigs.Slot0.kG = ArmConstants.ArmAngleKG.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
@@ -541,11 +583,11 @@ public class Arm extends SubsystemBase {
 
     private void applyElevatorMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
-        talonConfigs.Slot0.kP = ArmConstants.ElevatorKP;
-        talonConfigs.Slot0.kI = ArmConstants.ElevatorKI;
-        talonConfigs.Slot0.kD = ArmConstants.ElevatorKD;
-        talonConfigs.Slot0.kV = ArmConstants.ElevatorFF;
-        talonConfigs.Slot0.kG = ArmConstants.ElevatorKG;
+        talonConfigs.Slot0.kP = ArmConstants.ElevatorKP.get();
+        talonConfigs.Slot0.kI = ArmConstants.ElevatorKI.get();
+        talonConfigs.Slot0.kD = ArmConstants.ElevatorKD.get();
+        talonConfigs.Slot0.kV = ArmConstants.ElevatorFF.get();
+        talonConfigs.Slot0.kG = ArmConstants.ElevatorKG.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         /*
@@ -696,9 +738,10 @@ public class Arm extends SubsystemBase {
         }
     }
 
-    private void setNeutralMode(NeutralModeValue armMotorMode, NeutralModeValue elevatorMotorMode) {
+    private void setNeutralMode(NeutralModeValue armMotorMode, NeutralModeValue elevatorMotorMode, NeutralModeValue carriageMotorMode) {
         armMotor.setNeutralMode(armMotorMode);
         elevatorMotor.setNeutralMode(elevatorMotorMode);
+        carriageMotor.setNeutralMode(carriageMotorMode);
     }
 
     /* SIMULATION */
