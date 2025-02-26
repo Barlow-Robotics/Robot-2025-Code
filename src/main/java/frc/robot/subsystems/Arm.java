@@ -294,7 +294,7 @@ public class Arm extends SubsystemBase {
     public void setArmAngle(double desiredDegrees) {
         final MotionMagicVoltage request = new MotionMagicVoltage(desiredDegrees / ArmConstants.ArmAngleDegreesPerMotorRotation); // Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
-        // this.desiredArmAngle = desiredDegrees;
+          // this.desiredArmAngle = desiredDegrees; // Why is this commented out
     }
 
     public double getWristEncoderDegrees() {
@@ -482,7 +482,11 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ArmAngle/DegreesTalon", getArmTalonEncoderDegrees());
         Logger.recordOutput("Arm/ArmAngle/VoltageActual", armMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopError", armMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ArmAngle/ProportionalOutput", armMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("Arm/ArmAngle/DerivativeOutput", armMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("Arm/ArmAngle/IntegratedOutput", armMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("Arm/ArmAngle/SupplyCurrent", armMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("Arm/ArmAngle/StatorCurrent", armMotor.getStatorCurrent().getValue());
         Logger.recordOutput("Arm/ArmAngle/RPSActual", armMotor.getVelocity().getValue());
         Logger.recordOutput("Arm/ArmAngle/AccelerationActual", armMotor.getAcceleration().getValue());
 
@@ -491,6 +495,9 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ElevatorHeight/VoltageActual", elevatorMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/ClosedLoopError",
                 elevatorMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/ProportionalOutput", elevatorMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/DerivativeOutput", elevatorMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/IntegratedOutput", elevatorMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/SupplyCurrent", elevatorMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/TempC", elevatorMotor.getDeviceTemp().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/ControlMode", elevatorMotor.getControlMode().getValue());
@@ -501,11 +508,16 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ElevatorHeight/RPSActual", elevatorMotor.getVelocity().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/AccelerationActual",
                 elevatorMotor.getAcceleration().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/StatorCurrent", elevatorMotor.getStatorCurrent().getValue());
+
 
         Logger.recordOutput("Arm/CarriageHeight/InchesDesired", desiredCarriageHeight);
         Logger.recordOutput("Arm/CarriageHeight/InchesActual", getCarriageHeightInches());
         Logger.recordOutput("Arm/CarriageHeight/VoltageActual", carriageMotor.getMotorVoltage().getValue());
         Logger.recordOutput("Arm/CarriageHeight/ClosedLoopError", carriageMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/ProportionalOutput", carriageMotor.getClosedLoopProportionalOutput().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/DerivativeOutput", carriageMotor.getClosedLoopDerivativeOutput().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/IntegratedOutput", carriageMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("Arm/CarriageHeight/SupplyCurrent", carriageMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("Arm/CarriageHeight/TempC", carriageMotor.getDeviceTemp().getValue());
         Logger.recordOutput("Arm/CarriageHeight/ControlMode", carriageMotor.getControlMode().getValue());
@@ -513,6 +525,8 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/CarriageHeight/RotationsDesired", carriageMotor.getClosedLoopReference().getValue());
         Logger.recordOutput("Arm/CarriageHeight/RPSActual", carriageMotor.getVelocity().getValue());
         Logger.recordOutput("Arm/CarriageHeight/AccelerationActual", carriageMotor.getAcceleration().getValue());
+        Logger.recordOutput("Arm/CarriageHeight/StatorCurrent", carriageMotor.getStatorCurrent().getValue());
+
 
     }
 

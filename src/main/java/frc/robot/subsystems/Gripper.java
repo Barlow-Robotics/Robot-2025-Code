@@ -16,7 +16,7 @@ import frc.robot.Constants.ElectronicsIDs;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
+// import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -147,11 +147,11 @@ public class Gripper extends SubsystemBase {
     Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
     Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
     Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
-    
+    Logger.recordOutput("Gripper/GripperMotor/StatorCurrent", gripperMotor.getOutputCurrent());
+
     Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
     Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
     Logger.recordOutput("Gripper/GripperState", getState());
-
 
                           // Is there supposed to be an exclamation mark
   }
