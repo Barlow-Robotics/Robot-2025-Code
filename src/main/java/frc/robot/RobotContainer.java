@@ -322,8 +322,18 @@ public class RobotContainer {
 
         /***************** GRIPPER *****************/
         
+        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
+
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
+        runGripperButton.onTrue(
+            Commands.parallel(
+                runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
+                setArmPosLoadCoralCmd  // Runs independently
+            )
+        ).onFalse(stopGripperCmd); // Stop the gripper immediately when released
+
+
 
         scoreCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
         scoreCoralButton.onTrue(scoreCoralCmd);
