@@ -9,6 +9,8 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -149,6 +151,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+      robotContainer.armSub.applyAllConfigs();
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

@@ -256,7 +256,7 @@ public class Constants {
 
         /* ARM */
 
-        public static final double ArmAngleCANcoderMagnetOffset = -0.058105;
+        public static final double ArmAngleCANcoderMagnetOffset = -0.058105; // rotations
         public static final double ArmAngleGearRatio = 86.4;
         public static final double ArmAngleDegreesPerMotorRotation = 360.0 / ArmAngleGearRatio;
 
@@ -266,13 +266,15 @@ public class Constants {
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleFF2 = 0; // CHANGE
-        public static TuneableParameter ArmAngleFF = new TuneableParameter(ArmAngleFF2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
-        public static final double ArmAngleKG2 =/*testing*/0; // 0.239; // CHANGE
+        public static final double ArmAngleFF2 = 0.14; // CHANGE
+        public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleFF2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
+        public static final double ArmAngleKG2 = 0.239;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
-        public static final double ArmAngleCruiseSpeed =/*testing*/0; // .1; // rotations per sec // CHANGE
-        public static final double ArmAngleAcceleration =/*testing*/0; // 12; // CHANGE
-        public static final double ArmAngleJerk =/*testing*/0; // 40; // CHANGE
+        public static final double ArmAngleKS2 = 0.14;
+        public static TuneableParameter ArmAngleKS = new TuneableParameter(ArmAngleKS2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
+        public static final double ArmAngleCruiseSpeed = /*testing*/ 0.025; // .1; // rotations per sec // CHANGE
+        public static final double ArmAngleAcceleration = /*testing*/ 0.1; // 12; // CHANGE
+        public static final double ArmAngleJerk = /*testing*/ 0.4; // 40; // CHANGE
         
 
         /* ELEVATOR */
@@ -284,7 +286,7 @@ public class Constants {
         public static final double ElevatorKD2 =/*testing*/0; // 0.2; // CHANGE
         public static TuneableParameter ElevatorKD = new TuneableParameter(ElevatorKD2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
         public static final double ElevatorFF2 =/*testing*/0; // 0.0; // CHANGE
-        public static TuneableParameter ElevatorFF = new TuneableParameter(ElevatorFF2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
+        public static TuneableParameter ElevatorKV = new TuneableParameter(ElevatorFF2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
         public static final double ElevatorKG2 =/*testing*/0; // 2.7; // CHANGE
         public static TuneableParameter ElevatorKG = new TuneableParameter(ElevatorKG2, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
         public static final double ElevatorKS2 =/*testing*/0; // 0; // CHANGE
