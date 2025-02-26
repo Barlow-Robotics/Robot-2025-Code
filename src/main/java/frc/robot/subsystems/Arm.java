@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -130,15 +131,16 @@ public class Arm extends SubsystemBase {
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
         applyArmEncoderConfigs();
         applyWristEncoderConfigs();
-        applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.CounterClockwise_Positive);
+        applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.Clockwise_Positive);
         applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
-        setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
+        setNeutralMode(NeutralModeValue.Coast, NeutralModeValue.Brake, NeutralModeValue.Brake);
 
-        wristMotorConfig.closedLoop
-                .pidf(ArmConstants.WristKP.get(), ArmConstants.WristKI.get(), ArmConstants.WristKD.get(), ArmConstants.WristFF.get())
-                .iZone(ArmConstants.WristIZone.get())
-                .outputRange(-1, 1);
-        wristMotor.configure(wristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // wristMotorConfig.closedLoop
+        //         .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
+        //         .iZone(ArmConstants.WristIZone)
+        //         .outputRange(-1, 1);
+        wristMotorConfig.inverted(true);
+        wristMotor.configure(wristMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
         this.driveSub = driveSub;
         this.visionSub = visionSub;
@@ -146,7 +148,27 @@ public class Arm extends SubsystemBase {
         initializePositionDictionary();
     }
 
+    /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
+        positionDictionary.put(ArmState.PreLevel1,              new ArmStateParameters(0, 0, 45, 0, 0));
+        positionDictionary.put(ArmState.Level1,                 new ArmStateParameters(0, 0, -30, 0, -0.2));
+        positionDictionary.put(ArmState.Level2,                 new ArmStateParameters(0, 0, 0, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel2,            new ArmStateParameters(0, 0, 60, 90, -0.1));
+        positionDictionary.put(ArmState.Level3,                 new ArmStateParameters(0, 0, 60, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel3,            new ArmStateParameters(0, 0, 60, 90, -0.1));
+        positionDictionary.put(ArmState.Level4,                 new ArmStateParameters(0, 0, 60, 90, 0));
+        positionDictionary.put(ArmState.ScoreLevel4,            new ArmStateParameters(0, 0, 60, 90, -0.1));
+        positionDictionary.put(ArmState.WaitingForCoral,        new ArmStateParameters(0, 0, -60, 90, 0));
+        positionDictionary.put(ArmState.LoadCoral,              new ArmStateParameters(0, 0, -75, 90, 0.5));
+        positionDictionary.put(ArmState.PostLoadCoral,          new ArmStateParameters(0, 0, -75, 90, 0));
+        positionDictionary.put(ArmState.Startup,                new ArmStateParameters(0, 0, 0, 0, 0));
+        positionDictionary.put(ArmState.Running,                new ArmStateParameters(0, 0, 90, 90, 0));
+        positionDictionary.put(ArmState.StartAlgaePosition,     new ArmStateParameters(0, 0, -30, 0, -0.2));
+        positionDictionary.put(ArmState.FinishRemovingAlgae,    new ArmStateParameters(0, 0, 60, 0, -0.5));
+        positionDictionary.put(ArmState.SafeToLowerArm,         new ArmStateParameters(0, 0, 0, 0, 0));
+    }
+
+    private void realInitializePositionDictionary() {
         // CHANGE all these magic #s (except for wrist)
         // need to change speeds to all of these (right now assuming grabing is + and
         // release is -)
@@ -257,6 +279,8 @@ public class Arm extends SubsystemBase {
     public void periodic() {
 
         setDesiredAnglesAndHeights();
+        
+
         if (isAtDesiredState()) {
             actualState = desiredState;
         }
@@ -287,12 +311,14 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristMotor.getClosedLoopController().setReference(desiredDegrees / ArmConstants.WristAngleDegreesPerMotorRotation, //Units.degreesToRotations(desiredDegrees),
-                ControlType.kPosition);
+        // CHANGE for testing
+        // wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees),
+        //         ControlType.kPosition);
+        wristMotor.set(0);
     }
 
     public void setArmAngle(double desiredDegrees) {
-        final MotionMagicVoltage request = new MotionMagicVoltage(desiredDegrees / ArmConstants.ArmAngleDegreesPerMotorRotation); // Units.degreesToRotations(desiredDegrees));
+        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
           // this.desiredArmAngle = desiredDegrees; // Why is this commented out
     }
@@ -474,7 +500,9 @@ public class Arm extends SubsystemBase {
         // wristMotor.getEncoder().getVelocity());
         // Logger.recordOutput("Arm/WristAngle/RPSActual",
         // wristMotor.getEncoder().getVelocity());
-        Logger.recordOutput("Arm/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
+        if (Robot.isSimulation()) {
+            Logger.recordOutput("Arm/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
+        }
 
         Logger.recordOutput("Arm/ArmAngle/DegreesDesired", desiredArmAngle);
         Logger.recordOutput("Arm/ArmAngle/DegreesCANcoder", getArmEncoderDegrees());
@@ -710,9 +738,10 @@ public class Arm extends SubsystemBase {
         }
     }
 
-    private void setNeutralMode(NeutralModeValue armMotorMode, NeutralModeValue elevatorMotorMode) {
+    private void setNeutralMode(NeutralModeValue armMotorMode, NeutralModeValue elevatorMotorMode, NeutralModeValue carriageMotorMode) {
         armMotor.setNeutralMode(armMotorMode);
         elevatorMotor.setNeutralMode(elevatorMotorMode);
+        carriageMotor.setNeutralMode(carriageMotorMode);
     }
 
     /* SIMULATION */
