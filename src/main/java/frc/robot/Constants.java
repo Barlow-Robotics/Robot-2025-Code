@@ -268,7 +268,7 @@ public class Constants {
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
         public static final double ArmAngleFF2 = 0; // CHANGE
         public static TuneableParameter ArmAngleFF = new TuneableParameter(ArmAngleFF2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
-        public static final double ArmAngleKG2 =/*testing*/0; // 0.29; // CHANGE
+        public static final double ArmAngleKG2 =/*testing*/0; // 0.239; // CHANGE
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         public static final double ArmAngleCruiseSpeed =/*testing*/0; // .1; // rotations per sec // CHANGE
         public static final double ArmAngleAcceleration =/*testing*/0; // 12; // CHANGE
