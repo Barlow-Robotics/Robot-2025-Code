@@ -382,7 +382,7 @@ public class Constants {
     }
 
     public static final class ClimbConstants {
-        public static final double WinchMotorGearRatio = 1; // CHANGE
+        public static final double WinchMotorGearRatio = 45; // CHANGE
 
         public static final double WinchKP2 = 0;
         public static TuneableParameter WinchKP = new TuneableParameter(WinchKP2, 0, 1, true, "TuneableParameter/Climb/PID/WinchKP");
