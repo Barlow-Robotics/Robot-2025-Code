@@ -171,11 +171,11 @@ public class AlgaeIntake extends SubsystemBase {
 
     private void applyLiftMotorConfigs(InvertedValue inversion) {
         TalonFXSConfiguration talonConfigs = new TalonFXSConfiguration();
-        talonConfigs.Slot0.kP = AlgaeConstants.LiftKP;
-        talonConfigs.Slot0.kI = AlgaeConstants.LiftKI;
-        talonConfigs.Slot0.kD = AlgaeConstants.LiftKD;
-        talonConfigs.Slot0.kV = AlgaeConstants.LiftFF;
-        talonConfigs.Slot0.kG = AlgaeConstants.LiftKG;
+        talonConfigs.Slot0.kP = AlgaeConstants.LiftKP.get();
+        talonConfigs.Slot0.kI = AlgaeConstants.LiftKI.get();
+        talonConfigs.Slot0.kD = AlgaeConstants.LiftKD.get();
+        talonConfigs.Slot0.kV = AlgaeConstants.LiftFF.get();
+        talonConfigs.Slot0.kG = AlgaeConstants.LiftKG.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
@@ -188,12 +188,12 @@ public class AlgaeIntake extends SubsystemBase {
 
     private void applyIntakeMotorConfigs(InvertedValue inversion) {
         TalonFXSConfiguration talonConfigs = new TalonFXSConfiguration();
-        talonConfigs.Slot0.kS = AlgaeConstants.IntakeKS;
-        talonConfigs.Slot0.kV = AlgaeConstants.IntakeFF;
-        talonConfigs.Slot0.kA = AlgaeConstants.IntakeKA;
-        talonConfigs.Slot0.kP = AlgaeConstants.IntakeKP;
-        talonConfigs.Slot0.kI = AlgaeConstants.IntakeKI;
-        talonConfigs.Slot0.kD = AlgaeConstants.IntakeKD;
+        talonConfigs.Slot0.kS = AlgaeConstants.IntakeKS.get();
+        talonConfigs.Slot0.kV = AlgaeConstants.IntakeFF.get();
+        talonConfigs.Slot0.kA = AlgaeConstants.IntakeKA.get();
+        talonConfigs.Slot0.kP = AlgaeConstants.IntakeKP.get();
+        talonConfigs.Slot0.kI = AlgaeConstants.IntakeKI.get();
+        talonConfigs.Slot0.kD = AlgaeConstants.IntakeKD.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;

@@ -28,6 +28,7 @@ import frc.robot.Constants;
 // import frc.robot.Constants.AlgaeConstants;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.commands.TuneableParameter;
 
 public class Climb extends SubsystemBase {
     /** Creates a new Climb. */
@@ -83,16 +84,16 @@ public class Climb extends SubsystemBase {
 
     public void latchOntoCage() {
         // CHANGE: extend the servo here (to disengage ratcheting)      
-        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.CageAngle));
+        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.CageAngle.get()));
         winchMotor.setControl(request);
-        desiredWinchAngle = ClimbConstants.CageAngle;
+        desiredWinchAngle = ClimbConstants.CageAngle.get();
     }
 
     public void windWinch() {
         // CHANGE: retract the servo here (to engage ratcheting)
-        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.WinchedAngle));
+        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.WinchedAngle.get()));
         winchMotor.setControl(request);
-        desiredWinchAngle = ClimbConstants.WinchedAngle;
+        desiredWinchAngle = ClimbConstants.WinchedAngle.get();
     }
 
     public double getWinchPositionDegrees() {
@@ -114,13 +115,13 @@ public class Climb extends SubsystemBase {
     }
 
     public boolean isLatchedOnCage() {
-        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.CageAngle - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.CageAngle + ClimbConstants.WinchTolerance);
+        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.CageAngle.get() - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.CageAngle.get() + ClimbConstants.WinchTolerance);
         boolean withinServoTolerance = (getServoPosition() >= ClimbConstants.ServoExtendedPos - ClimbConstants.ServoTolerance) && (getServoPosition() <= ClimbConstants.ServoExtendedPos + ClimbConstants.ServoTolerance);
         return withinWinchTolerance && withinServoTolerance;
     }
 
     public boolean isWinched() {
-        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.WinchedAngle - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.WinchedAngle + ClimbConstants.WinchTolerance);
+        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.WinchedAngle.get() - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.WinchedAngle.get() + ClimbConstants.WinchTolerance);
         boolean withinServoTolerance = (getServoPosition() >= 0 - ClimbConstants.ServoTolerance) && (getServoPosition() <= 0 + ClimbConstants.ServoTolerance);
         return withinWinchTolerance && withinServoTolerance;
     }
@@ -131,11 +132,11 @@ public class Climb extends SubsystemBase {
 
     private void applyWinchMotorConfigs(InvertedValue inversion) {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
-        talonConfigs.Slot0.kP = ClimbConstants.WinchKP;
-        talonConfigs.Slot0.kI = ClimbConstants.WinchKI;
-        talonConfigs.Slot0.kD = ClimbConstants.WinchKD;
-        talonConfigs.Slot0.kV = ClimbConstants.WinchFF;
-        talonConfigs.Slot0.kG = ClimbConstants.WinchKG;
+        talonConfigs.Slot0.kP = ClimbConstants.WinchKP.get();
+        talonConfigs.Slot0.kI = ClimbConstants.WinchKI.get();
+        talonConfigs.Slot0.kD = ClimbConstants.WinchKD.get();
+        talonConfigs.Slot0.kV = ClimbConstants.WinchFF.get();
+        talonConfigs.Slot0.kG = ClimbConstants.WinchKG.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
