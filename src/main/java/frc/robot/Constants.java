@@ -124,6 +124,8 @@ public class Constants {
         public static final int CarriageMotorID = 45;
         public static final int WristEncoderID = 46;
         public static final int ArmEncoderID = 47;
+        public static final int ElevatorHallEffect = 48;
+        public static final int CarriageHallEffect = 49;
 
         /************************** ALGAE INTAKE ****************************/
         public static final int LiftMotorID = 51;

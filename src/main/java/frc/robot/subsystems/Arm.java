@@ -51,8 +51,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -97,6 +99,13 @@ public class Arm extends SubsystemBase {
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
 
+    /*
+    DigitalInput elevatorHallEffect;
+    DIOSim elevatorHallEffectSim;
+    DigitalInput carriageHallEffect;
+    DIOSim carriageHallEffectSim;
+    */
+
     // CHANGE - also need to double check that this is fine with the Algae
     // high/low/position stuff
     public enum ArmState {
@@ -121,8 +130,8 @@ public class Arm extends SubsystemBase {
     private boolean simulationInitialized = false;
 
     public Arm(Vision visionSub, Drive driveSub, Gripper gripperSub) {
-        // bottomHallEffect = new DigitalInput(ElectronicsIDs.BottomHallEffectID);
-
+        /* elevatorHallEffect = new DigitalInput(ElectronicsIDs.ElevatorHallEffect);
+        carriageHallEffect = new DigitalInput(ElectronicsIDs.CarriageHallEffect); */
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
         armMotorSim = armMotor.getSimState();
         //armMotor.setPosition(0);
@@ -503,6 +512,16 @@ public class Arm extends SubsystemBase {
         wristMotor.set(0);
     }
 
+    /*
+    public boolean carriageIsAtBottom() {
+        return !carriageHallEffect.get();
+    }
+
+    public boolean elevatorIsAtBottom() {
+        return !elevatorHallEffect.get();
+    }
+        */
+
     /** Makes sure we never go past our limits of motion */
     private void boundsCheck() {
         if ((getElevatorHeightInches() <= 0 && elevatorMotor.getVelocity().getValueAsDouble() < 0) ||
@@ -856,6 +875,10 @@ public class Arm extends SubsystemBase {
 
         double wristEncoderAngle = Units.degreesToRotations(desiredWristAngle);
         wristEncoderSim.setRawPosition(wristEncoderAngle);
+
+        /* 
+        elevatorHallEffectSim = new DIOSim(elevatorHallEffect);
+        carriageHallEffectSim = new DIOSim(carriageHallEffect); */
     }
 
     @Override
@@ -914,6 +937,20 @@ public class Arm extends SubsystemBase {
         wristMotorSim.iterate(wristMotorModel.getAngularVelocityRPM(), RobotController.getBatteryVoltage(), 0.02);
         wristEncoderSim.setVelocity(wristMotorModel.getAngularVelocityRadPerSec());
         wristEncoderSim.setRawPosition(wristMotorModel.getAngularPositionRotations());
+    
+        /* 
+        if (desiredElevatorHeight == ArmConstants.MaxElevatorHeight && isWithinElevatorHeightTolerance()) {
+            elevatorHallEffectSim.setValue(false);
+        } else {
+            elevatorHallEffectSim.setValue(true);
+        }
+
+        if (desiredCarriageHeight == ArmConstants.MaxCarriageHeight && isWithinCarriageHeightTolerance()) {
+            carriageHallEffectSim.setValue(false);
+        } else {
+            carriageHallEffectSim.setValue(true);
+        }
+        */
     }
 }
 
