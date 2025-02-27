@@ -169,8 +169,8 @@ public class Arm extends SubsystemBase {
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
         positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 0, 45, 0, 0));
-        positionDictionary.put(ArmState.Level1, new ArmStateParameters(6, 8, 90, 0, -0.2));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 90, 0, 0));
+        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 0, 90, 0, -0.2));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 45, 0, 0));
         positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 0, 60, 90, -0.1));
         positionDictionary.put(ArmState.Level3, new ArmStateParameters(0, 0, -30, 90, 0));
         positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(0, 0, 60, 90, -0.1));
@@ -380,7 +380,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void setArmAngle(double desiredDegrees) {
-        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
+        MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
         Logger.recordOutput("Arm/AngleFromSetArmAngle", Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
         // this.desiredArmAngle = desiredDegrees; // Why is this commented out
@@ -612,7 +612,7 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopOutput", armMotor.getClosedLoopOutput().getValue());
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopFF", armMotor.getClosedLoopFeedForward().getValue());
 
-        Logger.recordOutput("Arm/ArmAngle/ClosedLoopReference", armMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/ArmAngle/ClosedLoopReference", Units.rotationsToDegrees(armMotor.getClosedLoopReference().getValue()));
 
         Logger.recordOutput("Arm/ArmAngle/MotionMagicIsRunning", armMotor.getMotionMagicIsRunning().getValue());
 

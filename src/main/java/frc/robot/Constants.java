@@ -268,7 +268,7 @@ public class Constants {
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleKV2 = 15.0; // CHANGE
+        public static final double ArmAngleKV2 = 8.0; // CHANGE
         public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleKV2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
         public static final double ArmAngleKG2 = 0.25;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
@@ -490,7 +490,7 @@ public class Constants {
         public static final double IntakeKS2 = 0; // CHANGE
         public static TuneableParameter IntakeKS = new TuneableParameter(IntakeKS2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeKS");
 
-        public static final double IntakeFF2 =/*testing*/0; // 0.13; // CHANGE
+        public static final double IntakeFF2 =/*testing*/0.2; // 0.13; // CHANGE
         public static TuneableParameter IntakeFF = new TuneableParameter(IntakeFF2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeFF");
         public static final double IntakeKA2 = 0; // CHANGE
         public static TuneableParameter IntakeKA = new TuneableParameter(IntakeKA2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeKA");

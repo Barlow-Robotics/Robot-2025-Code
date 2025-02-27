@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -74,6 +75,13 @@ public class Robot extends LoggedRobot {
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
                     // be added.
   }
+
+  @Override
+  public void robotInit() {
+        SignalLogger.start();
+
+  }
+
 
   @Override
   public void robotPeriodic() {
