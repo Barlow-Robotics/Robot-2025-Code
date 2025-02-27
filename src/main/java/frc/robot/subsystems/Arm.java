@@ -528,30 +528,37 @@ public class Arm extends SubsystemBase {
 
     /** Makes sure we never go past our limits of motion */
     private void boundsCheck() {
-        if ((getElevatorHeightInches() <= 0 && elevatorMotor.getVelocity().getValueAsDouble() < 0) ||
+        if ((getElevatorHeightInches() <= 0 && elevatorMotor.getVelocity().getValueAsDouble() < 0 && !isWithinElevatorHeightTolerance()) ||
                 (getElevatorHeightInches() > ArmConstants.MaxElevatorHeight
-                        && elevatorMotor.getVelocity().getValueAsDouble() > 0)) {
+                        && elevatorMotor.getVelocity().getValueAsDouble() > 0
+                        && !isWithinElevatorHeightTolerance())) {
             stopElevatorMotor();
         }
 
         if ((getCarriageHeightInches() <= 0
-                && carriageMotor.getVelocity().getValueAsDouble() < 0) ||
+                && carriageMotor.getVelocity().getValueAsDouble() < 0
+                && !isWithinCarriageHeightTolerance()) ||
                 (getCarriageHeightInches() >= ArmConstants.MaxCarriageHeight
-                        && carriageMotor.getVelocity().getValueAsDouble() > 0)) {
+                        && carriageMotor.getVelocity().getValueAsDouble() > 0
+                        && !isWithinCarriageHeightTolerance())) {
             stopCarriageMotor();
         }
 
         if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle
-                && armMotor.getVelocity().getValueAsDouble() < 0) ||
+                && armMotor.getVelocity().getValueAsDouble() < 0
+                && !isWithinArmAngleTolerance()) ||
                 (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle
-                        && armMotor.getVelocity().getValueAsDouble() > 0)) {
+                && armMotor.getVelocity().getValueAsDouble() > 0
+                && !isWithinArmAngleTolerance())) {
             stopArmMotor();
         }
 
         if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle
-                && wristMotor.get() < 0) ||
+                && wristMotor.get() < 0
+                && !isWithinWristAngleTolerance()) ||
                 (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle
-                        && wristMotor.get() > 0)) {
+                        && wristMotor.get() > 0
+                        && !isWithinWristAngleTolerance())) {
             stopWristMotor();
         }
 
