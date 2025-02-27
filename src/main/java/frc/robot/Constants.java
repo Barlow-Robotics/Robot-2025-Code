@@ -260,21 +260,22 @@ public class Constants {
         public static final double ArmAngleGearRatio = 86.4;
         public static final double ArmAngleDegreesPerMotorRotation = 360.0 / ArmAngleGearRatio;
 
-        public static final double ArmAngleKP2 =/*testing*/0; // 32; // CHANGE
+        public static final double ArmAngleKP2 =/*testing*/ 20.0; // 32; // CHANGE
         public static TuneableParameter ArmAngleKP = new TuneableParameter(ArmAngleKP2, 0, 50, true, "TuneableParameter/Arm/PID/ArmAngleKP");
         public static final double ArmAngleKI2 =/*testing*/0; // 0.1; // CHANGE
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleFF2 = 0.14; // CHANGE
-        public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleFF2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
+        public static final double ArmAngleKV2 = 11.0; // CHANGE
+        public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleKV2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
         public static final double ArmAngleKG2 = 0.239;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         public static final double ArmAngleKS2 = 0.14;
         public static TuneableParameter ArmAngleKS = new TuneableParameter(ArmAngleKS2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
-        public static final double ArmAngleCruiseSpeed = /*testing*/ 0.025; // .1; // rotations per sec // CHANGE
-        public static final double ArmAngleAcceleration = /*testing*/ 0.1; // 12; // CHANGE
-        public static final double ArmAngleJerk = /*testing*/ 0.4; // 40; // CHANGE
+        
+        public static final double ArmAngleCruiseSpeed = /*testing*/ 40.0/360.0; // .1; // RPS - CHANGE
+        public static final double ArmAngleAcceleration = /*testing*/ ArmAngleCruiseSpeed * 4.0; // 12; // CHANGE
+        public static final double ArmAngleJerk = /*testing*/ ArmAngleAcceleration * 4.0; // 40; // CHANGE
         
 
         /* ELEVATOR */

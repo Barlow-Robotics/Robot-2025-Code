@@ -155,7 +155,7 @@ public class Arm extends SubsystemBase {
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, -60, 90, 0));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 0, -75, 90, 0.5));
         positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 0, -75, 90, 0));
-        positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 0, 0, 0));
+        positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, 0));
         positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 0, -30, 0, -0.2));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(0, 0, 60, 0, -0.5));
@@ -358,6 +358,7 @@ public class Arm extends SubsystemBase {
 
     public void setArmAngle(double desiredDegrees) {
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
+        Logger.recordOutput("Arm/AngleFromSetArmAngle", Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
         // this.desiredArmAngle = desiredDegrees; // Why is this commented out
     }
@@ -532,6 +533,7 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/StateDesired", desiredState);
 
         Logger.recordOutput("Arm/AtDesiredState", isAtDesiredState());
+        Logger.recordOutput("Arm/HasCompletedMovment", hasCompletedMovement());
         Logger.recordOutput("Arm/Tolerances/WithinWristTolerance", isWithinWristAngleTolerance());
         Logger.recordOutput("Arm/Tolerances/WithinArmTolerance", isWithinArmAngleTolerance());
         Logger.recordOutput("Arm/Tolerances/WithinElevatorTolerance", isWithinElevatorHeightTolerance());
@@ -561,6 +563,9 @@ public class Arm extends SubsystemBase {
 
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopOutput", armMotor.getClosedLoopOutput().getValue());
         Logger.recordOutput("Arm/ArmAngle/ClosedLoopFF", armMotor.getClosedLoopFeedForward().getValue());
+
+        Logger.recordOutput("Arm/ArmAngle/ClosedLoopReference", armMotor.getClosedLoopReference().getValue());
+
         Logger.recordOutput("Arm/ArmAngle/MotionMagicIsRunning", armMotor.getMotionMagicIsRunning().getValue());
 
         Logger.recordOutput("Arm/ArmAngle/SupplyCurrent", armMotor.getSupplyCurrent().getValue());
@@ -635,12 +640,12 @@ public class Arm extends SubsystemBase {
     private void applyArmMotorConfigs(InvertedValue inversion) {
         
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
-        talonConfigs.Slot0.kP = ArmConstants.ArmAngleKP.get();
-        talonConfigs.Slot0.kI = ArmConstants.ArmAngleKI.get();
-        talonConfigs.Slot0.kD = ArmConstants.ArmAngleKD.get();
-        talonConfigs.Slot0.kV = ArmConstants.ArmAngleKV.get();
-        talonConfigs.Slot0.kG = ArmConstants.ArmAngleKG.get();
-        talonConfigs.Slot0.kS = ArmConstants.ArmAngleKS.get();
+        talonConfigs.Slot0.kP = ArmConstants.ArmAngleKP2;
+        talonConfigs.Slot0.kI = ArmConstants.ArmAngleKI2;
+        talonConfigs.Slot0.kD = ArmConstants.ArmAngleKD2;
+        talonConfigs.Slot0.kV = ArmConstants.ArmAngleKV2;
+        talonConfigs.Slot0.kG = ArmConstants.ArmAngleKG2;
+        talonConfigs.Slot0.kS = ArmConstants.ArmAngleKS2;
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
