@@ -262,37 +262,37 @@ public class Constants {
         public static final double ArmAngleGearRatio = 86.4;
         public static final double ArmAngleDegreesPerMotorRotation = 360.0 / ArmAngleGearRatio;
 
-        public static final double ArmAngleKP2 =/*testing*/ 20.0; // 32; // CHANGE
+        public static final double ArmAngleKP2 =/*testing*/ 5.0; // 32; // CHANGE
         public static TuneableParameter ArmAngleKP = new TuneableParameter(ArmAngleKP2, 0, 50, true, "TuneableParameter/Arm/PID/ArmAngleKP");
         public static final double ArmAngleKI2 =/*testing*/0; // 0.1; // CHANGE
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleKV2 = 11.0; // CHANGE
+        public static final double ArmAngleKV2 = 15.0; // CHANGE
         public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleKV2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
-        public static final double ArmAngleKG2 = 0.239;
+        public static final double ArmAngleKG2 = 0.25;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         public static final double ArmAngleKS2 = 0.14;
         public static TuneableParameter ArmAngleKS = new TuneableParameter(ArmAngleKS2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         
-        public static final double ArmAngleCruiseSpeed = /*testing*/ 40.0/360.0; // .1; // RPS - CHANGE
+        public static final double ArmAngleCruiseSpeed = /*testing*/ 90.0/360.0; // .1; // RPS - CHANGE
         public static final double ArmAngleAcceleration = /*testing*/ ArmAngleCruiseSpeed * 4.0; // 12; // CHANGE
         public static final double ArmAngleJerk = /*testing*/ ArmAngleAcceleration * 4.0; // 40; // CHANGE
         
 
         /* ELEVATOR */
 
-        public static final double ElevatorKP2 =/*testing*/0; // 32; // CHANGE
+        public static final double ElevatorKP2 =/*testing*/0.4; // 32; // CHANGE
         public static TuneableParameter ElevatorKP = new TuneableParameter(ElevatorKP2, 0, 50, true, "TuneableParameter/Arm/PID/ElevatorKP");
         public static final double ElevatorKI2 =/*testing*/0; // 0.1; // CHANGE
         public static TuneableParameter ElevatorKI = new TuneableParameter(ElevatorKI2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
-        public static final double ElevatorKD2 =/*testing*/0; // 0.2; // CHANGE
+        public static final double ElevatorKD2 =/*testing*/0.3; // 0.2; // CHANGE
         public static TuneableParameter ElevatorKD = new TuneableParameter(ElevatorKD2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
-        public static final double ElevatorFF2 =/*testing*/0; // 0.0; // CHANGE
-        public static TuneableParameter ElevatorKV = new TuneableParameter(ElevatorFF2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
-        public static final double ElevatorKG2 =/*testing*/0; // 2.7; // CHANGE
+        public static final double ElevatorKV2 =/*testing*/0.30; // 0.0; // CHANGE
+        public static TuneableParameter ElevatorKV = new TuneableParameter(ElevatorKV2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
+        public static final double ElevatorKG2 =/*testing*/0.2; // 2.7; // CHANGE
         public static TuneableParameter ElevatorKG = new TuneableParameter(ElevatorKG2, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
-        public static final double ElevatorKS2 =/*testing*/0; // 0; // CHANGE
+        public static final double ElevatorKS2 =/*testing*/0.1; // 0; // CHANGE
         public static TuneableParameter ElevatorKS = new TuneableParameter(ElevatorKS2, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
         public static final double ElevatorGearRatio = 5;//15;
         // public static final double ElevatorSprocketDiameter = 2.36; // inches // CHANGE
@@ -300,19 +300,43 @@ public class Constants {
         public static final double ElevatorSprocketCircumference = ElevatorSprocketDiameter * Math.PI;
         public static final double RotationsPerElevatorInch = 1 / ElevatorSprocketCircumference * ElevatorGearRatio;
 
+        public static final double ElevatorMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / ElevatorGearRatio
+                * ElevatorSprocketCircumference;
+        public static final double ElevatorCruiseVelocity = 8; // CHANGE
+        public static final double ElevatorAcceleration = 4*ElevatorCruiseVelocity ; // CHANGE
+        public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
+
+
+
+        public static final double CarriageKP =/*testing*/0.6; // 32; // CHANGE
+        public static TuneableParameter CarriageKPTP = new TuneableParameter(CarriageKP, 0, 50, true, "TuneableParameter/Arm/PID/ElevatorKP");
+        public static final double CarriageKI =/*testing*/0; // 0.1; // CHANGE
+        public static TuneableParameter CarriageKITP = new TuneableParameter(CarriageKI, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
+        public static final double CarriageKD =/*testing*/0.25; // 0.2; // CHANGE
+        public static TuneableParameter CarriageKDTP = new TuneableParameter(CarriageKD, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
+        public static final double CarriageKV =/*testing*/0.35; // 0.0; // CHANGE
+        public static TuneableParameter CarriageKVTP = new TuneableParameter(CarriageKV, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
+        public static final double CarriageKG =/*testing*/0.2; // 2.7; // CHANGE
+        public static TuneableParameter CarriageKGTP = new TuneableParameter(CarriageKG, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
+        public static final double CarriageKS =/*testing*/0.08; // 0; // CHANGE
+        public static TuneableParameter CarriageKSTP = new TuneableParameter(CarriageKS, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
+
         //  Values for Carriage now based on Mr K's spreadsheet
         public static final double CarriageGearRatio = 4.8;
         public static final double CarriageSprocketDiameter = 1.44; // inches // CHANGE
         public static final double CarriageSprocketCircumference = CarriageSprocketDiameter * Math.PI;
         public static final double RotationsPerCarriageInch = 1 / CarriageSprocketCircumference * CarriageGearRatio;
         
+        public static final double CarriageMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / CarriageGearRatio
+                * CarriageSprocketCircumference;
+        public static final double CarriageCruiseVelocity = 8.0; // CHANGE In inches per second
+        public static final double CarriageAcceleration = 4 * CarriageCruiseVelocity ; // CHANGE In inches per second per second
+        public static final double CarriageJerk = 5 * CarriageAcceleration ; // CHANGE - In Inches/s/s
+
+
+
         // public static final double RotationsPerElevatorInch = ElevatorGearRatio / Units.metersToInches(ElevatorSprocketCircumference) / 2;
 
-        public static final double ElevatorMaxInchesPerSec = Falcon500MaxRPM / SecondsPerMinute / ElevatorGearRatio
-                * ElevatorSprocketCircumference;
-        public static final double ElevatorCruiseInchesPerSec = 10; // CHANGE
-        public static final double ElevatorInchesPerSecPerSec = 10; // CHANGE
-        public static final double ElevatorJerk = 800; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
         /* WRIST */
 

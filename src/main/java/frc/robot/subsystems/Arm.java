@@ -152,6 +152,8 @@ public class Arm extends SubsystemBase {
 
         applyAllConfigs();
 
+        carriageMotor.setPosition(0.0) ;
+
 
         wristPIDController = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(
                 ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
@@ -167,8 +169,8 @@ public class Arm extends SubsystemBase {
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
         positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 0, 45, 0, 0));
-        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 0, -30, 0, -0.2));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 0, 90, 0));
+        positionDictionary.put(ArmState.Level1, new ArmStateParameters(6, 8, 90, 0, -0.2));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 0, 60, 90, -0.1));
         positionDictionary.put(ArmState.Level3, new ArmStateParameters(0, 0, -30, 90, 0));
         positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(0, 0, 60, 90, -0.1));
@@ -502,6 +504,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void stopCarriageMotor() {
+        carriageMotor.stopMotor();
         carriageMotor.set(0);
     }
 
@@ -640,25 +643,33 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/ElevatorHeight/AccelerationActual",
                 elevatorMotor.getAcceleration().getValue());
         Logger.recordOutput("Arm/ElevatorHeight/StatorCurrent", elevatorMotor.getStatorCurrent().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/ClosedLoopFF", elevatorMotor.getClosedLoopFeedForward().getValue());
+        Logger.recordOutput("Arm/ElevatorHeight/ClosedLoopReference", elevatorMotor.getClosedLoopReference().getValue()/ ArmConstants.RotationsPerElevatorInch);
+        Logger.recordOutput("Arm/ElevatorHeight/MotionMagicIsRunning", elevatorMotor.getMotionMagicIsRunning().getValue());
 
-        Logger.recordOutput("Arm/CarriageHeight/InchesDesired", desiredCarriageHeight);
-        Logger.recordOutput("Arm/CarriageHeight/InchesActual", getCarriageHeightInches());
-        Logger.recordOutput("Arm/CarriageHeight/VoltageActual", carriageMotor.getMotorVoltage().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/ClosedLoopError", carriageMotor.getClosedLoopError().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/ProportionalOutput",
+
+        Logger.recordOutput("Arm/Carriage/InchesDesired", desiredCarriageHeight);
+        Logger.recordOutput("Arm/Carriage/InchesActual", getCarriageHeightInches());
+        Logger.recordOutput("Arm/Carriage/VoltageActual", carriageMotor.getMotorVoltage().getValue());
+        Logger.recordOutput("Arm/Carriage/ClosedLoopError", carriageMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("Arm/Carriage/ProportionalOutput",
                 carriageMotor.getClosedLoopProportionalOutput().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/DerivativeOutput",
+        Logger.recordOutput("Arm/Carriage/DerivativeOutput",
                 carriageMotor.getClosedLoopDerivativeOutput().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/IntegratedOutput",
+        Logger.recordOutput("Arm/Carriage/IntegratedOutput",
                 carriageMotor.getClosedLoopIntegratedOutput().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/SupplyCurrent", carriageMotor.getSupplyCurrent().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/TempC", carriageMotor.getDeviceTemp().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/ControlMode", carriageMotor.getControlMode().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/RotationsActual", carriageMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Arm/CarriageHeight/RotationsDesired", carriageMotor.getClosedLoopReference().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/RPSActual", carriageMotor.getVelocity().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/AccelerationActual", carriageMotor.getAcceleration().getValue());
-        Logger.recordOutput("Arm/CarriageHeight/StatorCurrent", carriageMotor.getStatorCurrent().getValue());
+        Logger.recordOutput("Arm/Carriage/SupplyCurrent", carriageMotor.getSupplyCurrent().getValue());
+        Logger.recordOutput("Arm/Carriage/TempC", carriageMotor.getDeviceTemp().getValue());
+        Logger.recordOutput("Arm/Carriage/ControlMode", carriageMotor.getControlMode().getValue());
+        Logger.recordOutput("Arm/Carriage/RotationsActual", carriageMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Arm/Carriage/RotationsDesired", carriageMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/Carriage/RPSActual", carriageMotor.getVelocity().getValue());
+        Logger.recordOutput("Arm/Carriage/AccelerationActual", carriageMotor.getAcceleration().getValue());
+        Logger.recordOutput("Arm/Carriage/StatorCurrent", carriageMotor.getStatorCurrent().getValue());
+        Logger.recordOutput("Arm/Carriage/ClosedLoopOutput", carriageMotor.getClosedLoopOutput().getValue());
+        Logger.recordOutput("Arm/Carriage/ClosedLoopFF", carriageMotor.getClosedLoopFeedForward().getValue());
+        Logger.recordOutput("Arm/Carriage/ClosedLoopReference", carriageMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/Carriage/MotionMagicIsRunning", carriageMotor.getMotionMagicIsRunning().getValue());
 
     }
 
@@ -669,8 +680,8 @@ public class Arm extends SubsystemBase {
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
         applyWristEncoderConfigs();
         applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.Clockwise_Positive);
-        applyElevatorMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
-        setNeutralMode(NeutralModeValue.Coast, NeutralModeValue.Brake, NeutralModeValue.Brake);
+        applyCarriageMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
+        setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake, NeutralModeValue.Coast);
 
         /* CHANGE (this was commented out durring testing) */
         // wristMotorConfig.closedLoop
@@ -714,6 +725,7 @@ public class Arm extends SubsystemBase {
         talonConfigs.Slot0.kD = ArmConstants.ElevatorKD.get();
         talonConfigs.Slot0.kV = ArmConstants.ElevatorKV.get();
         talonConfigs.Slot0.kG = ArmConstants.ElevatorKG.get();
+        talonConfigs.Slot0.kS = ArmConstants.ElevatorKS.get();
         talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         /*
@@ -727,11 +739,11 @@ public class Arm extends SubsystemBase {
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
 
-        double rotationsPerSecond = ArmConstants.ElevatorCruiseInchesPerSec
+        double rotationsPerSecond = ArmConstants.ElevatorCruiseVelocity
                 * ArmConstants.RotationsPerElevatorInch;
         motionMagicConfigs.MotionMagicCruiseVelocity = rotationsPerSecond;
 
-        double rotationsPerSecondPerSecond = (ArmConstants.ElevatorInchesPerSecPerSec
+        double rotationsPerSecondPerSecond = (ArmConstants.ElevatorAcceleration
                 * ArmConstants.RotationsPerElevatorInch) / 0.25;
         motionMagicConfigs.MotionMagicAcceleration = rotationsPerSecondPerSecond;
 
@@ -740,6 +752,46 @@ public class Arm extends SubsystemBase {
 
         applyMotorConfigs(motor, motorName, talonConfigs, inversion);
     }
+
+
+
+
+    private void applyCarriageMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
+        TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
+        talonConfigs.Slot0.kP = ArmConstants.CarriageKPTP.get();
+        talonConfigs.Slot0.kI = ArmConstants.CarriageKITP.get();
+        talonConfigs.Slot0.kD = ArmConstants.CarriageKDTP.get();
+        talonConfigs.Slot0.kV = ArmConstants.CarriageKVTP.get();
+        talonConfigs.Slot0.kG = ArmConstants.CarriageKGTP.get();
+        talonConfigs.Slot0.kS = ArmConstants.CarriageKSTP.get();
+        talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+
+        /*
+         * talonConfigs.Slot1.kP = ShooterMountConstants.ClimbKP;
+         * talonConfigs.Slot1.kI = ShooterMountConstants.ClimbKI;
+         * talonConfigs.Slot1.kD = ShooterMountConstants.ClimbKD;
+         * talonConfigs.Slot1.kV = ShooterMountConstants.ClimbFF;
+         * talonConfigs.Slot1.kG = ShooterMountConstants.ClimbKG;\
+         */
+        // talonConfigs.Slot1.GravityType = GravityTypeValue.Elevator_Static;
+
+        var motionMagicConfigs = talonConfigs.MotionMagic;
+
+        double rotationsPerSecond = ArmConstants.CarriageCruiseVelocity
+                * ArmConstants.RotationsPerCarriageInch;
+        motionMagicConfigs.MotionMagicCruiseVelocity = rotationsPerSecond;
+
+        double rotationsPerSecondPerSecond = (ArmConstants.CarriageAcceleration
+                * ArmConstants.RotationsPerCarriageInch) / 0.25;
+        motionMagicConfigs.MotionMagicAcceleration = rotationsPerSecondPerSecond;
+
+        // motionMagicConfigs.MotionMagicJerk = ShooterMountConstants.ElevatorMMJerk;
+        motionMagicConfigs.MotionMagicJerk = rotationsPerSecondPerSecond / 0.1;
+
+        applyMotorConfigs(motor, motorName, talonConfigs, inversion);
+    }
+
+
 
     private void applyMotorConfigs(TalonFX motor, String motorName, TalonFXConfiguration configs,
             InvertedValue inversion) {
