@@ -501,9 +501,23 @@ public class Arm extends SubsystemBase {
 
         if ((getCarriageHeightInches() <= 0
                 && carriageMotor.getVelocity().getValueAsDouble() < 0) ||
-                (getCarriageHeightInches() == ArmConstants.MaxCarriageHeight
+                (getCarriageHeightInches() >= ArmConstants.MaxCarriageHeight
                         && carriageMotor.getVelocity().getValueAsDouble() > 0)) {
             stopCarriageMotor();
+        }
+
+        if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle
+                && armMotor.getVelocity().getValueAsDouble() < 0) ||
+                (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle
+                        && armMotor.getVelocity().getValueAsDouble() > 0)) {
+            stopArmMotor();
+        }
+
+        if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle
+                && wristMotor.get() < 0) ||
+                (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle
+                        && wristMotor.get() > 0)) {
+            stopWristMotor();
         }
 
         // // Not sure if we need this
