@@ -39,19 +39,27 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
 import frc.robot.commands.ArmStateParameters;
@@ -82,6 +90,7 @@ public class Arm extends SubsystemBase {
     private final SparkMaxSim wristMotorSim;
     private final CANcoder wristEncoder;
     private final CANcoderSimState wristEncoderSim;
+    public final ProfiledPIDController wristPIDController;
     private final DCMotorSim wristMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
     TalonFX elevatorMotor;
@@ -89,6 +98,13 @@ public class Arm extends SubsystemBase {
     private final DCMotorSim elevatorMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
+
+    /*
+    DigitalInput elevatorHallEffect;
+    DIOSim elevatorHallEffectSim;
+    DigitalInput carriageHallEffect;
+    DIOSim carriageHallEffectSim;
+    */
 
     // CHANGE - also need to double check that this is fine with the Algae
     // high/low/position stuff
@@ -114,8 +130,8 @@ public class Arm extends SubsystemBase {
     private boolean simulationInitialized = false;
 
     public Arm(Vision visionSub, Drive driveSub, Gripper gripperSub) {
-        // bottomHallEffect = new DigitalInput(ElectronicsIDs.BottomHallEffectID);
-
+        /* elevatorHallEffect = new DigitalInput(ElectronicsIDs.ElevatorHallEffect);
+        carriageHallEffect = new DigitalInput(ElectronicsIDs.CarriageHallEffect); */
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
         armMotorSim = armMotor.getSimState();
         //armMotor.setPosition(0);
@@ -136,6 +152,12 @@ public class Arm extends SubsystemBase {
 
         applyAllConfigs();
 
+
+        wristPIDController = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(
+                ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
+        
+
+        wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
         this.driveSub = driveSub;
         this.visionSub = visionSub;
         this.gripperSub = gripperSub;
@@ -350,10 +372,9 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        // CHANGE for testing
-        // wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees),
-        // ControlType.kPosition);
-        wristMotor.set(0);
+        final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();   
+        final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
+        wristMotor.setVoltage(wristOutput);
     }
 
     public void setArmAngle(double desiredDegrees) {
@@ -492,6 +513,16 @@ public class Arm extends SubsystemBase {
         wristMotor.set(0);
     }
 
+    /*
+    public boolean carriageIsAtBottom() {
+        return !carriageHallEffect.get();
+    }
+
+    public boolean elevatorIsAtBottom() {
+        return !elevatorHallEffect.get();
+    }
+        */
+
     /** Makes sure we never go past our limits of motion */
     private void boundsCheck() {
         if ((getElevatorHeightInches() <= 0 && elevatorMotor.getVelocity().getValueAsDouble() < 0) ||
@@ -502,9 +533,23 @@ public class Arm extends SubsystemBase {
 
         if ((getCarriageHeightInches() <= 0
                 && carriageMotor.getVelocity().getValueAsDouble() < 0) ||
-                (getCarriageHeightInches() == ArmConstants.MaxCarriageHeight
+                (getCarriageHeightInches() >= ArmConstants.MaxCarriageHeight
                         && carriageMotor.getVelocity().getValueAsDouble() > 0)) {
             stopCarriageMotor();
+        }
+
+        if ((getArmEncoderDegrees() <= ArmConstants.MinArmAngle
+                && armMotor.getVelocity().getValueAsDouble() < 0) ||
+                (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle
+                        && armMotor.getVelocity().getValueAsDouble() > 0)) {
+            stopArmMotor();
+        }
+
+        if ((getWristEncoderDegrees() <= ArmConstants.MinWristAngle
+                && wristMotor.get() < 0) ||
+                (getWristEncoderDegrees() >= ArmConstants.MaxWristAngle
+                        && wristMotor.get() > 0)) {
+            stopWristMotor();
         }
 
         // // Not sure if we need this
@@ -835,6 +880,10 @@ public class Arm extends SubsystemBase {
 
         double wristEncoderAngle = Units.degreesToRotations(desiredWristAngle);
         wristEncoderSim.setRawPosition(wristEncoderAngle);
+
+        /* 
+        elevatorHallEffectSim = new DIOSim(elevatorHallEffect);
+        carriageHallEffectSim = new DIOSim(carriageHallEffect); */
     }
 
     @Override
@@ -893,6 +942,20 @@ public class Arm extends SubsystemBase {
         wristMotorSim.iterate(wristMotorModel.getAngularVelocityRPM(), RobotController.getBatteryVoltage(), 0.02);
         wristEncoderSim.setVelocity(wristMotorModel.getAngularVelocityRadPerSec());
         wristEncoderSim.setRawPosition(wristMotorModel.getAngularPositionRotations());
+    
+        /* 
+        if (desiredElevatorHeight == ArmConstants.MaxElevatorHeight && isWithinElevatorHeightTolerance()) {
+            elevatorHallEffectSim.setValue(false);
+        } else {
+            elevatorHallEffectSim.setValue(true);
+        }
+
+        if (desiredCarriageHeight == ArmConstants.MaxCarriageHeight && isWithinCarriageHeightTolerance()) {
+            carriageHallEffectSim.setValue(false);
+        } else {
+            carriageHallEffectSim.setValue(true);
+        }
+        */
     }
 }
 

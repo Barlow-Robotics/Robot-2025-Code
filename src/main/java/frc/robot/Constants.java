@@ -124,6 +124,8 @@ public class Constants {
         public static final int CarriageMotorID = 45;
         public static final int WristEncoderID = 46;
         public static final int ArmEncoderID = 47;
+        public static final int ElevatorHallEffect = 48;
+        public static final int CarriageHallEffect = 49;
 
         /************************** ALGAE INTAKE ****************************/
         public static final int LiftMotorID = 51;
@@ -328,6 +330,10 @@ public class Constants {
         public static TuneableParameter WristFF = new TuneableParameter(WristFF2, 0, 3, true, "TuneableParameter/Arm/PID/WrisFFP");
         public static final double WristIZone2 =/*testing*/0; // 0.15; // CHANGE
         public static TuneableParameter WristIZone = new TuneableParameter(WristIZone2, 0, 3, true, "TuneableParameter/Arm/PID/WristIZone");
+
+
+        public static final double WristMaxAngularVelocity = 2 * Math.PI;
+        public static final double WristMaxAngularAcceleration = 8 * Math.PI;
 
 
 
