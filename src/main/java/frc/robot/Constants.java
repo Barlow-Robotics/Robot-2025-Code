@@ -310,6 +310,10 @@ public class Constants {
         public static final double WristFF =/*testing*/0; // 0.0; // CHANGE
         public static final double WristIZone =/*testing*/0; // 0.15; // CHANGE
 
+        public static final double WristMaxAngularVelocity = 2 * Math.PI;
+        public static final double WristMaxAngularAcceleration = 8 * Math.PI;
+
+
 
         /* TOLERANCES */
 

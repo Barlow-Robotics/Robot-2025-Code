@@ -36,10 +36,15 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -47,6 +52,7 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
 import frc.robot.commands.ArmStateParameters;
@@ -77,6 +83,7 @@ public class Arm extends SubsystemBase {
     private final SparkMaxSim wristMotorSim;
     private final CANcoder wristEncoder;
     private final CANcoderSimState wristEncoderSim;
+    public final ProfiledPIDController wristPIDController;
     private final DCMotorSim wristMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
     TalonFX elevatorMotor;
@@ -138,8 +145,14 @@ public class Arm extends SubsystemBase {
                 .pidf(ArmConstants.WristKP, ArmConstants.WristKI, ArmConstants.WristKD, ArmConstants.WristFF)
                 .iZone(ArmConstants.WristIZone)
                 .outputRange(-1, 1);
-        wristMotor.configure(wristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        wristMotor.configure(wristMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
+
+        wristPIDController = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(
+                ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
+        
+
+        wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
         this.driveSub = driveSub;
         this.visionSub = visionSub;
         this.gripperSub = gripperSub;
@@ -287,8 +300,9 @@ public class Arm extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        wristMotor.getClosedLoopController().setReference(desiredDegrees / ArmConstants.WristAngleDegreesPerMotorRotation, //Units.degreesToRotations(desiredDegrees),
-                ControlType.kPosition);
+        final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();   
+        final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
+        wristMotor.setVoltage(wristOutput);
     }
 
     public void setArmAngle(double desiredDegrees) {
