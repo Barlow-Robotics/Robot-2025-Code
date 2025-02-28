@@ -40,9 +40,9 @@ public class Gripper extends SubsystemBase {
   private boolean firstRelease = false;
   private int timerCount = 0;
   public enum GripperState {
-    carryingCoral, placingCoral, releasingL1, takingInCoral, finishedReleasingL1
+    CarryingCoral, PlacingCoral, ReleasingL1, TakingInCoral, FinishedReleasingL1
   }
-  GripperState gripperState = GripperState.carryingCoral;
+  GripperState gripperState = GripperState.CarryingCoral;
   /** Creates a new Coral. */
   public Gripper() {
     gripperMotor = new SparkMax(ElectronicsIDs.GripperMotorID, MotorType.kBrushless);
@@ -63,25 +63,25 @@ public class Gripper extends SubsystemBase {
   @Override
   public void periodic() {
     if (detectedCoral()) {
-      gripperState = GripperState.carryingCoral;
+      gripperState = GripperState.CarryingCoral;
     }
-    else if (gripperState == GripperState.carryingCoral) {
+    else if (gripperState == GripperState.CarryingCoral) {
       setBreakMode();
       firstRelease = true;
     }
-    else if (gripperState == GripperState.placingCoral) {
+    else if (gripperState == GripperState.PlacingCoral) {
       setCoastMode();
       firstRelease = true;
     }
-    else if (gripperState == GripperState.releasingL1 && firstRelease) {
+    else if (gripperState == GripperState.ReleasingL1 && firstRelease) {
       startEjecting();
       firstRelease = false;
       timerCount++;
     }
-    else if (gripperState == GripperState.releasingL1) {
+    else if (gripperState == GripperState.ReleasingL1) {
       timerCount++;
     }
-    else if (gripperState == GripperState.takingInCoral) {
+    else if (gripperState == GripperState.TakingInCoral) {
       firstRelease = true;
     }
     else {
@@ -92,7 +92,7 @@ public class Gripper extends SubsystemBase {
 
     if (timerCount == 30) {
       timerCount = 0;
-      gripperState = GripperState.finishedReleasingL1;
+      gripperState = GripperState.FinishedReleasingL1;
     }
   }
 
@@ -110,7 +110,7 @@ public class Gripper extends SubsystemBase {
 
   public void setVelocity(double speed) {
     gripperMotor.getClosedLoopController().setReference(speed, ControlType.kVelocity);
-    gripperState = GripperState.takingInCoral;
+    gripperState = GripperState.TakingInCoral;
     isEjecting = false;
   }
 

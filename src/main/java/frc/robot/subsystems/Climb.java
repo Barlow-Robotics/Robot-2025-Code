@@ -92,6 +92,7 @@ public class Climb extends SubsystemBase {
     public void windWinch() {
         // CHANGE: retract the servo here (to engage ratcheting)
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.WinchedAngle.get()));
+        request.EnableFOC = Constants.IsFocEnabled;
         winchMotor.setControl(request);
         desiredWinchAngle = ClimbConstants.WinchedAngle.get();
     }

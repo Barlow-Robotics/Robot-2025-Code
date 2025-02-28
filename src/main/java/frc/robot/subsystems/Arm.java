@@ -345,7 +345,7 @@ public class Arm extends SubsystemBase {
         if (desiredState == ArmState.PreLevel1 && isWithinArmAngleTolerance()) {
             setDesiredState(ArmState.Level1);
         }
-        if (desiredState == ArmState.LoadCoral && (gripperSub.getState() == GripperState.carryingCoral)) {
+        if (desiredState == ArmState.LoadCoral && (gripperSub.getState() == GripperState.CarryingCoral)) {
             setDesiredState(ArmState.PostLoadCoral);
         }
         if (desiredState == ArmState.PostLoadCoral && isWithinCarriageHeightTolerance()) {
@@ -382,6 +382,7 @@ public class Arm extends SubsystemBase {
 
     public void setArmAngle(double desiredDegrees) {
         MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
+        request.EnableFOC = Constants.IsFocEnabled;
         Logger.recordOutput("Arm/AngleFromSetArmAngle", Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
         // this.desiredArmAngle = desiredDegrees; // Why is this commented out
@@ -403,6 +404,7 @@ public class Arm extends SubsystemBase {
         double rotations = ((desiredInches /*- ArmConstants.StartingElevatorHeight*/))
                 * ArmConstants.RotationsPerElevatorInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
+        request.EnableFOC = Constants.IsFocEnabled;
         elevatorMotor.setControl(request.withSlot(0));
     }
 
@@ -410,6 +412,7 @@ public class Arm extends SubsystemBase {
         double rotations = ((desiredInches /*- ArmConstants.StartingCarriageHeight*/))
                 * ArmConstants.RotationsPerCarriageInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
+        request.EnableFOC = Constants.IsFocEnabled;
         carriageMotor.setControl(request.withSlot(0));
     }
 

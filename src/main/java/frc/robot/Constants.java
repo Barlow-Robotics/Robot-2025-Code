@@ -36,6 +36,8 @@ public class Constants {
 
     public static final double TalonFXResolution = 2048;
     public static final double CANcoderResolution = 4096;
+    
+    public static final boolean IsFocEnabled = true; //applies to all TalonFXs (except drive)
 
     /***************************************************************************/
     /***************************************************************************/

@@ -13,7 +13,7 @@ import frc.robot.subsystems.Gripper;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ScoreCoral extends Command {
 
-  private boolean currentlyDoingAState;
+  private boolean currentlyMoving;
   private boolean firstTime;
 
   private ArmState currentState; 
@@ -30,7 +30,7 @@ public class ScoreCoral extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    currentlyDoingAState = false;
+    currentlyMoving = false;
     firstTime = true;
   } 
 
@@ -38,9 +38,9 @@ public class ScoreCoral extends Command {
   @Override
   public void execute() {
     currentState = armSub.getArmState();
-    if (!currentlyDoingAState && firstTime) {
+    if (!currentlyMoving && firstTime) {
       if (currentState == ArmState.Level2 || currentState == ArmState.Level3 || currentState == ArmState.Level4) {
-        gripperSub.setState(GripperState.placingCoral);
+        gripperSub.setState(GripperState.PlacingCoral);
         if (currentState  == ArmState.Level2)
           armSub.setDesiredState(ArmState.ScoreLevel2);
         if (currentState  == ArmState.Level3)
@@ -49,28 +49,27 @@ public class ScoreCoral extends Command {
           armSub.setDesiredState(ArmState.ScoreLevel4);
 
 
-        currentlyDoingAState = true;
+        currentlyMoving = true;
         firstTime = false;
       }
       else if (currentState == ArmState.Level1) {
-        gripperSub.setState(GripperState.releasingL1);
-        currentlyDoingAState = true;
+        gripperSub.setState(GripperState.ReleasingL1);
+        currentlyMoving = true;
         firstTime = false;
       }
     }
 
-    if (currentState == ArmState.Level1 && gripperSub.getState() == GripperState.finishedReleasingL1) {
+    if (currentState == ArmState.Level1 && gripperSub.getState() == GripperState.FinishedReleasingL1) {
       armSub.setDesiredState(ArmState.SafeToLowerArm);
-      gripperSub.setState(GripperState.placingCoral);
-      currentlyDoingAState = true;
+      gripperSub.setState(GripperState.PlacingCoral);
+      currentlyMoving = true;
     }
 
-    if (armSub.hasCompletedMovement()) {
-      currentlyDoingAState = false;
-    }
-    if (currentState == ArmState.SafeToLowerArm && !firstTime && !currentlyDoingAState) {
-      // armSub.setDesiredState(ArmState.WaitingForCoral); // TO ADD LATER
-      currentlyDoingAState = true;
+    if (armSub.hasCompletedMovement()) currentlyMoving = false;
+    
+    if (currentState == ArmState.SafeToLowerArm && !firstTime && !currentlyMoving) {
+      // armSub.setDesiredState(ArmState.WaitingForCoral); // CHANGE: TO ADD LATER
+      currentlyMoving = true;
     }
       // Wait for it to complete. 
 
