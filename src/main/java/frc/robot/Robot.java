@@ -58,7 +58,7 @@ public class Robot extends LoggedRobot {
     /**********************************************/
 
   public Robot() {
-    robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer(this);
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
 
     if (isReal()) {
