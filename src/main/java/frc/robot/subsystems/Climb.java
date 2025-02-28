@@ -61,7 +61,6 @@ public class Climb extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Change this so that we can move back and forth between positions
         if (isLatchedOnCage()) {
             currentState = ClimbState.LatchedOnCage;
         }

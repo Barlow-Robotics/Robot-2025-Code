@@ -62,7 +62,6 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
-import frc.robot.RobotContainer;
 import frc.robot.commands.ArmStateParameters;
 import frc.robot.sim.PhysicsSim;
 import frc.robot.subsystems.Gripper.GripperState;
@@ -117,7 +116,6 @@ public class Arm extends SubsystemBase {
     private final Drive driveSub;
     private final Vision visionSub;
     private final Gripper gripperSub;
-    private final Robot robot;
 
     private ArmState actualState = ArmState.Startup;
     public ArmState desiredState = ArmState.Startup;
@@ -131,7 +129,7 @@ public class Arm extends SubsystemBase {
     public boolean targetIsVisible = false;
     private boolean simulationInitialized = false;
 
-    public Arm(Robot robot, Vision visionSub, Drive driveSub, Gripper gripperSub) {
+    public Arm(Vision visionSub, Drive driveSub, Gripper gripperSub) {
         /* elevatorHallEffect = new DigitalInput(ElectronicsIDs.ElevatorHallEffect);
         carriageHallEffect = new DigitalInput(ElectronicsIDs.CarriageHallEffect); */
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
@@ -165,7 +163,6 @@ public class Arm extends SubsystemBase {
         this.driveSub = driveSub;
         this.visionSub = visionSub;
         this.gripperSub = gripperSub;
-        this.robot = robot;
         initializePositionDictionary();
     }
 
@@ -334,9 +331,7 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (robot.isEnabled()) {
-            setDesiredAnglesAndHeights();
-        }
+        setDesiredAnglesAndHeights();
 
         if (isAtDesiredState()) {
             actualState = desiredState;
