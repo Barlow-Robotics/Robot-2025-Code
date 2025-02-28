@@ -18,6 +18,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.TalonFXSSimState;
 
@@ -66,7 +67,7 @@ public class AlgaeIntake extends SubsystemBase {
         liftMotor.setPosition(0);
 
         applyLiftMotorConfigs(InvertedValue.CounterClockwise_Positive);
-        applyIntakeMotorConfigs(InvertedValue.CounterClockwise_Positive);
+        applyIntakeMotorConfigs(InvertedValue.Clockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
     }
 
@@ -144,6 +145,8 @@ public class AlgaeIntake extends SubsystemBase {
         Logger.recordOutput("AlgaeIntake/LiftAngle/ProportionalOutput", liftMotor.getClosedLoopProportionalOutput().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/DerivativeOutput", liftMotor.getClosedLoopDerivativeOutput().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/IntegratedOutput", liftMotor.getClosedLoopIntegratedOutput().getValue());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/ClosedLoopFF", liftMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/ActualVoltage", liftMotor.getMotorVoltage().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/SupplyCurrent", liftMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/RPSActual", liftMotor.getVelocity().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/AccelerationActual", liftMotor.getAcceleration().getValue());
@@ -188,6 +191,9 @@ public class AlgaeIntake extends SubsystemBase {
 
     private void applyIntakeMotorConfigs(InvertedValue inversion) {
         TalonFXSConfiguration talonConfigs = new TalonFXSConfiguration();
+
+        talonConfigs.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST ;
+
         talonConfigs.Slot0.kS = AlgaeConstants.IntakeKS.get();
         talonConfigs.Slot0.kV = AlgaeConstants.IntakeFF.get();
         talonConfigs.Slot0.kA = AlgaeConstants.IntakeKA.get();

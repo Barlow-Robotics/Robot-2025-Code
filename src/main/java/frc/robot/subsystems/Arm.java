@@ -155,7 +155,7 @@ public class Arm extends SubsystemBase {
         carriageMotor.setPosition(0.0) ;
 
 
-        wristPIDController = new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(
+        wristPIDController = new ProfiledPIDController(5.0, 0, 0, new TrapezoidProfile.Constraints(
                 ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
         
 
@@ -168,9 +168,9 @@ public class Arm extends SubsystemBase {
 
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
-        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 0, 45, 0, 0));
-        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 0, 90, 0, -0.2));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 45, 0, 0));
+        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 0, -45, 0, 0));
+        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 20, -30, 90, 0.0));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 0, 60, 90, -0.1));
         positionDictionary.put(ArmState.Level3, new ArmStateParameters(0, 0, -30, 90, 0));
         positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(0, 0, 60, 90, -0.1));
@@ -352,7 +352,7 @@ public class Arm extends SubsystemBase {
             setDesiredState(ArmState.Running);
         }
 
-        boundsCheck();
+        // boundsCheck();
 
         boundsCheck();
 
@@ -376,6 +376,7 @@ public class Arm extends SubsystemBase {
     public void setWristAngle(double desiredDegrees) {
         final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();   
         final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
+        Logger.recordOutput("Arm/WristAngle/PIDOutput", wristOutput);
         wristMotor.setVoltage(wristOutput);
     }
 
@@ -549,7 +550,7 @@ public class Arm extends SubsystemBase {
                 && !isWithinArmAngleTolerance()) ||
                 (getArmEncoderDegrees() >= ArmConstants.MaxArmAngle
                 && armMotor.getVelocity().getValueAsDouble() > 0
-                && !isWithinArmAngleTolerance())) {
+                && !isWithinArmAngleTolerance())) { 
             stopArmMotor();
         }
 
