@@ -155,8 +155,11 @@ public class Arm extends SubsystemBase {
         carriageMotor.setPosition(0.0) ;
 
 
-        wristPIDController = new ProfiledPIDController(5.0, 0, 0, new TrapezoidProfile.Constraints(
+        wristPIDController = new ProfiledPIDController(5.0, 0.001, 0.2, new TrapezoidProfile.Constraints(
                 ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
+        wristPIDController.setIZone(Units.degreesToRotations(6.0));
+        wristPIDController.setIntegratorRange(-0.5, 0.5) ;
+        wristPIDController.setTolerance(Units.degreesToRotations(1.0));
         
 
         wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
@@ -168,22 +171,22 @@ public class Arm extends SubsystemBase {
 
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
-        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 0, -45, 0, 0));
+        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 20, -30, 0, 0));
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 20, -30, 90, 0.0));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 0, 90, 0, 0));
-        positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 0, 60, 90, -0.1));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(0, 0, -30, 90, 0));
-        positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(0, 0, 60, 90, -0.1));
-        positionDictionary.put(ArmState.Level4, new ArmStateParameters(0, 0, 60, 90, 0));
-        positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(0, 0, 60, 90, -0.1));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 45, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 12.163, 10, 0, -0.1));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(7.764, 20, 60, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(5.664, 20, 60, 0, -0.1));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(20, 20, 60, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(25.664, 24.5, 60, 0, -0.1));
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, -60, 90, 0));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 0, -75, 90, 0.5));
         positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 0, -75, 90, 0));
         positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 90, 0, 0));
-        positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 90, 0));
+        positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 0, -30, 0, -0.2));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(0, 0, 60, 0, -0.5));
-        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 0, 0));
+        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 90, 0, 0));
     }
 
     private void realInitializePositionDictionary() {
@@ -320,8 +323,8 @@ public class Arm extends SubsystemBase {
         desiredGripperVelocity = val.getGripperVelocity();
         setArmAngle(desiredArmAngle);
         setWristAngle(desiredWristAngle);
-        setElevatorHeightInches(desiredElevatorHeight);
         setCarriageHeightInches(desiredCarriageHeight);
+        setElevatorHeightInches(desiredElevatorHeight);
     }
 
     public boolean hasCompletedMovement() {
@@ -602,6 +605,13 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/WristAngle/DegreesDesired", desiredWristAngle);
         Logger.recordOutput("Arm/WristAngle/DegreesCANcoder", getWristEncoderDegrees());
         Logger.recordOutput("Arm/WristAngle/RotationsCANcoder", wristEncoder.getAbsolutePosition().getValue());
+        Logger.recordOutput("Arm/WristAngle/PositionError", wristPIDController.getPositionError());
+        Logger.recordOutput("Arm/WristAngle/VelocityError", wristPIDController.getVelocityError());
+        Logger.recordOutput("Arm/WristAngle/AccumulatedError", wristPIDController.getAccumulatedError());
+        Logger.recordOutput("Arm/WristAngle/SetPointPosition", wristPIDController.getSetpoint().position);
+        Logger.recordOutput("Arm/WristAngle/SetPointPosition", wristPIDController.getGoal().position);
+
+        
         // Logger.recordOutput("Arm/WristAngle/VoltageActual",
         // wristMotor.getEncoder().getVelocity());
         // Logger.recordOutput("Arm/WristAngle/RPSActual",
@@ -679,7 +689,7 @@ public class Arm extends SubsystemBase {
         Logger.recordOutput("Arm/Carriage/StatorCurrent", carriageMotor.getStatorCurrent().getValue());
         Logger.recordOutput("Arm/Carriage/ClosedLoopOutput", carriageMotor.getClosedLoopOutput().getValue());
         Logger.recordOutput("Arm/Carriage/ClosedLoopFF", carriageMotor.getClosedLoopFeedForward().getValue());
-        Logger.recordOutput("Arm/Carriage/ClosedLoopReference", carriageMotor.getClosedLoopReference().getValue());
+        Logger.recordOutput("Arm/Carriage/ClosedLoopReference", carriageMotor.getClosedLoopReference().getValue()/ ArmConstants.RotationsPerCarriageInch);
         Logger.recordOutput("Arm/Carriage/MotionMagicIsRunning", carriageMotor.getMotionMagicIsRunning().getValue());
 
     }
@@ -692,7 +702,7 @@ public class Arm extends SubsystemBase {
         applyWristEncoderConfigs();
         applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.Clockwise_Positive);
         applyCarriageMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
-        setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake, NeutralModeValue.Coast);
+        setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake, NeutralModeValue.Brake);
 
         /* CHANGE (this was commented out durring testing) */
         // wristMotorConfig.closedLoop

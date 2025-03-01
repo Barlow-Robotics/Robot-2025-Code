@@ -264,20 +264,20 @@ public class Constants {
         public static final double ArmAngleGearRatio = 86.4;
         public static final double ArmAngleDegreesPerMotorRotation = 360.0 / ArmAngleGearRatio;
 
-        public static final double ArmAngleKP2 =/*testing*/ 5.0; // 32; // CHANGE
+        public static final double ArmAngleKP2 =/*testing*/ 12.0; // 32; // CHANGE
         public static TuneableParameter ArmAngleKP = new TuneableParameter(ArmAngleKP2, 0, 50, true, "TuneableParameter/Arm/PID/ArmAngleKP");
         public static final double ArmAngleKI2 =/*testing*/0; // 0.1; // CHANGE
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleKV2 = 8.0; // CHANGE
+        public static final double ArmAngleKV2 = 10.0; // CHANGE
         public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleKV2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
         public static final double ArmAngleKG2 = 0.25;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         public static final double ArmAngleKS2 = 0.14;
         public static TuneableParameter ArmAngleKS = new TuneableParameter(ArmAngleKS2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         
-        public static final double ArmAngleCruiseSpeed = /*testing*/ 110.0/360.0; // .1; // RPS - CHANGE
+        public static final double ArmAngleCruiseSpeed = /*testing*/ 180.0/360.0; // .1; // RPS - CHANGE
         public static final double ArmAngleAcceleration = /*testing*/ ArmAngleCruiseSpeed * 4.0; // 12; // CHANGE
         public static final double ArmAngleJerk = /*testing*/ ArmAngleAcceleration * 4.0; // 40; // CHANGE
         
@@ -290,7 +290,7 @@ public class Constants {
         public static TuneableParameter ElevatorKI = new TuneableParameter(ElevatorKI2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
         public static final double ElevatorKD2 =/*testing*/0.3; // 0.2; // CHANGE
         public static TuneableParameter ElevatorKD = new TuneableParameter(ElevatorKD2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
-        public static final double ElevatorKV2 =/*testing*/0.25; // 0.0; // CHANGE
+        public static final double ElevatorKV2 =/*testing*/0.26; // 0.0; // CHANGE
         public static TuneableParameter ElevatorKV = new TuneableParameter(ElevatorKV2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
         public static final double ElevatorKG2 =/*testing*/0.2; // 2.7; // CHANGE
         public static TuneableParameter ElevatorKG = new TuneableParameter(ElevatorKG2, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
@@ -304,21 +304,21 @@ public class Constants {
 
         public static final double ElevatorMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / ElevatorGearRatio
                 * ElevatorSprocketCircumference;
-        public static final double ElevatorCruiseVelocity = 10; // CHANGE
-        public static final double ElevatorAcceleration = 4*ElevatorCruiseVelocity ; // CHANGE
+        public static final double ElevatorCruiseVelocity = 20.0; // CHANGE
+        public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE
         public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
 
 
-        public static final double CarriageKP =/*testing*/0.6; // 32; // CHANGE
+        public static final double CarriageKP =/*testing*/0.5; // 32; // CHANGE
         public static TuneableParameter CarriageKPTP = new TuneableParameter(CarriageKP, 0, 50, true, "TuneableParameter/Arm/PID/ElevatorKP");
         public static final double CarriageKI =/*testing*/0; // 0.1; // CHANGE
         public static TuneableParameter CarriageKITP = new TuneableParameter(CarriageKI, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
-        public static final double CarriageKD =/*testing*/0.25; // 0.2; // CHANGE
+        public static final double CarriageKD =/*testing*/0.30; // 0.2; // CHANGE
         public static TuneableParameter CarriageKDTP = new TuneableParameter(CarriageKD, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
-        public static final double CarriageKV =/*testing*/0.35; // 0.0; // CHANGE
+        public static final double CarriageKV =/*testing*/0.11; // 0.0; // CHANGE
         public static TuneableParameter CarriageKVTP = new TuneableParameter(CarriageKV, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
-        public static final double CarriageKG =/*testing*/0.2; // 2.7; // CHANGE
+        public static final double CarriageKG =/*testing*/0.1; // 2.7; // CHANGE
         public static TuneableParameter CarriageKGTP = new TuneableParameter(CarriageKG, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
         public static final double CarriageKS =/*testing*/0.08; // 0; // CHANGE
         public static TuneableParameter CarriageKSTP = new TuneableParameter(CarriageKS, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
@@ -331,7 +331,7 @@ public class Constants {
         
         public static final double CarriageMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / CarriageGearRatio
                 * CarriageSprocketCircumference;
-        public static final double CarriageCruiseVelocity = 8.0; // CHANGE In inches per second
+        public static final double CarriageCruiseVelocity = 20.0; // CHANGE In inches per second
         public static final double CarriageAcceleration = 4 * CarriageCruiseVelocity ; // CHANGE In inches per second per second
         public static final double CarriageJerk = 5 * CarriageAcceleration ; // CHANGE - In Inches/s/s
 
@@ -358,17 +358,17 @@ public class Constants {
         public static TuneableParameter WristIZone = new TuneableParameter(WristIZone2, 0, 3, true, "TuneableParameter/Arm/PID/WristIZone");
 
 
-        public static final double WristMaxAngularVelocity = 2 * Math.PI;
-        public static final double WristMaxAngularAcceleration = 8 * Math.PI;
+        public static final double WristMaxAngularVelocity = 0.5 * Math.PI;
+        public static final double WristMaxAngularAcceleration = 4 * WristMaxAngularVelocity;
 
 
 
         /* TOLERANCES */
 
-        public static final double WristAngleTolerance = 1.5; // CHANGE
+        public static final double WristAngleTolerance = 20.0; // CHANGE wpk need to fix this after gains tuned
         public static final double ArmAngleTolerance = 3.5; // CHANGE
-        public static final double ElevatorHeightTolerance = 0.25;// CHANGE
-        public static final double CarriageHeightTolerance = 0.25;// CHANGE
+        public static final double ElevatorHeightTolerance = 0.5;// CHANGE
+        public static final double CarriageHeightTolerance = 0.5;// CHANGE
 
      /* public static final double Level1ArmAngle = 10; // CHANGE
         public static final double Level2ArmAngle = 20; // CHANGE
@@ -456,19 +456,20 @@ public class Constants {
         public static final double GripperKP2 =/*testing*/0; // 32; // CHANGE
         public static TuneableParameter GripperKP = new TuneableParameter(GripperKP2, 0, 1, true, "TuneableParameter/Gripper/PID/GripperKP");
         public static final double GripperKI2 =/*testing*/0; // 0.001; // CHANGE
-        public static TuneableParameter GripperKI = new TuneableParameter(GripperKI2, 0, 1, true, "TuneableParameter/Gripper/PID/GripperKI");
+        public static TuneableParameter GripperKI = new TuneableParameter(GripperKI2, 0, 100, true, "TuneableParameter/Gripper/PID/GripperKI");
         public static final double GripperKD2 =/*testing*/0; // 0; // CHANGE
-        public static TuneableParameter GripperKD = new TuneableParameter(GripperKD2, 0, 1, true, "TuneableParameter/Gripper/PID/GripperKD");
-        public static final double GripperFF2 =/*testing*/0; // 0; // CHANGE
-        public static TuneableParameter GripperFF = new TuneableParameter(GripperFF2, 0, 1, true, "TuneableParameter/Gripper/PID/GripperFF");
+        public static TuneableParameter GripperKD = new TuneableParameter(GripperKD2, 0, 100, true, "TuneableParameter/Gripper/PID/GripperKD");
+        public static final double GripperFF2 =/*testing*/1; // 0; // CHANGE
+        public static TuneableParameter GripperFF = new TuneableParameter(GripperFF2, 0, 100, true, "TuneableParameter/Gripper/PID/GripperFF");
         public static final double GripperIZone2 =/*testing*/0; // 0.15; // CHANGE
         public static TuneableParameter GripperIZone = new TuneableParameter(GripperIZone2, 0, 1, true, "TuneableParameter/Gripper/PID/GripperIZone2");
 
         public static final double IntakeSpeed2 = 1; // CHANGE
         public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 0, 1.5, true, "TuneableParameter/Gripper/IntakeSpeed");
 
-        public static final double EjectSpeed2 = -1; // CHANGE
-        public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, 0, 1.5, true, "TuneableParameter/Gripper/EjectSpeed");
+        public static final double GearRatio = 12.0 ;
+        public static final double EjectSpeed2 = -3 * GearRatio; // CHANGE
+        public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, 0, 1000, true, "TuneableParameter/Gripper/EjectSpeed");
 
 
         public static final double currentOfIntakedCoral2 = 2000000; // Change with testing. 
@@ -476,14 +477,14 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double LiftKP2 =/*testing*/0; // 0.04; // CHANGE
+        public static final double LiftKP2 =/*testing*/3.0; // 0.04; // CHANGE
         public static TuneableParameter LiftKP = new TuneableParameter(LiftKP2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKP");
         public static final double LiftKI2 =/*testing*/0; // 0.06; // CHANGE
         public static TuneableParameter LiftKI = new TuneableParameter(LiftKI2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKI");
-        public static final double LiftKD2 =/*testing*/0; // 0; // CHANGE
+        public static final double LiftKD2 =/*testing*/0.5; // 0; // CHANGE
         public static TuneableParameter LiftKD = new TuneableParameter(LiftKD2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKD");
-        public static final double LiftFF2 =/*testing*/2; // 0.13; // CHANGE
-        public static TuneableParameter LiftFF = new TuneableParameter(LiftFF2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftFF");
+        public static final double LiftKV2 =/*testing*/4.0; // 0.13; // CHANGE
+        public static TuneableParameter LiftKV = new TuneableParameter(LiftKV2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftFF");
         public static final double LiftKG2 =/*testing*/0; // 0; // CHANGE
         public static TuneableParameter LiftKG = new TuneableParameter(LiftKG2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKG");
 
@@ -492,8 +493,8 @@ public class Constants {
         public static final double IntakeKS2 = 0; // CHANGE
         public static TuneableParameter IntakeKS = new TuneableParameter(IntakeKS2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeKS");
 
-        public static final double IntakeFF2 =/*testing*/1.0; // 0.13; // CHANGE
-        public static TuneableParameter IntakeFF = new TuneableParameter(IntakeFF2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeFF");
+        public static final double IntakeKV2 =/*testing*/2.0; // 0.13; // CHANGE
+        public static TuneableParameter IntakeKV = new TuneableParameter(IntakeKV2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeFF");
         public static final double IntakeKA2 = 0; // CHANGE
         public static TuneableParameter IntakeKA = new TuneableParameter(IntakeKA2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeKA");
         public static final double IntakeKP2 = 0; // CHANGE
@@ -510,20 +511,22 @@ public class Constants {
         public static final double EjectSpeed2 = -2; // CHANGE
         public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, -5, 0, true, "TuneableParameter/AlgaeIntake/EjectSpeed");
 
-        public static final double LiftAcceleration = 12; // CHANGE
-        public static final double LiftJerk = 40; // CHANGE
-        public static final double LiftCruiseRotationsPerSec = 3; // CHANGE
+        public static final double LiftCruiseRotationsPerSec = 0.5; // CHANGE
+        public static final double LiftAcceleration = 2*LiftCruiseRotationsPerSec ; // CHANGE
+        public static final double LiftJerk = 4*LiftAcceleration; // CHANGE
         
         public static final double IntakeAcceleration = 400; // CHANGE
         public static final double IntakeJerk = 4000; // CHANGE
         public static final double LiftAngleTolerance = 3.5;
         public static final double SupplyCurrentLimit = 30; // CHANGE
 
-        public static final double deployedAngle2 = 60; 
-        public static final double restedAngle2 = 0; 
+        public static final double restedAngle2 = -8 ; 
+        public static final double deployedAngle2 = 56 + restedAngle2; 
+
+        public static final double LiftGearRatio = 60.0/ 14.0 ;
 
         public static TuneableParameter deployedAngle = new TuneableParameter(deployedAngle2, 0, 180, true, "TuneableParameter/AlgaeIntake/DeployedAngle"); //CHANGE
-        public static TuneableParameter restedAngle = new TuneableParameter(restedAngle2, 0 ,180, true, "TuneableParameter/AlgaeIntake/RestedAngle");
+        public static TuneableParameter restedAngle = new TuneableParameter(restedAngle2,  -180,180, true, "TuneableParameter/AlgaeIntake/RestedAngle");
     }
 
     public static final class AutoConstants {

@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.*;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -51,10 +52,11 @@ public class AlgaeIntake extends SubsystemBase {
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1)); // DCMotor doesn't have a minion config - tune on real bot
 
-    private double desiredLiftAngle = 0;
+    private double desiredLiftAngle = Constants.AlgaeConstants.restedAngle2 ;
     private double desiredIntakeSpeed = 0;
 
     private boolean simulationInitialized = false;
+
 
     public AlgaeIntake() {
 
@@ -64,37 +66,43 @@ public class AlgaeIntake extends SubsystemBase {
         liftMotorSim = liftMotor.getSimState();
         intakeMotorSim = intakeMotor.getSimState();
         
-        liftMotor.setPosition(0);
+        liftMotor.setPosition(Constants.AlgaeConstants.LiftGearRatio *Units.degreesToRotations(Constants.AlgaeConstants.restedAngle2));
 
-        applyLiftMotorConfigs(InvertedValue.CounterClockwise_Positive);
+        applyLiftMotorConfigs(InvertedValue.Clockwise_Positive);
         applyIntakeMotorConfigs(InvertedValue.Clockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
     }
 
     public void deploy() {
-        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.deployedAngle.get()));
+        // final double targetLiftRotations = Units.degreesToRotations(AlgaeConstants.deployedAngle2) * Constants.AlgaeConstants.LiftGearRatio ;
+        // final MotionMagicVoltage liftRequest = new MotionMagicVoltage(targetLiftRotations);
+        // liftMotor.setControl(liftRequest);
+
         final VelocityVoltage intakeRequest = new VelocityVoltage(0);
         intakeMotor.setControl(intakeRequest.withVelocity(AlgaeConstants.IntakeSpeed.get()));
-        liftMotor.setControl(liftRequest);
-        desiredLiftAngle = AlgaeConstants.deployedAngle.get();
-        desiredIntakeSpeed = AlgaeConstants.IntakeSpeed.get();
+
+        desiredLiftAngle = AlgaeConstants.deployedAngle2;
+        desiredIntakeSpeed = AlgaeConstants.IntakeSpeed2;
     }
     
     public void retract() {
-        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.restedAngle.get()));
+        // final double targetLiftRotations = Units.degreesToRotations(AlgaeConstants.restedAngle2) * Constants.AlgaeConstants.LiftGearRatio ;
+        // final MotionMagicVoltage liftRequest = new MotionMagicVoltage(targetLiftRotations);
+        // liftMotor.setControl(liftRequest);
+
         final VelocityVoltage intakeRequest = new VelocityVoltage(0);
-        liftMotor.setControl(liftRequest);
         intakeMotor.setControl(intakeRequest.withVelocity(0));
-        desiredLiftAngle = AlgaeConstants.restedAngle.get();
+        desiredLiftAngle = AlgaeConstants.restedAngle2;
         desiredIntakeSpeed = 0;
     }
     
     public void eject() {
-        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.restedAngle.get()));
+        // final MotionMagicVoltage liftRequest = new MotionMagicVoltage(Units.degreesToRotations(AlgaeConstants.restedAngle2));
+        // liftMotor.setControl(liftRequest);
+
         final VelocityVoltage intakeRequest = new VelocityVoltage(0);
         intakeMotor.setControl(intakeRequest.withVelocity(AlgaeConstants.EjectSpeed.get()));
-        liftMotor.setControl(liftRequest);
-        desiredLiftAngle = AlgaeConstants.restedAngle.get();
+        desiredLiftAngle = AlgaeConstants.restedAngle2;
         desiredIntakeSpeed = AlgaeConstants.EjectSpeed.get();
     }
 
@@ -103,7 +111,7 @@ public class AlgaeIntake extends SubsystemBase {
     }
 
     public double getLiftTalonEncoderDegrees() {
-        return liftMotor.getPosition().getValue().in(Degrees);
+        return liftMotor.getPosition().getValue().in(Degrees) / Constants.AlgaeConstants.LiftGearRatio;
     }
 
     public double getIntakeTalonEncoderSpeed() {
@@ -131,6 +139,11 @@ public class AlgaeIntake extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        final double targetLiftRotations = Units.degreesToRotations(desiredLiftAngle) * Constants.AlgaeConstants.LiftGearRatio ;
+        final MotionMagicVoltage liftRequest = new MotionMagicVoltage(targetLiftRotations);
+        liftMotor.setControl(liftRequest);
+
         logData();
         /* if(!isDeployed()) {
             stopIntakeMotor();
@@ -140,13 +153,15 @@ public class AlgaeIntake extends SubsystemBase {
     private void logData() {
         Logger.recordOutput("AlgaeIntake/LiftAngle/DegreesDesired", desiredLiftAngle);
         Logger.recordOutput("AlgaeIntake/LiftAngle/DegreesTalon", getLiftTalonEncoderDegrees());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/RotationsTalon",liftMotor.getPosition().getValue().in(Rotations)) ;
         Logger.recordOutput("AlgaeIntake/LiftAngle/VoltageActual", liftMotor.getMotorVoltage().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/ClosedLoopError", liftMotor.getClosedLoopError().getValue());
+        Logger.recordOutput("AlgaeIntake/LiftAngle/ClosedLoopReference", 
+                liftMotor.getClosedLoopReference().getValue() );
         Logger.recordOutput("AlgaeIntake/LiftAngle/ProportionalOutput", liftMotor.getClosedLoopProportionalOutput().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/DerivativeOutput", liftMotor.getClosedLoopDerivativeOutput().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/IntegratedOutput", liftMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/ClosedLoopFF", liftMotor.getClosedLoopError().getValue());
-        Logger.recordOutput("AlgaeIntake/LiftAngle/ActualVoltage", liftMotor.getMotorVoltage().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/SupplyCurrent", liftMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/RPSActual", liftMotor.getVelocity().getValue());
         Logger.recordOutput("AlgaeIntake/LiftAngle/AccelerationActual", liftMotor.getAcceleration().getValue());
@@ -174,11 +189,14 @@ public class AlgaeIntake extends SubsystemBase {
 
     private void applyLiftMotorConfigs(InvertedValue inversion) {
         TalonFXSConfiguration talonConfigs = new TalonFXSConfiguration();
-        talonConfigs.Slot0.kP = AlgaeConstants.LiftKP.get();
-        talonConfigs.Slot0.kI = AlgaeConstants.LiftKI.get();
-        talonConfigs.Slot0.kD = AlgaeConstants.LiftKD.get();
-        talonConfigs.Slot0.kV = AlgaeConstants.LiftFF.get();
-        talonConfigs.Slot0.kG = AlgaeConstants.LiftKG.get();
+
+        talonConfigs.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST ;
+
+        talonConfigs.Slot0.kP = AlgaeConstants.LiftKP2;
+        talonConfigs.Slot0.kI = AlgaeConstants.LiftKI2;
+        talonConfigs.Slot0.kD = AlgaeConstants.LiftKD2;
+        talonConfigs.Slot0.kV = AlgaeConstants.LiftKV2;
+        talonConfigs.Slot0.kG = AlgaeConstants.LiftKG2;
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
@@ -187,6 +205,8 @@ public class AlgaeIntake extends SubsystemBase {
         motionMagicConfigs.MotionMagicJerk = AlgaeConstants.LiftJerk;
 
         applyMotorConfigs(liftMotor, "liftMotor", talonConfigs, inversion);
+        liftMotor.setNeutralMode(NeutralModeValue.Brake) ;
+        //liftMotor.setPosition(null)
     }
 
     private void applyIntakeMotorConfigs(InvertedValue inversion) {
@@ -195,7 +215,7 @@ public class AlgaeIntake extends SubsystemBase {
         talonConfigs.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST ;
 
         talonConfigs.Slot0.kS = AlgaeConstants.IntakeKS.get();
-        talonConfigs.Slot0.kV = AlgaeConstants.IntakeFF.get();
+        talonConfigs.Slot0.kV = AlgaeConstants.IntakeKV.get();
         talonConfigs.Slot0.kA = AlgaeConstants.IntakeKA.get();
         talonConfigs.Slot0.kP = AlgaeConstants.IntakeKP.get();
         talonConfigs.Slot0.kI = AlgaeConstants.IntakeKI.get();

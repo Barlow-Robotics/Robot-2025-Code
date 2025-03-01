@@ -34,7 +34,7 @@ public class Gripper extends SubsystemBase {
   SparkMaxConfig gripperMotorConfigCoast;
   SparkMaxSim gripperMotorSim;
   DCMotorSim gripperMotorModel;
-  public final SparkClosedLoopController gripperPidController;
+  //public final SparkClosedLoopController gripperPidController;
   private boolean simulationInitialized = false;
   private boolean isEjecting;
   private boolean firstRelease = false;
@@ -49,10 +49,10 @@ public class Gripper extends SubsystemBase {
 
     gripperMotorSim = new SparkMaxSim(gripperMotor, DCMotor.getNeo550((1)));
     gripperMotorModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
-    gripperPidController = gripperMotor.getClosedLoopController();
+    //gripperPidController = gripperMotor.getClosedLoopController();
     gripperMotorConfigBrake = new SparkMaxConfig();
     gripperMotorConfigBrake.closedLoop
-            .pidf(GripperConstants.GripperKP.get(), GripperConstants.GripperKI.get(), GripperConstants.GripperKD.get(), GripperConstants.GripperFF.get())
+            .pidf(GripperConstants.GripperKP2, GripperConstants.GripperKI2, GripperConstants.GripperKD2, GripperConstants.GripperFF2)
             .iZone(GripperConstants.GripperIZone.get())
             .outputRange(-1, 1);
     gripperMotorConfigBrake.idleMode(IdleMode.kCoast);
@@ -105,7 +105,7 @@ public class Gripper extends SubsystemBase {
     gripperMotor.setVoltage(0);
   }
   public void setBreakMode() {
-    gripperMotor.setVoltage(0.5);
+    //gripperMotor.setVoltage(0.5);
   }
 
   public void setVelocity(double speed) {
@@ -130,7 +130,8 @@ public class Gripper extends SubsystemBase {
   }
 
   public void startEjecting() {
-    gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed.get(), ControlType.kVelocity);
+    gripperMotor.setVoltage(-3);
+    // gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed2, ControlType.kVelocity);
     isEjecting = true;
   }
   
@@ -143,12 +144,19 @@ public class Gripper extends SubsystemBase {
   }
  /* LOGGING */
   private void logData() {
-    Logger.recordOutput("Gripper/GripperMotor/DegreesCANcoder", getIntakeEncoderDegrees());
     Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
+    //Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor);
     Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
     Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
     Logger.recordOutput("Gripper/GripperMotor/StatorCurrent", gripperMotor.getOutputCurrent());
 
+    Logger.recordOutput("Gripper/GripperMotor/EjectSpeed", Constants.GripperConstants.EjectSpeed2);
+
+ 
+    //Logger.recordOutput("Gripper/GripperMotor/StatorCurrent", gripperMotor.getClosedLoopController());
+
+
+    Logger.recordOutput("Gripper/firstRelease", this.firstRelease);
     Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
     Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
     Logger.recordOutput("Gripper/GripperState", getState());

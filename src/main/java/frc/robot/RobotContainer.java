@@ -313,7 +313,8 @@ public class RobotContainer {
         /***************** ALGAE INTAKE *****************/
 
         intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
-        intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+//        intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+        intakeAlgaeButton.onTrue(intakeAlgaeCmd);
 
         ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.BackButton); // CHANGE
         ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
