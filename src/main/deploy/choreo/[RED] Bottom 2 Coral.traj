@@ -1,5 +1,5 @@
 {
- "name":"[TEST] Bottom 2 Coral",
+ "name":"[RED] Bottom 2 Coral",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -28,7 +28,8 @@
     {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":true},
     {"from":1, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":1, "to":3, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"13.83165361173451 m", "val":13.83165361173451}, "y":{"exp":"2.4570881575345993 m", "val":2.4570881575345993}, "r":{"exp":"0.7721264358316824 m", "val":0.7721264358316824}}}, "enabled":true},
-    {"from":3, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true}],
+    {"from":3, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":0, "to":4, "data":{"type":"MaxAcceleration", "props":{"max":{"exp":"6.83 m / s ^ 2", "val":6.83}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
@@ -126,5 +127,15 @@
     {"t":2.62834, "x":16.02829, "y":0.62435, "heading":2.19596, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0]
  },
- "events":[]
+ "events":[
+   {"name":"Marker", "from":{"target":0, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
+   {"name":"Marker", "from":{"target":1, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"startOuttake"}},
+       {"type":"named", "data":{"name":"setPositionHPS"}}]}}},
+   {"name":"Marker", "from":{"target":3, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"startIntake"}},
+       {"type":"named", "data":{"name":"setPositionCoral L1"}}]}}},
+   {"name":"Marker", "from":{"target":4, "targetTimestamp":null, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
+       {"type":"named", "data":{"name":"startOuttake"}}]}}}]
 }

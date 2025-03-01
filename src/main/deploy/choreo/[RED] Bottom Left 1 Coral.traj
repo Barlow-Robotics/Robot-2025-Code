@@ -1,5 +1,5 @@
 {
- "name":"[TEST] Bottom Left 1 Coral",
+ "name":"[RED] Bottom Left 1 Coral",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -22,7 +22,8 @@
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":true},
-    {"from":0, "to":2, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"11.190023181028664 m", "val":11.190023181028664}, "y":{"exp":"2.7176293432712555 m", "val":2.7176293432712555}, "r":{"exp":"0.5869615083748451 m", "val":0.5869615083748451}}}, "enabled":true}],
+    {"from":0, "to":2, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"11.190023181028664 m", "val":11.190023181028664}, "y":{"exp":"2.7176293432712555 m", "val":2.7176293432712555}, "r":{"exp":"0.5869615083748451 m", "val":0.5869615083748451}}}, "enabled":true},
+    {"from":0, "to":2, "data":{"type":"MaxAcceleration", "props":{"max":{"exp":"6.83 m / s ^ 2", "val":6.83}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
@@ -85,7 +86,7 @@
  },
  "events":[
    {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"setPositionL1"}}]}}},
+       {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
    {"name":"Marker", "from":{"target":2, "targetTimestamp":1.23543, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
        {"type":"named", "data":{"name":"startOuttake"}}]}}}]
 }

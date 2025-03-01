@@ -30,7 +30,8 @@
     {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":true},
     {"from":1, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":3, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":3, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"4.765152967069298 m", "val":4.765152967069298}, "y":{"exp":"3.050466326996684 m", "val":3.050466326996684}, "r":{"exp":"0.9527274921955341 m", "val":0.952727492195534}}}, "enabled":true}],
+    {"from":1, "to":3, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"4.765152967069298 m", "val":4.765152967069298}, "y":{"exp":"3.050466326996684 m", "val":3.050466326996684}, "r":{"exp":"0.9527274921955341 m", "val":0.952727492195534}}}, "enabled":true},
+    {"from":0, "to":4, "data":{"type":"MaxAcceleration", "props":{"max":{"exp":"6.83 m / s ^ 2", "val":6.83}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
