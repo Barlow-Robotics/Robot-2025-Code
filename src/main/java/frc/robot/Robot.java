@@ -10,7 +10,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -58,7 +57,7 @@ public class Robot extends LoggedRobot {
     /**********************************************/
 
   public Robot() {
-    robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer(this);
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
 
     if (isReal()) {

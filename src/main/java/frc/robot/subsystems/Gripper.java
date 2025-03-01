@@ -16,9 +16,7 @@ import frc.robot.Constants.ElectronicsIDs;
 
 import org.littletonrobotics.junction.Logger;
 
-// import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -34,7 +32,7 @@ public class Gripper extends SubsystemBase {
   SparkMaxConfig gripperMotorConfigCoast;
   SparkMaxSim gripperMotorSim;
   DCMotorSim gripperMotorModel;
-  //public final SparkClosedLoopController gripperPidController;
+  
   private boolean simulationInitialized = false;
   private boolean isEjecting;
   private boolean firstRelease = false;

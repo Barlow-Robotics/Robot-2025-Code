@@ -14,10 +14,8 @@ import java.util.HashMap;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
@@ -34,32 +32,23 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.sim.SparkMaxSim;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
 import frc.robot.commands.ArmStateParameters;
@@ -113,6 +102,7 @@ public class Arm extends SubsystemBase {
         Level4, ScoreLevel4, StartAlgaePosition, Running, SafeToLowerArm, FinishRemovingAlgae
     }
 
+    private final Robot robot;
     private final Drive driveSub;
     private final Vision visionSub;
     private final Gripper gripperSub;
@@ -129,7 +119,7 @@ public class Arm extends SubsystemBase {
     public boolean targetIsVisible = false;
     private boolean simulationInitialized = false;
 
-    public Arm(Vision visionSub, Drive driveSub, Gripper gripperSub) {
+    public Arm(Robot robot, Vision visionSub, Drive driveSub, Gripper gripperSub) {
         /* elevatorHallEffect = new DigitalInput(ElectronicsIDs.ElevatorHallEffect);
         carriageHallEffect = new DigitalInput(ElectronicsIDs.CarriageHallEffect); */
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
@@ -163,6 +153,8 @@ public class Arm extends SubsystemBase {
         
 
         wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
+
+        this.robot = robot;
         this.driveSub = driveSub;
         this.visionSub = visionSub;
         this.gripperSub = gripperSub;
@@ -334,7 +326,9 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
 
-        setDesiredAnglesAndHeights();
+        if (robot.isEnabled()) {
+            setDesiredAnglesAndHeights();
+        }
 
         if (isAtDesiredState()) {
             actualState = desiredState;

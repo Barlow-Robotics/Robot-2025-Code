@@ -16,14 +16,12 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
-// import com.pathplanner.lib.config.ReplanningConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -35,13 +33,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.DriveConstants;
 
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
-// import frc.robot.commands.DriveRobot;
 import frc.robot.commands.RunGripper;
 import frc.robot.commands.SetArmPosition;
 import frc.robot.commands.StartClimbing;
@@ -60,115 +56,136 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Vision;
 
 public class RobotContainer {
+/* SUBSYSTEMS */
+public Drive driveSub = TunerConstants.createDrivetrain();
+public Vision visionSub = new Vision(driveSub);
+public final Gripper gripperSub = new Gripper();
+public final Arm armSub;
+public final Climb climbSub = new Climb();
+public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
 
-    /* SUBSYSTEMS */
-    public Drive driveSub = TunerConstants.createDrivetrain();
-    public Vision visionSub = new Vision(driveSub);
-    public final Gripper gripperSub = new Gripper();
-    public final Arm armSub = new Arm(visionSub, driveSub, gripperSub);
-    public final Climb climbSub = new Climb();
-    public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
+/* COMMANDS */
+// private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub,
+// ArmState.Home);
+private final SetArmPosition setArmPosTravellingCmd;
+private final SetArmPosition setArmPosLoadCoralCmd;
+private final SetArmPosition setArmPosLevel4Cmd;
+private final SetArmPosition setArmPosLevel3Cmd;
+private final SetArmPosition setArmPosLevel2Cmd;
+private final SetArmPosition setArmPosLevel1Cmd;
 
-    /* COMMANDS */
-    // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub,
-    // ArmState.Home);
-    private final SetArmPosition setArmPosTravellingCmd = new SetArmPosition(armSub, ArmState.Running);
-    private final SetArmPosition setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
-    private final SetArmPosition setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
-    private final SetArmPosition setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
-    private final SetArmPosition setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
-    private final SetArmPosition setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
+            // CHANGE - need to make sure this is right
+private final SetArmPosition setArmPosAlgaeCmd;
+private final SetArmPosition setArmPosAlageEndCmd;
 
-                // CHANGE - need to make sure this is right
-    private final SetArmPosition setArmPosAlgaeCmd = new SetArmPosition(armSub, ArmState.StartAlgaePosition);
-    private final SetArmPosition setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
+private final EjectAlgae ejectAlgaeCmd;
+private final IntakeAlgae intakeAlgaeCmd;
+private final StopAlgaeIntake stopAlgaeIntakeCmd;
 
-    private final EjectAlgae ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
-    private final IntakeAlgae intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
-    private final StopAlgaeIntake stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
+private final RunGripper runGripperCmd;
+private final StopGripper stopGripperCmd;
 
-    private final RunGripper runGripperCmd = new RunGripper(gripperSub, armSub);
-    private final StopGripper stopGripperCmd = new StopGripper(gripperSub);
+private final ScoreCoral scoreCoralCmd;
+private final RemoveAlgae removeAlgaeCmd;
 
-    private final ScoreCoral scoreCoralCmd = new ScoreCoral(armSub, gripperSub);
-    private final RemoveAlgae removeAlgaeCmd = new RemoveAlgae(armSub, gripperSub);
+private final StartClimbing startClimbingCmd;
+
+
+
+/* CONTROLLERS */
+/* private */ static Joystick driverController;
+/* private */ static Joystick operatorController;
+
+/* BUTTONS */
+private Trigger resetFieldRelativeButton;
+
+private Trigger autoAlignRightButton;
+private Trigger autoAlignLeftButton;
+private Trigger resetOdometryToVision;
+
+// private Trigger climbAbortButton; // right stick
+
+// private Trigger toggleLEDsButton; // hamburger
+// private Trigger LEDHumanSourceButton;
+// private Trigger LEDHumanFloorButton;
+
+private Trigger shootIntakeButton; // trigger
+private Trigger reverseFloorIntakeButton; // driver button 7
+
+
+
+// private Trigger moveToHomeButton;
+private Trigger moveToTravellingButton;
+private Trigger moveToLevel1Button;
+private Trigger moveToLevel2Button;
+private Trigger moveToLevel3Button;
+private Trigger moveToLevel4Button;
+private Trigger moveToAlgaeButton;
+private Trigger removeAlgaeButton;
+
+private Trigger startClimbButton;
+
+private Trigger intakeAlgaeButton;
+private Trigger ejectAlgaeButton;
+private Trigger retractIntakeButton;
+
+private Trigger autoAlignAlgaeButton;
+private Trigger autoAlignAlgaeButton_2;
+
+private Trigger runGripperButton;
+private Trigger scoreCoralButton;
+
+/* PID */
+private PIDController noteYawPID;
+private PIDController targetYawPID;
+
+/* AUTO */
+private SendableChooser<Command> autoChooser;
+boolean moveToCoral;
+Boolean goToRight;
+
+public Pose2d reefAutoTargetPose = new Pose2d();
+
+/* DRIVE STUFF */
+
+private final LinearFilter xVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+private final LinearFilter yVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+private final LinearFilter twistFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+
+private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+        .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1)
+        .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a
+                                                                                                           // 10%
+                                                                                                           // deadband
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+public RobotContainer(Robot robot) {
+
+    armSub = new Arm(robot, visionSub, driveSub, gripperSub);
     
-    
-    private final StartClimbing startClimbingCmd = new StartClimbing(climbSub, armSub);
+setArmPosTravellingCmd = new SetArmPosition(armSub, ArmState.Running);
+setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
+setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
+setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
+setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
+setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
 
+            // CHANGE - need to make sure this is right
+setArmPosAlgaeCmd = new SetArmPosition(armSub, ArmState.StartAlgaePosition);
+setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
 
-    /* CONTROLLERS */
-    /* private */ static Joystick driverController;
-    /* private */ static Joystick operatorController;
+ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
+intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
+stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
+runGripperCmd = new RunGripper(gripperSub, armSub);
+stopGripperCmd = new StopGripper(gripperSub);
+scoreCoralCmd = new ScoreCoral(armSub, gripperSub);
+removeAlgaeCmd = new RemoveAlgae(armSub, gripperSub);
 
-    /* BUTTONS */
-    private Trigger resetFieldRelativeButton;
-
-    private Trigger autoAlignRightButton;
-    private Trigger autoAlignLeftButton;
-    private Trigger resetOdometryToVision;
-
-    // private Trigger climbAbortButton; // right stick
-
-    // private Trigger toggleLEDsButton; // hamburger
-    // private Trigger LEDHumanSourceButton;
-    // private Trigger LEDHumanFloorButton;
-
-    private Trigger shootIntakeButton; // trigger
-    private Trigger reverseFloorIntakeButton; // driver button 7
-
-
-
-    // private Trigger moveToHomeButton;
-    private Trigger moveToTravellingButton;
-    private Trigger moveToLevel1Button;
-    private Trigger moveToLevel2Button;
-    private Trigger moveToLevel3Button;
-    private Trigger moveToLevel4Button;
-    private Trigger moveToAlgaeButton;
-    private Trigger removeAlgaeButton;
-
-    private Trigger startClimbButton;
-
-    private Trigger intakeAlgaeButton;
-    private Trigger ejectAlgaeButton;
-    private Trigger retractIntakeButton;
-
-    private Trigger autoAlignAlgaeButton;
-    private Trigger autoAlignAlgaeButton_2;
-
-    private Trigger runGripperButton;
-    private Trigger scoreCoralButton;
-
-    /* PID */
-    private PIDController noteYawPID;
-    private PIDController targetYawPID;
-
-    /* AUTO */
-    private SendableChooser<Command> autoChooser;
-    boolean moveToCoral;
-    Boolean goToRight;
-
-    public Pose2d reefAutoTargetPose = new Pose2d();
-
-    /* DRIVE STUFF */
-
-    private final LinearFilter xVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
-    private final LinearFilter yVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
-    private final LinearFilter twistFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
-
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1)
-            .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a
-                                                                                                               // 10%
-                                                                                                               // deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
-
-
-    public RobotContainer() {
+startClimbingCmd = new StartClimbing(climbSub, armSub);
 
         goToRight = false;
         // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
@@ -313,7 +330,7 @@ public class RobotContainer {
         /***************** ALGAE INTAKE *****************/
 
         intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
-//        intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+    //    intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
         intakeAlgaeButton.onTrue(intakeAlgaeCmd);
 
         ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.BackButton); // CHANGE
