@@ -85,6 +85,7 @@ public class Climb extends SubsystemBase {
     public void latchOntoCage() {
         // CHANGE: extend the servo here (to disengage ratcheting)      
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.CageAngle.get()));
+        request.EnableFOC = Constants.IsFocEnabled;
         winchMotor.setControl(request);
         desiredWinchAngle = ClimbConstants.CageAngle.get();
     }
