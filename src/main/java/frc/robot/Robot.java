@@ -22,15 +22,20 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
+import frc.robot.commands.CalibrateCarriage;
+import frc.robot.commands.CalibrateElevator;
+import frc.robot.subsystems.Arm.ArmState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 
 
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
+  private Command autonomousCommand;
   private Command currentTeleopCommand;
 
   private final RobotContainer robotContainer;
@@ -38,6 +43,8 @@ public class Robot extends LoggedRobot {
   boolean currentlyFollowingAPath = false;
   Pose2d currentPose;
   Command selectedAutoCommand;
+
+  private boolean calibrationPerformed = false;
 
   /*****  MECHANISM 2D FOR ADVANTAGE SCOPE  *****/
 
@@ -108,8 +115,8 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     robotContainer.disableSubsytems();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
     if (selectedAutoCommand != null) {
       selectedAutoCommand.cancel();
@@ -121,8 +128,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
       selectedAutoCommand = null;
       currentTeleopCommand = null;
 
@@ -142,12 +149,24 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    // robotContainer.configurePathPlanner();
-    m_autonomousCommand = robotContainer.getAutonomousCommand();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+
+    // if (!calibrationPerformed && Robot.isReal()) {
+    //   Command calibrateElevator = new CalibrateElevator(robotContainer.armSub);
+    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.armSub);
+      
+    //   commandGroup.addCommands(calibrateElevator, calibrateCarriage, new InstantCommand(() -> {this.calibrationPerformed = true;}));
+    // }
+
+    // robotContainer.configurePathPlanner();
+    autonomousCommand = robotContainer.getAutonomousCommand();
+
+    if (autonomousCommand != null) {
+      commandGroup.addCommands(autonomousCommand);
     }
+
+    commandGroup.schedule();
   }
 
   @Override
@@ -160,8 +179,19 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
       robotContainer.armSub.applyAllConfigs();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+      SequentialCommandGroup calibrationSequence = new SequentialCommandGroup();
+
+    // if (!calibrationPerformed && Robot.isReal()) {
+    //   Command calibrateElevator = new CalibrateElevator(robotContainer.armSub);
+    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.armSub);
+    //   Command setState = new InstantCommand(() -> {robotContainer.armSub.setActualState(ArmState.Startup); robotContainer.armSub.setDesiredState(ArmState.Startup);});
+      
+    //   calibrationSequence.addCommands(calibrateElevator, calibrateCarriage, new InstantCommand(() -> {this.calibrationPerformed = true;}));
+    //   calibrationSequence.schedule();
+    // }
+
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
     if (selectedAutoCommand != null) {
       selectedAutoCommand.cancel();

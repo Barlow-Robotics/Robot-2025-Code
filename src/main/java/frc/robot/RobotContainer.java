@@ -305,8 +305,8 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
         // moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         // moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
-        // moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
-        // moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
+        // moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
+        // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
 
         // moveToAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftTrigger); // CHANGE
         // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
@@ -347,12 +347,10 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
         // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        runGripperButton.onTrue(
-            Commands.parallel(
-                runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
-                setArmPosLoadCoralCmd  // Runs independently
-            )
-        ).onFalse(stopGripperCmd); // Stop the gripper immediately when released
+        runGripperButton.onTrue(Commands.parallel(
+            runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
+            setArmPosLoadCoralCmd  // Runs independently
+        )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
 
 
 
