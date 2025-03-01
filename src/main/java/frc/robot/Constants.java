@@ -417,8 +417,19 @@ public class Constants {
     }
 
     public static final class ClimbConstants {
-        public static final double WinchMotorGearRatio = 45; // CHANGE
+//        public static final double WinchMotorGearRatio = 45; // CHANGE
+        public static final double WinchMotorGearRatio = 45; // Correct per Mr. K 022725
+        public static final double WinchSprocketDiameter = 0.75;    // Correct per Mr. K 022725
+        public static final double WinchSprocketCircumference = WinchSprocketDiameter * Math.PI;
+        public static final double RotationsPerWinchInch = 1 / WinchSprocketCircumference * WinchMotorGearRatio;
+        public static final double WinchCableLength = 20;    // Length in inches, fully unwound with harpoon fwd & down
+        public static final double WinchCableLenHarpoonHoriz = 18.5; // Length when the harpoon is pulled to fully horizontal
+        public static final double WinchCableLenAfterClimb = 11; // Length when we have fully wound the Cable & bot climbed.
+        public static final double WinchAttachRotations = (WinchCableLength - WinchCableLenHarpoonHoriz)/RotationsPerWinchInch; 
+        public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)/RotationsPerWinchInch;
 
+        public static final double WinchMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / WinchMotorGearRatio
+                * WinchSprocketCircumference;
         public static final double WinchKP2 = 0;
         public static TuneableParameter WinchKP = new TuneableParameter(WinchKP2, 0, 1, true, "TuneableParameter/Climb/PID/WinchKP");
         public static final double WinchKI2 = 0;
