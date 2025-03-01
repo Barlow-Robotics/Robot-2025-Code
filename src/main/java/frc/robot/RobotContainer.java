@@ -299,18 +299,12 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
 
         moveToTravellingButton = new JoystickButton(operatorController, LogitechDAConstants.LeftTrigger);
         moveToTravellingButton.onTrue(setArmPosTravellingCmd);
-        
-        // moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
-        // moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
-        // moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
-        // moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
+        // moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
+        // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
 
-        moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
-        moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
-
-        removeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightTrigger);
-        removeAlgaeButton.onTrue(removeAlgaeCmd);
+        // removeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightTrigger);
+        // removeAlgaeButton.onTrue(removeAlgaeCmd);
 
         moveToLevel1Button = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
@@ -345,12 +339,10 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
         // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
 
         runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        runGripperButton.onTrue(
-            Commands.parallel(
-                runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
-                setArmPosLoadCoralCmd  // Runs independently
-            )
-        ).onFalse(stopGripperCmd); // Stop the gripper immediately when released
+        runGripperButton.onTrue(Commands.parallel(
+            runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
+            setArmPosLoadCoralCmd  // Runs independently
+        )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
 
 
 

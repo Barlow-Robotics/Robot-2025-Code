@@ -22,6 +22,7 @@ import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -165,19 +166,26 @@ public class Arm extends SubsystemBase {
     private void initializePositionDictionary() {
         positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 20, -30, 0, 0));
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 20, -30, 90, 0.0));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 45, 0, 0));
-        positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 12.163, 10, 0, -0.1));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(7.764, 20, 60, 0, 0));
-        positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(5.664, 20, 60, 0, -0.1));
+
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 12.163, 0, 0, -0.1));
+
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(8.764, 20, 70, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(2.664, 20, 15, 0, -0.1));
+
         positionDictionary.put(ArmState.Level4, new ArmStateParameters(20, 20, 60, 0, 0));
         positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(25.664, 24.5, 60, 0, -0.1));
+
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, -60, 90, 0));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 0, -75, 90, 0.5));
         positionDictionary.put(ArmState.PostLoadCoral, new ArmStateParameters(0, 0, -75, 90, 0));
+
         positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 0, 0));
+
         positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 0, -30, 0, -0.2));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(0, 0, 60, 0, -0.5));
+
         positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 90, 0, 0));
     }
 
@@ -319,6 +327,10 @@ public class Arm extends SubsystemBase {
         setElevatorHeightInches(desiredElevatorHeight);
     }
 
+    public void setActualState(ArmState newState) {
+        actualState = newState;
+    }
+
     public boolean hasCompletedMovement() {
         return desiredState == actualState;
     }
@@ -331,7 +343,7 @@ public class Arm extends SubsystemBase {
         }
 
         if (isAtDesiredState()) {
-            actualState = desiredState;
+            setActualState(desiredState);
         }
         // Once we've moved to a precursor state, then force the change to the
         // state for the follow-on motion.
@@ -516,16 +528,6 @@ public class Arm extends SubsystemBase {
     public void stopWristMotor() {
         wristMotor.set(0);
     }
-
-    /*
-    public boolean carriageIsAtBottom() {
-        return !carriageHallEffect.get();
-    }
-
-    public boolean elevatorIsAtBottom() {
-        return !elevatorHallEffect.get();
-    }
-        */
 
     /** Makes sure we never go past our limits of motion */
     private void boundsCheck() {
@@ -1024,6 +1026,34 @@ public class Arm extends SubsystemBase {
         }
         */
     }
+
+    /** @param velocity in inches per second */
+    public void setElevatorSpeed(Double velocity) {
+        VelocityVoltage request = new VelocityVoltage(velocity * ArmConstants.RotationsPerElevatorInch); // converts from inches/s to RPS
+        elevatorMotor.setControl(request);
+    }
+
+    public double getElevatorSpeed() {
+        return elevatorMotor.getVelocity().getValueAsDouble();
+    }
+
+    public double getElevatorCurrent() {
+        return elevatorMotor.getSupplyCurrent().getValueAsDouble();
+    }
+
+    /** @param velocity in inches per second */
+    public void setCarriageSpeed(Double velocity) {
+        VelocityVoltage request = new VelocityVoltage(velocity * ArmConstants.RotationsPerElevatorInch); // converts from inches/s to RPS
+        carriageMotor.setControl(request);
+    }
+
+    public double getCarriageSpeed() {
+        return carriageMotor.getVelocity().getValueAsDouble();
+    }
+
+    public double getCarriageCurrent() {
+        return carriageMotor.getSupplyCurrent().getValueAsDouble();
+    }
 }
 
-// TODO: NEED TO SETUP RUNNING-BETWEEN POSITION
+// (CHANGE) TODO: NEED TO SETUP RUNNING-BETWEEN POSITION
