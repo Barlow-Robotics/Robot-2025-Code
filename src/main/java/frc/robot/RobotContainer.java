@@ -38,6 +38,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
+import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.RunGripper;
 import frc.robot.commands.SetArmPosition;
 import frc.robot.commands.StartClimbing;
@@ -46,6 +47,7 @@ import frc.robot.commands.StopGripper;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
+import frc.robot.commands.ReleaseCoral;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.AlgaeIntake;
@@ -297,46 +299,46 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
 
         /***************** ARM POSITION *****************/
 
-        moveToTravellingButton = new JoystickButton(operatorController, LogitechDAConstants.LeftTrigger);
+        moveToTravellingButton = new JoystickButton(operatorController, XboxControllerConstants.RightTrigger);
         moveToTravellingButton.onTrue(setArmPosTravellingCmd);
         
-        // moveToLoadCoralButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
+        // moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
         // moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
         // moveToAlgaeHighButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA); // CHANGE
         // moveToAlgaeHighButton.onTrue(setArmPosAlgaeHighCmd);
 
-        moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
-        moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
+        // moveToAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftTrigger); // CHANGE
+        // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
 
-        removeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.RightTrigger);
+        removeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftTrigger);
         removeAlgaeButton.onTrue(removeAlgaeCmd);
 
-        moveToLevel1Button = new JoystickButton(operatorController, LogitechDAConstants.RightBumper); // CHANGE
+        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonY); // CHANGE
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
 
-        moveToLevel2Button = new JoystickButton(operatorController, LogitechDAConstants.LeftBumper); // CHANGE
+        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonX); // CHANGE
         moveToLevel2Button.onTrue(setArmPosLevel2Cmd);
 
-        moveToLevel3Button = new JoystickButton(operatorController, LogitechDAConstants.ButtonX); // CHANGE
+        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonB); // CHANGE
         moveToLevel3Button.onTrue(setArmPosLevel3Cmd);
 
-        moveToLevel4Button = new JoystickButton(operatorController, LogitechDAConstants.LeftStick); // CHANGE
+        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonA); // CHANGE
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
 
-        startClimbButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonA);
+        startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
         startClimbButton.onTrue(startClimbingCmd);
 
         /***************** ALGAE INTAKE *****************/
 
-        intakeAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonY); // CHANGE
+        intakeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftStick); // CHANGE
     //    intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
         intakeAlgaeButton.onTrue(intakeAlgaeCmd);
 
-        ejectAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.BackButton); // CHANGE
+        ejectAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper); // CHANGE
         ejectAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        retractIntakeButton = new JoystickButton(operatorController, LogitechDAConstants.StartButton); // CHANGE
+        retractIntakeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
         retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/
@@ -354,8 +356,9 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
 
 
 
-        scoreCoralButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
-        scoreCoralButton.onTrue(scoreCoralCmd);
+        scoreCoralButton = new JoystickButton(driverController, XboxControllerConstants.WindowButton);
+        // scoreCoralButton.onTrue(scoreCoralCmd);
+        scoreCoralButton.onTrue(new ReleaseCoral(armSub, gripperSub).withTimeout(0.5).andThen(scoreCoralCmd));
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
         autoAlignAlgaeButton.onTrue(new InstantCommand(() -> changeToLeft(null)))

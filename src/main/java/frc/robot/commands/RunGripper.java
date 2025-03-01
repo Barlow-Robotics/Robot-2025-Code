@@ -31,7 +31,8 @@ public class RunGripper extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    gripperSub.setVelocity(armSub.getDesiredGripperVel());
+    // wpk pt this back if we decide we need manual control of the gripper
+    // gripperSub.setVelocity(armSub.getDesiredGripperVel());
   }
 
   // Called once the command ends or is interrupted.
@@ -43,7 +44,10 @@ public class RunGripper extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return gripperSub.detectedCoral();   // if gripper current is high, then return true. 
+    return true ;
+
+    // wpk put this back if we run the gripper manually
+    // return gripperSub.detectedCoral();   // if gripper current is high, then return true. 
   }
 }
 

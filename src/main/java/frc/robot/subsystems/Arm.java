@@ -53,7 +53,7 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
 import frc.robot.commands.ArmStateParameters;
 import frc.robot.sim.PhysicsSim;
-import frc.robot.subsystems.Gripper.GripperState;
+// import frc.robot.subsystems.Gripper.GripperState;
 
 public class Arm extends SubsystemBase {
 
@@ -98,13 +98,16 @@ public class Arm extends SubsystemBase {
     // CHANGE - also need to double check that this is fine with the Algae
     // high/low/position stuff
     public enum ArmState {
-        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, PreLevel1, Level1, Level2, ScoreLevel2, Level3, ScoreLevel3,
-        Level4, ScoreLevel4, StartAlgaePosition, Running, SafeToLowerArm, FinishRemovingAlgae
+        WaitingForCoral, Startup, LoadCoral, PostLoadCoral, //PreLevel1, 
+        Level1, ScoreLevel1, Level2, ScoreLevel2, Level3, ScoreLevel3, Level4, ScoreLevel4, 
+        StartAlgaePosition, Running, 
+        // SafeToLowerArm, 
+        FinishRemovingAlgae
     }
 
     private final Robot robot;
-    private final Drive driveSub;
-    private final Vision visionSub;
+    // private final Drive driveSub;
+    // private final Vision visionSub;
     private final Gripper gripperSub;
 
     private ArmState actualState = ArmState.Startup;
@@ -155,16 +158,17 @@ public class Arm extends SubsystemBase {
         wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
         this.robot = robot;
-        this.driveSub = driveSub;
-        this.visionSub = visionSub;
+        // this.driveSub = driveSub;
+        // this.visionSub = visionSub;
         this.gripperSub = gripperSub;
         initializePositionDictionary();
     }
 
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
-        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 20, -30, 0, 0));
+        // positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 20, -30, 0, 0));
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 20, -30, 90, 0.0));
+        positionDictionary.put(ArmState.ScoreLevel1, new ArmStateParameters(0, 20, -30, 90, 0.0));
         positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 45, 0, 0));
         positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 12.163, 10, 0, -0.1));
         positionDictionary.put(ArmState.Level3, new ArmStateParameters(7.764, 20, 60, 0, 0));
@@ -178,7 +182,7 @@ public class Arm extends SubsystemBase {
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 0, -30, 0, -0.2));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(0, 0, 60, 0, -0.5));
-        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 90, 0, 0));
+        // positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 90, 0, 0));
     }
 
     private void realInitializePositionDictionary() {
@@ -210,7 +214,7 @@ public class Arm extends SubsystemBase {
         // body of the elevator before rotating the wrist. This is to avoid the coral
         // colliding
         // with the elevator frame when turned horizontal.
-        positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 0, 0));
+        // wpk positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 22.25, 45, 0, 0));
         // We should never enter this state without having gone through PreLevel1 first.
         // Once the coral is safely rotated, proceed to the position for ejecting the
         // coral
@@ -231,7 +235,8 @@ public class Arm extends SubsystemBase {
         // away from the reef leaving empty space in front of us. We need ~4" of
         // clearance to
         // be safe (relative to the reef).
-        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 22.25, -30, 90, -0.2));
+        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 20, -30, 90, -0.2));
+        positionDictionary.put(ArmState.ScoreLevel1, new ArmStateParameters(0, 20, -30, 90, 0.0));
         // PreL2 is initiated by the operator's L2 button and positions the coral above
         // (1")
         // the L2 reef branch ready for scoring/release.
@@ -302,7 +307,7 @@ public class Arm extends SubsystemBase {
         // transition.
         positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 22.25, -30, 90, -0.2));
         positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(25, 26.5, 60, 90, -0.5));
-        positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 90, 0));
+        // positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 0, 90, 0));
 
     }
 
@@ -339,10 +344,12 @@ public class Arm extends SubsystemBase {
         // in sequence. Once we've moved to a precursor state, then force the change to
         // the state for the follow-on motion.
         // NOTE: This logic should probably occur at the Command level.
-        if (desiredState == ArmState.PreLevel1 && isWithinArmAngleTolerance()) {
-            setDesiredState(ArmState.Level1);
-        }
-        if (desiredState == ArmState.LoadCoral && (gripperSub.getState() == GripperState.CarryingCoral)) {
+
+        // if (desiredState == ArmState.PreLevel1 && isWithinArmAngleTolerance()) {
+        //     setDesiredState(ArmState.Level1);
+        // }
+
+        if (desiredState == ArmState.LoadCoral && gripperSub.hasCoral()) {
             setDesiredState(ArmState.PostLoadCoral);
         }
         if (desiredState == ArmState.PostLoadCoral && isWithinCarriageHeightTolerance()) {
@@ -373,14 +380,13 @@ public class Arm extends SubsystemBase {
     public void setWristAngle(double desiredDegrees) {
         final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();   
         final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
-        Logger.recordOutput("Arm/WristAngle/PIDOutput", wristOutput);
+        // Logger.recordOutput("Arm/WristAngle/PIDOutput", wristOutput);
         wristMotor.setVoltage(wristOutput);
     }
 
     public void setArmAngle(double desiredDegrees) {
         MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(desiredDegrees));
         request.EnableFOC = Constants.IsFocEnabled;
-        Logger.recordOutput("Arm/AngleFromSetArmAngle", Units.degreesToRotations(desiredDegrees));
         armMotor.setControl(request);
         // this.desiredArmAngle = desiredDegrees; // Why is this commented out
     }
