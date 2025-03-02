@@ -128,7 +128,7 @@ public class Gripper extends SubsystemBase {
     }
 
     public void startEjecting() {
-        gripperMotor.setVoltage(-3);
+        gripperMotor.setVoltage(-1.5);
         gripperState = GripperState.NoCoral ;
         // gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed2,
         // ControlType.kVelocity);
@@ -137,7 +137,7 @@ public class Gripper extends SubsystemBase {
     }
 
     public void startAlgaeRemoval() {
-        gripperMotor.setVoltage(-6);
+        gripperMotor.setVoltage(-9);
         gripperState = GripperState.NoCoral ;
 
     }

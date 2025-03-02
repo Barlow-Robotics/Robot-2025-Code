@@ -168,14 +168,14 @@ public class Arm extends SubsystemBase {
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
         // positionDictionary.put(ArmState.PreLevel1, new ArmStateParameters(0, 20, -30, 0, 0));
-        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 20, -30, 90, 0.0));
-        positionDictionary.put(ArmState.ScoreLevel1, new ArmStateParameters(0, 20, -30, 90, 0.0));
+        positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 0, 45, 90, 0.0));
+        positionDictionary.put(ArmState.ScoreLevel1, new ArmStateParameters(0, 0, 45, 90, 0.0));
         positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 0, 0));
         positionDictionary.put(ArmState.ScoreLevel2, new ArmStateParameters(0, 12.163, 0, 0, -0.1));
         positionDictionary.put(ArmState.Level3, new ArmStateParameters(8.764, 20, 70, 0, 0));
         positionDictionary.put(ArmState.ScoreLevel3, new ArmStateParameters(2.664, 20, 15, 0, -0.1));
-        positionDictionary.put(ArmState.Level4, new ArmStateParameters(20, 20, 60, 0, 0));
-        positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(25.664, 24.5, 60, 0, -0.1));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(30, 21, 60, 0, 0));
+        positionDictionary.put(ArmState.ScoreLevel4, new ArmStateParameters(26, 21, 25, 0, -0.1));
 
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 0, -60, 90, 0));
         positionDictionary.put(ArmState.LoadCoral, new ArmStateParameters(0, 0, -75, 90, 0.5));
@@ -184,8 +184,9 @@ public class Arm extends SubsystemBase {
         positionDictionary.put(ArmState.Startup, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 0, 0));
 
-        positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 0, -30, 0, -0.2));
-        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(0, 0, 60, 0, -0.5));
+        positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 0, 60, 90, -0.2));
+        positionDictionary.put(ArmState.FinishRemovingAlgae, new ArmStateParameters(12, 20, 60, 90, -0.5));
+        
         // positionDictionary.put(ArmState.SafeToLowerArm, new ArmStateParameters(0, 0, 90, 0, 0));
     }
 
@@ -473,7 +474,7 @@ public class Arm extends SubsystemBase {
     private boolean isWithinWristAngleTolerance() {
         boolean withinTolerance = (getWristEncoderDegrees() >= desiredWristAngle - ArmConstants.WristAngleTolerance)
                 && (getWristEncoderDegrees() <= desiredWristAngle + ArmConstants.WristAngleTolerance);
-        return withinTolerance;
+        return true;
     }
 
     private boolean isWithinArmAngleTolerance() {

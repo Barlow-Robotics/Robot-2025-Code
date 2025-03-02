@@ -609,23 +609,23 @@ public class Constants {
     }
 
     public final class XboxControllerConstants {
-        public static final int LeftStickX = 0;
-        public static final int LeftStickY = 1;
-        public static final int LeftTrigger = 2;
-        public static final int RightTrigger = 4;
-        public static final int RightStickX = 4;
-        public static final int RightStickY = 5;
+        // public static final int LeftStickX = 0;
+        // public static final int LeftStickY = 1;
+        // public static final int LeftTrigger = 2;
+        // public static final int RightTrigger = 4;
+        // public static final int RightStickX = 4;
+        // public static final int RightStickY = 5;
         public static final int ButtonA = 1;
         public static final int ButtonB = 2;
         public static final int ButtonX = 3;
         public static final int ButtonY = 4;
         public static final int LeftBumper = 5;
         public static final int RightBumper = 6;
+        public static final int WindowButton = 7;
         // public static final int BackButton = 7;
         public static final int HamburgerButton = 8;
         public static final int LeftStick = 9;
         public static final int RightStick = 10;
-        public static final int WindowButton = 7;
         public static final double ForwardAxisAttenuation = -0.5;
         public static final double LateralAxisAttenuation = 0.5;
         public static final double YawAxisAttenuation = 0.5;
