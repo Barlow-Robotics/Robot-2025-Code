@@ -8,37 +8,50 @@ import static edu.wpi.first.units.Units.Amp;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.ArmState;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.Wrist;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RemoveAlgae extends Command {
 
     private Command currentCommand;
-    private final Arm armSub;
-    private final Gripper gripperSub;
+    private final ArmStateManager armStateManager ;
+    private final Elevator theElevator ;
+    private final Arm theArm;
+    private final Wrist theWrist ;
+    private final Gripper theGripper;
 
-    public RemoveAlgae(Arm armSub, Gripper gripperSub) {
-        this.armSub = armSub;
-        this.gripperSub = gripperSub;
-        addRequirements(armSub, gripperSub);
+    public RemoveAlgae(ArmStateManager asm, Elevator e, Arm a, Wrist w, Gripper g) {
+        armStateManager = asm ;
+        theElevator = e ;
+        theArm = a ;
+        theWrist = w ;
+        theGripper = g ;
+        addRequirements(theElevator, theArm, theWrist, theGripper);
     }
 
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        ArmState currentState = armSub.getArmState();
+        ArmState currentState = armStateManager.getCurrentState() ;
         if (currentState != ArmState.StartAlgaePosition) {
+            // we need to position the gripper for the next button press
             currentCommand = Commands.sequence(
-                new SetArmPosition(armSub, ArmState.StartAlgaePosition),
-                new RunGripperToRemoveAlgae(gripperSub)  // wpk need to check this
+                new PositionGripper(armStateManager, ArmState.StartAlgaePosition, theElevator, theArm, theWrist)
                 );
         } else {
             currentCommand = Commands.sequence(
-                new SetArmPosition(armSub, ArmState.FinishRemovingAlgae),
-                new StopGripper(gripperSub)
+                //wpk need to fix magic numbers
+                new InstantCommand(()-> theGripper.startAlgaeRemoval() ) ,
+                // move the elevator up to strip the algae
+                new MoveElevator(theElevator, theElevator.getElevatorHeightInches() + 10.0, 20.0) ,
+                new InstantCommand(()-> theGripper.stop() ) ,
+                new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
                 );
         }
         currentCommand.schedule();

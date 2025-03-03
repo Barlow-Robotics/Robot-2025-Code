@@ -5,18 +5,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Gripper;
-
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class StopGripper extends Command {
-
-  Gripper gripperSub;
-  /** Creates a new StopGripper. */
-  public StopGripper(Gripper gripperSub) {
-    this.gripperSub = gripperSub;
-
-    addRequirements(gripperSub);
+public class NoOpCommand extends Command {
+  /** Creates a new NoOpCommand. */
+  public NoOpCommand() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -26,9 +19,7 @@ public class StopGripper extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    gripperSub.stop();
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override

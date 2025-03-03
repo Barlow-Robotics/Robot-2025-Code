@@ -29,24 +29,24 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.commands.CalibrateCarriage;
 import frc.robot.commands.CalibrateElevator;
-import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.ArmState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 
 
 public class Robot extends LoggedRobot {
-  private Command autonomousCommand;
-  private Command currentTeleopCommand;
+    private Command autonomousCommand;
+    private Command currentTeleopCommand;
 
-  private final RobotContainer robotContainer;
-  boolean pathPlannerConfigured = false ;
-  boolean currentlyFollowingAPath = false;
-  Pose2d currentPose;
-  Command selectedAutoCommand;
+    private final RobotContainer robotContainer;
+    boolean pathPlannerConfigured = false;
+    boolean currentlyFollowingAPath = false;
+    Pose2d currentPose;
+    Command selectedAutoCommand;
 
-  private boolean calibrationPerformed = false;
+    private boolean calibrationPerformed = false;
 
-  /*****  MECHANISM 2D FOR ADVANTAGE SCOPE  *****/
+    /***** MECHANISM 2D FOR ADVANTAGE SCOPE *****/
 
     // the main mechanism object
     Mechanism2d mech = new Mechanism2d(8, 10);
@@ -54,12 +54,14 @@ public class Robot extends LoggedRobot {
     // the mechanism root node
     MechanismRoot2d root = mech.getRoot("manipulator", 2.5, 0);
 
-    // MechanismLigament2d objects represent each "section"/"stage" of the mechanism, and are based
+    // MechanismLigament2d objects represent each "section"/"stage" of the
+    // mechanism, and are based
     // off the root node or another ligament object
     MechanismLigament2d elevator = root.append(new MechanismLigament2d("elevator", ArmConstants.ArmMinimumHeight, 90));
     MechanismLigament2d arm = elevator.append(
             new MechanismLigament2d("arm", 2, 0, 6, new Color8Bit(Color.kPurple)));
-    MechanismLigament2d gripper = arm.append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
+    MechanismLigament2d gripper = arm
+            .append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
 
     /**********************************************/
 
@@ -101,9 +103,9 @@ public class Robot extends LoggedRobot {
 
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
-    elevator.setLength(/*ArmConstants.ArmMinimumHeight + */(robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12.0);
+    elevator.setLength(/*ArmConstants.ArmMinimumHeight + */(robotContainer.elevatorSub.getElevatorHeightInches() + robotContainer.elevatorSub.getCarriageHeightInches())/12.0);
     arm.setAngle(robotContainer.armSub.getArmTalonEncoderDegrees()-90); // might need to change this to getArmEncoderDegrees() instead, but (as of right now) that doesn't work 
-    gripper.setAngle(robotContainer.armSub.getWristEncoderDegrees());
+    gripper.setAngle(robotContainer.wristSub.getWristEncoderDegrees());
 
     SmartDashboard.putData("ArmMech2D", mech);
 

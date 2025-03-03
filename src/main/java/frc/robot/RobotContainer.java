@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 
@@ -39,60 +40,68 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
-import frc.robot.commands.RunGripper;
-import frc.robot.commands.SetArmPosition;
-import frc.robot.commands.StartClimbing;
+import frc.robot.commands.StartIntakingWithGripper;
+// import frc.robot.commands.SetArmPosition;
+// import frc.robot.commands.StartClimbing;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.commands.StopGripper;
 import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.StartClimbing;
+import frc.robot.commands.ArmStateManager;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
-import frc.robot.commands.ReleaseCoral;
+import frc.robot.commands.LoadCoralFromChute;
+import frc.robot.commands.PositionGripper;
+// import frc.robot.commands.ReleaseCoral;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.ArmState;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Wrist;
 
 public class RobotContainer {
 /* SUBSYSTEMS */
 public Drive driveSub = TunerConstants.createDrivetrain();
 public Vision visionSub = new Vision(driveSub);
 public final Gripper gripperSub = new Gripper();
+public final Elevator elevatorSub;
 public final Arm armSub;
+public final Wrist wristSub;
 public final Climb climbSub = new Climb();
 public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
+public final ArmStateManager armState = new ArmStateManager();
 
 /* COMMANDS */
 // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub,
 // ArmState.Home);
-private final SetArmPosition setArmPosTravellingCmd;
-private final SetArmPosition setArmPosLoadCoralCmd;
-private final SetArmPosition setArmPosLevel4Cmd;
-private final SetArmPosition setArmPosLevel3Cmd;
-private final SetArmPosition setArmPosLevel2Cmd;
-private final SetArmPosition setArmPosLevel1Cmd;
+private final PositionGripper setArmPosTravellingCmd;
+// private final SetArmPosition setArmPosTravellingCmd;
+private final LoadCoralFromChute setArmPosLoadCoralCmd;
+private final PositionGripper setArmPosLevel4Cmd;
+private final PositionGripper setArmPosLevel3Cmd;
+private final PositionGripper setArmPosLevel2Cmd;
+private final PositionGripper setArmPosLevel1Cmd;
 
-            // CHANGE - need to make sure this is right
-private final SetArmPosition setArmPosAlgaeCmd;
-private final SetArmPosition setArmPosAlageEndCmd;
+// CHANGE - need to make sure this is right
+private final PositionGripper setArmPosAlgaeCmd;
+// private final PositionGripper setArmPosAlageEndCmd;
 
 private final EjectAlgae ejectAlgaeCmd;
 private final IntakeAlgae intakeAlgaeCmd;
 private final StopAlgaeIntake stopAlgaeIntakeCmd;
 
-private final RunGripper runGripperCmd;
-private final StopGripper stopGripperCmd;
+// private final StartIntakingWithGripper runGripperCmd;
+// private final StopGripper stopGripperCmd;
 
 private final ScoreCoral scoreCoralCmd;
 private final RemoveAlgae removeAlgaeCmd;
 
 private final StartClimbing startClimbingCmd;
-
-
 
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
@@ -114,15 +123,14 @@ private Trigger resetOdometryToVision;
 private Trigger shootIntakeButton; // trigger
 private Trigger reverseFloorIntakeButton; // driver button 7
 
-
-
 // private Trigger moveToHomeButton;
 private Trigger moveToTravellingButton;
 private Trigger moveToLevel1Button;
 private Trigger moveToLevel2Button;
 private Trigger moveToLevel3Button;
 private Trigger moveToLevel4Button;
-private Trigger moveToAlgaeButton;
+private Trigger moveToLoadCoralButton ;
+// private Trigger moveToAlgaeButton;
 private Trigger removeAlgaeButton;
 
 private Trigger startClimbButton;
@@ -166,54 +174,57 @@ private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new Swerve
 
 public RobotContainer(Robot robot) {
 
-    armSub = new Arm(robot, visionSub, driveSub, gripperSub);
-    
-setArmPosTravellingCmd = new SetArmPosition(armSub, ArmState.Running);
-setArmPosLoadCoralCmd = new SetArmPosition(armSub, ArmState.LoadCoral);
-setArmPosLevel4Cmd = new SetArmPosition(armSub, ArmState.Level4);
-setArmPosLevel3Cmd = new SetArmPosition(armSub, ArmState.Level3);
-setArmPosLevel2Cmd = new SetArmPosition(armSub, ArmState.Level2);
-setArmPosLevel1Cmd = new SetArmPosition(armSub, ArmState.Level1);
+    elevatorSub = new Elevator(robot);
+    armSub = new Arm(robot);
+    wristSub = new Wrist(robot);
 
-            // CHANGE - need to make sure this is right
-setArmPosAlgaeCmd = new SetArmPosition(armSub, ArmState.StartAlgaePosition);
-setArmPosAlageEndCmd = new SetArmPosition(armSub, ArmState.FinishRemovingAlgae);
+    setArmPosTravellingCmd = new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub);
+    setArmPosLoadCoralCmd = new LoadCoralFromChute(elevatorSub, armSub, wristSub, gripperSub, armState);
+    setArmPosLevel4Cmd = new PositionGripper(armState, ArmState.Level4, elevatorSub, armSub, wristSub);
+    setArmPosLevel3Cmd = new PositionGripper(armState, ArmState.Level3, elevatorSub, armSub, wristSub);
+    setArmPosLevel2Cmd = new PositionGripper(armState, ArmState.Level2, elevatorSub, armSub, wristSub);
+    setArmPosLevel1Cmd = new PositionGripper(armState, ArmState.Level1, elevatorSub, armSub, wristSub);
 
-ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
-intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
-stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
-runGripperCmd = new RunGripper(gripperSub, armSub);
-stopGripperCmd = new StopGripper(gripperSub);
-scoreCoralCmd = new ScoreCoral(armSub, gripperSub);
-removeAlgaeCmd = new RemoveAlgae(armSub, gripperSub);
+    // CHANGE - need to make sure this is right
+    setArmPosAlgaeCmd = new PositionGripper(armState, ArmState.StartAlgaePosition, elevatorSub, armSub, wristSub);
+    // setArmPosAlageEndCmd = new SetArmPosition(armSub,
+    // ArmState.FinishRemovingAlgae);
 
-startClimbingCmd = new StartClimbing(climbSub, armSub);
+    ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
+    intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
+    stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
+    // runGripperCmd = new StartIntakingWithGripper(gripperSub, armSub);
+    // stopGripperCmd = new StopGripper(gripperSub);
+    scoreCoralCmd = new ScoreCoral(armState, elevatorSub, armSub, wristSub, gripperSub);
+    removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
-        goToRight = false;
-        // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
-        // Dispatch Thread
-        // SwingUtilities.invokeLater(() -> { robotController = new
-        // RobotController(communicator);
-        // SwingUtilities.invokeLater(() -> {
-        // robotController = new RobotController(communicator);
-        // JFrame frame = new JFrame("Robot Controller");
-        // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // frame.add(robotController); frame.pack(); frame.setVisible(true);
-        // });
-        moveToCoral = false;
-        noteYawPID = new PIDController(
-                DriveConstants.YawOverrideAlignNoteKP,
-                DriveConstants.YawOverrideAlignNoteKI,
-                DriveConstants.YawOverrideAlignNoteKD);
-        noteYawPID.setSetpoint(0.0);
+    startClimbingCmd = new StartClimbing(climbSub, armSub);
 
-        targetYawPID = new PIDController(
-                DriveConstants.TargetYawOverrideAlignNoteKP,
-                DriveConstants.TargetYawOverrideAlignNoteKI,
-                DriveConstants.TargetYawOverrideAlignNoteKD);
-        targetYawPID.setSetpoint(0.0);
+    goToRight = false;
+    // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
+    // Dispatch Thread
+    // SwingUtilities.invokeLater(() -> { robotController = new
+    // RobotController(communicator);
+    // SwingUtilities.invokeLater(() -> {
+    // robotController = new RobotController(communicator);
+    // JFrame frame = new JFrame("Robot Controller");
+    // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    // frame.add(robotController); frame.pack(); frame.setVisible(true);
+    // });
+    moveToCoral = false;
+    noteYawPID = new PIDController(
+            DriveConstants.YawOverrideAlignNoteKP,
+            DriveConstants.YawOverrideAlignNoteKI,
+            DriveConstants.YawOverrideAlignNoteKD);
+    noteYawPID.setSetpoint(0.0);
 
-        configureBindings();
+    targetYawPID = new PIDController(
+            DriveConstants.TargetYawOverrideAlignNoteKP,
+            DriveConstants.TargetYawOverrideAlignNoteKI,
+            DriveConstants.TargetYawOverrideAlignNoteKD);
+    targetYawPID.setSetpoint(0.0);
+
+    configureBindings();
 
         driveSub.setDefaultCommand(
                 // Drivetrain will execute this command periodically
@@ -273,9 +284,9 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
     public void disableSubsytems() {
         driveSub.stopDrive();
         armSub.stopArmMotor();
-        armSub.stopWristMotor();
-        armSub.stopCarriageMotor();
-        armSub.stopElevatorMotor();
+        wristSub.stopWristMotor();
+        elevatorSub.stopCarriageMotor();
+        elevatorSub.stopElevatorMotor();
         climbSub.stop();
         gripperSub.stop();
         algaeIntakeSub.stopIntakeMotor();
@@ -302,8 +313,8 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
         moveToTravellingButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick);
         moveToTravellingButton.onTrue(setArmPosTravellingCmd);
         
-        // moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
-        // moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
+        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
+        moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
         // moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
         // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
@@ -335,30 +346,31 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
     //    intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
         intakeAlgaeButton.onTrue(intakeAlgaeCmd);
 
-        // Bring back:
-        // scoreAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftTrigger); // CHANGE
-        // scoreAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+        scoreAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper); // CHANGE
+        scoreAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        retractIntakeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
+//        retractIntakeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
+        retractIntakeButton = new JoystickButton(operatorController, 20); // CHANGE
         retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/
         
         // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        // runGripperButton.onTrue(Commands.parallel(runGripperCmd.andThen(stopGripperCmd), setArmPosLoadCoralCmd)).onFalse(stopGripperCmd);
+        // runGripperButton.onTrue(Commands.parallel(
+        //     runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
+        //     setArmPosLoadCoralCmd  // Runs independently
+        // )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
 
-        runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
-        runGripperButton.onTrue(Commands.parallel(
-            runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
-            setArmPosLoadCoralCmd  // Runs independently
-        )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
+        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        // runGripperButton.onTrue(Commands.parallel(
+        //     runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
+        //     setArmPosLoadCoralCmd  // Runs independently
+        // )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
 
 
         scoreCoralButton = new JoystickButton(operatorController, XboxControllerConstants.WindowButton);
         // scoreCoralButton.onTrue(scoreCoralCmd);
-        scoreCoralButton.onTrue(new ReleaseCoral(armSub, gripperSub).withTimeout(0.5)
-               .andThen(scoreCoralCmd)
-               .andThen(new StopGripper(gripperSub)) );
+        scoreCoralButton.onTrue(scoreCoralCmd);
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
         autoAlignAlgaeButton.onTrue(new InstantCommand(() -> changeToLeft(null)))
@@ -678,7 +690,7 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
             var alliance = DriverStation.getAlliance();
             Logger.recordOutput("alliance", alliance.get());
             if (alliance.isPresent()) {
-                if (armSub.isAvailableToGoToReef()) {
+                if (armState.isAvailableToGoToReef()) {
                     if (alliance.get() == DriverStation.Alliance.Blue) {
                         int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListReef);
                         finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
@@ -688,7 +700,7 @@ startClimbingCmd = new StartClimbing(climbSub, armSub);
                         finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
                     }
                 }
-                if (armSub.isAvailableToGoToCoralStation()) {
+                if (armState.isAvailableToGoToCoralStation()) {
                     if (alliance.get() == DriverStation.Alliance.Blue) {
                         int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListCoralStation);
                         finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();

@@ -46,7 +46,7 @@ public class Gripper extends SubsystemBase {
         CarryingCoral, TakingInCoral, NoCoral
     }
 
-    GripperState gripperState = GripperState.CarryingCoral;
+    GripperState gripperState = GripperState.NoCoral;
 
     /** Creates a new Coral. */
     public Gripper() {
@@ -162,7 +162,8 @@ public class Gripper extends SubsystemBase {
     // }
 
     public boolean hasCoral() {
-        return (gripperState == GripperState.CarryingCoral);
+        // return (gripperState == GripperState.CarryingCoral);
+        return false;
     }
 
     private double getCurrent() {

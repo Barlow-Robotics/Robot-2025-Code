@@ -279,7 +279,7 @@ public class Constants {
         public static final double ArmAngleKS2 = 0.14;
         public static TuneableParameter ArmAngleKS = new TuneableParameter(ArmAngleKS2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         
-        public static final double ArmAngleCruiseSpeed = /*testing*/ 180.0/360.0; // .1; // RPS - CHANGE
+        public static final double ArmAngleCruiseSpeed = /*testing*/ 270.0/360.0; // .1; // RPS - CHANGE
         public static final double ArmAngleAcceleration = /*testing*/ ArmAngleCruiseSpeed * 4.0; // 12; // CHANGE
         public static final double ArmAngleJerk = /*testing*/ ArmAngleAcceleration * 4.0; // 40; // CHANGE
         
@@ -365,10 +365,11 @@ public class Constants {
 
 
 
+
         /* TOLERANCES */
 
         public static final double WristAngleTolerance = 20.0; // CHANGE wpk need to fix this after gains tuned
-        public static final double ArmAngleTolerance = 3.5; // CHANGE
+        public static final double ArmAngleTolerance = 5.0; // CHANGE
         public static final double ElevatorHeightTolerance = 0.5;// CHANGE
         public static final double CarriageHeightTolerance = 0.5;// CHANGE
 
