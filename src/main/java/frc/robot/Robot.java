@@ -22,24 +22,31 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
+import frc.robot.commands.CalibrateCarriage;
+import frc.robot.commands.CalibrateElevator;
+import frc.robot.subsystems.ArmState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 
 
 public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
-  private Command currentTeleopCommand;
+    private Command autonomousCommand;
+    private Command currentTeleopCommand;
 
-  private final RobotContainer robotContainer;
-  boolean pathPlannerConfigured = false ;
-  boolean currentlyFollowingAPath = false;
-  Pose2d currentPose;
-  Command selectedAutoCommand;
+    private final RobotContainer robotContainer;
+    boolean pathPlannerConfigured = false;
+    boolean currentlyFollowingAPath = false;
+    Pose2d currentPose;
+    Command selectedAutoCommand;
 
-  /*****  MECHANISM 2D FOR ADVANTAGE SCOPE  *****/
+    private boolean calibrationPerformed = false;
+
+    /***** MECHANISM 2D FOR ADVANTAGE SCOPE *****/
 
     // the main mechanism object
     Mechanism2d mech = new Mechanism2d(8, 10);
@@ -47,12 +54,14 @@ public class Robot extends LoggedRobot {
     // the mechanism root node
     MechanismRoot2d root = mech.getRoot("manipulator", 2.5, 0);
 
-    // MechanismLigament2d objects represent each "section"/"stage" of the mechanism, and are based
+    // MechanismLigament2d objects represent each "section"/"stage" of the
+    // mechanism, and are based
     // off the root node or another ligament object
     MechanismLigament2d elevator = root.append(new MechanismLigament2d("elevator", ArmConstants.ArmMinimumHeight, 90));
     MechanismLigament2d arm = elevator.append(
             new MechanismLigament2d("arm", 2, 0, 6, new Color8Bit(Color.kPurple)));
-    MechanismLigament2d gripper = arm.append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
+    MechanismLigament2d gripper = arm
+            .append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
 
     /**********************************************/
 
@@ -94,9 +103,9 @@ public class Robot extends LoggedRobot {
 
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
-    elevator.setLength(/*ArmConstants.ArmMinimumHeight + */(robotContainer.armSub.getElevatorHeightInches() + robotContainer.armSub.getCarriageHeightInches())/12.0);
+    elevator.setLength(/*ArmConstants.ArmMinimumHeight + */(robotContainer.elevatorSub.getElevatorHeightInches() + robotContainer.elevatorSub.getCarriageHeightInches())/12.0);
     arm.setAngle(robotContainer.armSub.getArmTalonEncoderDegrees()-90); // might need to change this to getArmEncoderDegrees() instead, but (as of right now) that doesn't work 
-    gripper.setAngle(robotContainer.armSub.getWristEncoderDegrees());
+    gripper.setAngle(robotContainer.wristSub.getWristEncoderDegrees());
 
     SmartDashboard.putData("ArmMech2D", mech);
 
@@ -108,8 +117,8 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     robotContainer.disableSubsytems();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
     if (selectedAutoCommand != null) {
       selectedAutoCommand.cancel();
@@ -121,8 +130,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
       selectedAutoCommand = null;
       currentTeleopCommand = null;
 
@@ -142,12 +151,24 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    // robotContainer.configurePathPlanner();
-    m_autonomousCommand = robotContainer.getAutonomousCommand();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    SequentialCommandGroup commandGroup = new SequentialCommandGroup();
+
+    // if (!calibrationPerformed && Robot.isReal()) {
+    //   Command calibrateElevator = new CalibrateElevator(robotContainer.armSub);
+    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.armSub);
+      
+    //   commandGroup.addCommands(calibrateElevator, calibrateCarriage, new InstantCommand(() -> {this.calibrationPerformed = true;}));
+    // }
+
+    // robotContainer.configurePathPlanner();
+    autonomousCommand = robotContainer.getAutonomousCommand();
+
+    if (autonomousCommand != null) {
+      commandGroup.addCommands(autonomousCommand);
     }
+
+    commandGroup.schedule();
   }
 
   @Override
@@ -160,8 +181,19 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
       robotContainer.armSub.applyAllConfigs();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+      SequentialCommandGroup calibrationSequence = new SequentialCommandGroup();
+
+    // if (!calibrationPerformed && Robot.isReal()) {
+    //   Command calibrateElevator = new CalibrateElevator(robotContainer.armSub);
+    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.armSub);
+    //   Command setState = new InstantCommand(() -> {robotContainer.armSub.setActualState(ArmState.Startup); robotContainer.armSub.setDesiredState(ArmState.Startup);});
+      
+    //   calibrationSequence.addCommands(calibrateElevator, calibrateCarriage, new InstantCommand(() -> {this.calibrationPerformed = true;}));
+    //   calibrationSequence.schedule();
+    // }
+
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
     if (selectedAutoCommand != null) {
       selectedAutoCommand.cancel();

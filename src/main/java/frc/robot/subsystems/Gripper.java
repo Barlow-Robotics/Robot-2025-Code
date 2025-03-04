@@ -27,163 +27,194 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class Gripper extends SubsystemBase {
 
-  SparkMax gripperMotor;
-  SparkMaxConfig gripperMotorConfigBrake;
-  SparkMaxConfig gripperMotorConfigCoast;
-  SparkMaxSim gripperMotorSim;
-  DCMotorSim gripperMotorModel;
-  
-  private boolean simulationInitialized = false;
-  private boolean isEjecting;
-  private boolean firstRelease = false;
-  private int timerCount = 0;
-  public enum GripperState {
-    CarryingCoral, PlacingCoral, ReleasingL1, TakingInCoral, FinishedReleasingL1
-  }
-  GripperState gripperState = GripperState.CarryingCoral;
-  /** Creates a new Coral. */
-  public Gripper() {
-    gripperMotor = new SparkMax(ElectronicsIDs.GripperMotorID, MotorType.kBrushless);
+    SparkMax gripperMotor;
+    SparkMaxConfig gripperMotorConfigBrake;
+    SparkMaxConfig gripperMotorConfigCoast;
+    SparkMaxSim gripperMotorSim;
+    DCMotorSim gripperMotorModel;
 
-    gripperMotorSim = new SparkMaxSim(gripperMotor, DCMotor.getNeo550((1)));
-    gripperMotorModel = new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1), DCMotor.getNeo550(1));
-    //gripperPidController = gripperMotor.getClosedLoopController();
-    gripperMotorConfigBrake = new SparkMaxConfig();
-    gripperMotorConfigBrake.closedLoop
-            .pidf(GripperConstants.GripperKP2, GripperConstants.GripperKI2, GripperConstants.GripperKD2, GripperConstants.GripperFF2)
-            .iZone(GripperConstants.GripperIZone.get())
-            .outputRange(-1, 1);
-    gripperMotorConfigBrake.idleMode(IdleMode.kCoast);
+    private boolean simulationInitialized = false;
+    private boolean intaking = false ;
 
-    gripperMotor.configure(gripperMotorConfigBrake, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-  }
+    private boolean coralLoaded = false ;
+    // private boolean isEjecting;
+    // private boolean firstRelease = false;
+    // private int timerCount = 0;
 
-  @Override
-  public void periodic() {
-    if (detectedCoral()) {
-      gripperState = GripperState.CarryingCoral;
+    private enum GripperState {
+        // CarryingCoral, PlacingCoral, ReleasingL1, TakingInCoral, FinishedReleasingL1
+        CarryingCoral, TakingInCoral, NoCoral
     }
-    else if (gripperState == GripperState.CarryingCoral) {
-      setBreakMode();
-      firstRelease = true;
+
+    GripperState gripperState = GripperState.NoCoral;
+
+    /** Creates a new Coral. */
+    public Gripper() {
+        gripperMotor = new SparkMax(ElectronicsIDs.GripperMotorID, MotorType.kBrushless);
+
+        gripperMotorSim = new SparkMaxSim(gripperMotor, DCMotor.getNeo550((1)));
+        gripperMotorModel = new DCMotorSim(
+                LinearSystemId.createDCMotorSystem(DCMotor.getNeo550(1), Constants.jKgMetersSquared, 1),
+                DCMotor.getNeo550(1));
+        // gripperPidController = gripperMotor.getClosedLoopController();
+        gripperMotorConfigBrake = new SparkMaxConfig();
+        gripperMotorConfigBrake.closedLoop
+                .pidf(GripperConstants.GripperKP2, GripperConstants.GripperKI2, GripperConstants.GripperKD2,
+                        GripperConstants.GripperFF2)
+                .iZone(GripperConstants.GripperIZone.get())
+                .outputRange(-1, 1);
+        gripperMotorConfigBrake.idleMode(IdleMode.kCoast);
+
+        gripperMotor.configure(gripperMotorConfigBrake, ResetMode.kNoResetSafeParameters,
+                PersistMode.kNoPersistParameters);
     }
-    else if (gripperState == GripperState.PlacingCoral) {
-      setCoastMode();
-      firstRelease = true;
+
+
+    @Override
+    public void periodic() {
+
+        // wpk change over to velocity control when we have time
+
+        if ( gripperState == GripperState.CarryingCoral || gripperState == GripperState.TakingInCoral ) {
+            if (Math.abs(gripperMotor.getEncoder().getVelocity()) < 5 ) {
+                gripperState = GripperState.CarryingCoral ;
+            }
+        }
+
+        logData();
+
+        // if (detectedCoral()) {
+        //     gripperState = GripperState.CarryingCoral;
+        // } else if (gripperState == GripperState.CarryingCoral) {
+        //     setBreakMode();
+        //     firstRelease = true;
+        // } else if (gripperState == GripperState.PlacingCoral) {
+        //     setCoastMode();
+        //     firstRelease = true;
+        // } else if (gripperState == GripperState.ReleasingL1 && firstRelease) {
+        //     startEjecting();
+        //     firstRelease = false;
+        //     timerCount++;
+        // } else if (gripperState == GripperState.ReleasingL1) {
+        //     timerCount++;
+        // } else if (gripperState == GripperState.TakingInCoral) {
+        //     firstRelease = true;
+        // } else {
+        //     setBreakMode();
+        //     firstRelease = true;
+        // }
+
+        // if (timerCount == 30) {
+        //     timerCount = 0;
+        //     gripperState = GripperState.FinishedReleasingL1;
+        // }
     }
-    else if (gripperState == GripperState.ReleasingL1 && firstRelease) {
-      startEjecting();
-      firstRelease = false;
-      timerCount++;
+
+    // public void setState(GripperState newState) {
+    //     this.gripperState = newState;
+    // }
+
+    public void setReleaseMode() {
+        gripperMotor.setVoltage(0);
     }
-    else if (gripperState == GripperState.ReleasingL1) {
-      timerCount++;
+
+    public void setHoldMode() {
+        gripperMotor.setVoltage(0.25);
     }
-    else if (gripperState == GripperState.TakingInCoral) {
-      firstRelease = true;
+
+    public void startIntaking() {
+        gripperMotor.setVoltage(3);
+        gripperState = GripperState.TakingInCoral ;
     }
-    else {
-      setBreakMode();
-      firstRelease = true;
+
+    public void startEjecting() {
+        gripperMotor.setVoltage(-1.5);
+        gripperState = GripperState.NoCoral ;
+        // gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed2,
+        // ControlType.kVelocity);
+
+        // isEjecting = true;
     }
-    logData();
 
-    if (timerCount == 30) {
-      timerCount = 0;
-      gripperState = GripperState.FinishedReleasingL1;
+    public void startAlgaeRemoval() {
+        gripperMotor.setVoltage(-9);
+        gripperState = GripperState.NoCoral ;
+
     }
-  }
 
-  public void setState(GripperState newState) {
-    this.gripperState = newState;
-  }
+    // public void setVelocity(double speed) {
+    //     gripperMotor.getClosedLoopController().setReference(speed, ControlType.kVelocity);
+    //     gripperState = GripperState.TakingInCoral;
+    //     isEjecting = false;
+    // }
 
-
-  public void setCoastMode() {
-    gripperMotor.setVoltage(0);
-  }
-  public void setBreakMode() {
-    //gripperMotor.setVoltage(0.5);
-  }
-
-  public void setVelocity(double speed) {
-    gripperMotor.getClosedLoopController().setReference(speed, ControlType.kVelocity);
-    gripperState = GripperState.TakingInCoral;
-    isEjecting = false;
-  }
-
-  public GripperState getState() {
-    return this.gripperState;
-  }
-  public void setVoltage(double voltage) {
-    gripperMotor.getClosedLoopController().setReference(voltage, ControlType.kVoltage);
-  }
-
-  public boolean detectedCoral() {
-    return (getCurrent() > Constants.GripperConstants.currentOfIntakedCoral.get());
-  }
-
-  public double getCurrent() {
-    return gripperMotor.getOutputCurrent();
-  }
-
-  public void startEjecting() {
-    gripperMotor.setVoltage(-3);
-    // gripperMotor.getClosedLoopController().setReference(Constants.GripperConstants.EjectSpeed2, ControlType.kVelocity);
-    isEjecting = true;
-  }
-  
-  public double getIntakeEncoderDegrees() {
-    return Units.rotationsToDegrees(gripperMotor.getAbsoluteEncoder().getPosition());
-  }
-
-  public void stop() {
-    gripperMotor.stopMotor();
-  }
- /* LOGGING */
-  private void logData() {
-    Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
-    //Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor);
-    Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getEncoder().getVelocity());
-    Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
-    Logger.recordOutput("Gripper/GripperMotor/StatorCurrent", gripperMotor.getOutputCurrent());
-
-    Logger.recordOutput("Gripper/GripperMotor/EjectSpeed", Constants.GripperConstants.EjectSpeed2);
-
- 
-    //Logger.recordOutput("Gripper/GripperMotor/StatorCurrent", gripperMotor.getClosedLoopController());
+    public void stop() {
+        gripperMotor.stopMotor();
+    }
 
 
-    Logger.recordOutput("Gripper/firstRelease", this.firstRelease);
-    Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
-    Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
-    Logger.recordOutput("Gripper/GripperState", getState());
+    // public GripperState getState() {
+    //     return this.gripperState;
+    // }
 
-                          // Is there supposed to be an exclamation mark
-  }
-  /* SIMULATION */
+    // public void setVoltage(double voltage) {
+    //     gripperMotor.getClosedLoopController().setReference(voltage, ControlType.kVoltage);
+    // }
 
-  public void simulationInit() {
+    public boolean hasCoral() {
+        // return (gripperState == GripperState.CarryingCoral);
+        return false;
+    }
 
-  }
-  @Override
-  public void simulationPeriodic() {
-      if (!simulationInitialized) {
-          simulationInit();
-          simulationInitialized = true;
-      }
-      gripperMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
-      double intakeVoltage = gripperMotorSim.getBusVoltage();
-      gripperMotorModel.setInputVoltage(intakeVoltage);
-      gripperMotorModel.update(0.02);
-      gripperMotorSim.setVelocity(gripperMotorModel.getAngularVelocityRPM() / 60.0);
-      
-      //double currentLiftAngle = getLiftEncoderDegrees();
-      //double delta = desiredLiftAngle - currentLiftAngle;
-      //delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
-      //liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
-  
-  }
+    private double getCurrent() {
+        return gripperMotor.getOutputCurrent();
+    }
 
-  
+
+    private double getIntakeEncoderDegrees() {
+        return Units.rotationsToDegrees(gripperMotor.getAbsoluteEncoder().getPosition());
+    }
+
+    /* LOGGING */
+    private void logData() {
+        Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor.getAbsoluteEncoder().getPosition());
+        // Logger.recordOutput("Gripper/GripperMotor/RotationsCANCoder", gripperMotor);
+        Logger.recordOutput("Gripper/GripperMotor/VoltageActual", gripperMotor.getBusVoltage() );
+        Logger.recordOutput("Gripper/GripperMotor/RPSActual", gripperMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Gripper/GripperMotor/StatorCurrent", gripperMotor.getOutputCurrent());
+
+        // Logger.recordOutput("Gripper/GripperMotor/StatorCurrent",
+        // gripperMotor.getClosedLoopController());
+
+        // Logger.recordOutput("Gripper/firstRelease", this.firstRelease);
+        // Logger.recordOutput("Gripper/isEjecting", this.isEjecting);
+        // Logger.recordOutput("Gripper/isIntaking", !this.isEjecting);
+        // // Logger.recordOutput("Gripper/GripperState", getState());
+
+    }
+    /* SIMULATION */
+
+    public void simulationInit() {
+
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        if (!simulationInitialized) {
+            simulationInit();
+            simulationInitialized = true;
+        }
+        gripperMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+        double intakeVoltage = gripperMotorSim.getBusVoltage();
+        gripperMotorModel.setInputVoltage(intakeVoltage);
+        gripperMotorModel.update(0.02);
+        gripperMotorSim.setVelocity(gripperMotorModel.getAngularVelocityRPM() / 60.0);
+
+        // double currentLiftAngle = getLiftEncoderDegrees();
+        // double delta = desiredLiftAngle - currentLiftAngle;
+        // delta = Math.min(Math.abs(delta), 5.0) * Math.signum(delta);
+        // liftEncoder.setPosition(Units.degreesToRotations(currentLiftAngle + delta));
+
+    }
+
 }

@@ -4,56 +4,68 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Amp;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ArmState;
+// import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Wrist;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class RemoveAlgae extends Command {
+public class LoadCoralFromChute extends Command {
+
+    Elevator theElevator ;
+    Arm theArm;
+    Wrist theWrist ;
+    Gripper theGripper;
+    ArmStateManager armState ;
 
     private Command currentCommand;
-    private final ArmStateManager armStateManager ;
-    private final Elevator theElevator ;
-    private final Arm theArm;
-    private final Wrist theWrist ;
-    private final Gripper theGripper;
 
-    public RemoveAlgae(ArmStateManager asm, Elevator e, Arm a, Wrist w, Gripper g) {
-        armStateManager = asm ;
+    /** Creates a new LoadCoralFromChute. */
+    public LoadCoralFromChute(Elevator e, Arm a, Wrist w, Gripper g, ArmStateManager asm ) {
         theElevator = e ;
-        theArm = a ;
+        theArm = a;
         theWrist = w ;
-        theGripper = g ;
+        theGripper = g;
+        armState = asm ;
+
+        // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(theElevator, theArm, theWrist, theGripper);
     }
-
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        ArmState currentState = armStateManager.getCurrentState() ;
-        if (currentState != ArmState.StartAlgaePosition) {
-            // we need to position the gripper for the next button press
+
+        if ( armState.getCurrentState() != ArmState.WaitingForCoral ) {
+            // what should we do? Ignore it?
             currentCommand = Commands.sequence(
-                new PositionGripper(armStateManager, ArmState.StartAlgaePosition, theElevator, theArm, theWrist)
-                );
+                new PositionGripper(armState, ArmState.WaitingForCoral, theElevator, theArm, theWrist)
+            ) ;
+
         } else {
+            double startingCarriageHeight = theElevator.getCarriageHeightInches() ;
             currentCommand = Commands.sequence(
-                //wpk need to fix magic numbers
-                new InstantCommand(()-> theGripper.startAlgaeRemoval() ) ,
-                // move the elevator up to strip the algae
-                new MoveElevator(theElevator, theElevator.getElevatorHeightInches() + 10.0, 20.0) ,
-                new InstantCommand(()-> theGripper.stop() ) ,
-                new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
-                );
+                // move arm to load position
+                // start gripper spinng to intake
+                // wait for gripper to have coral or a timeoout
+                // return gripper to load position
+
+                // wpk need to fix magic numbers
+                new MoveElevator(theElevator, 0.0, startingCarriageHeight - 3.0) ,
+                new InstantCommand( () -> theGripper.startIntaking() ),
+                new MoveElevator(theElevator, 0.0, startingCarriageHeight) ,
+                new WaitCommand(0.25) ,
+                new StopGripper(theGripper) 
+            ) ;
+
         }
+
         currentCommand.schedule();
     }
 

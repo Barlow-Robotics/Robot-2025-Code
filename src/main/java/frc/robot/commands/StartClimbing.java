@@ -7,7 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.Arm.ArmState;
+import frc.robot.subsystems.ArmState;
 import frc.robot.subsystems.Climb.ClimbState;
 
 public class StartClimbing extends Command {
@@ -25,21 +25,21 @@ public class StartClimbing extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        ArmState currentState = armSub.getArmState();
-        if (!(currentState == ArmState.Running)) {
-            armSub.setDesiredState(ArmState.Running);
-        }
+        // ArmState currentState = armSub.getArmState();
+        // if (!(currentState == ArmState.Running)) {
+        //     armSub.setDesiredState(ArmState.Running);
+        // }
     }
 
     public void execute() {
-        ArmState currentState = armSub.getArmState();
-        if (currentState == ArmState.Running) {
-            if (climbSub.getCurrentState() == ClimbState.Default) {
-                climbSub.latchOntoCage();
-            } else if (climbSub.getCurrentState() == ClimbState.LatchedOnCage) {
-                climbSub.windWinch();
-            }
-        }
+        // ArmState currentState = armSub.getArmState();
+        // if (currentState == ArmState.Running) {
+        //     if (climbSub.getCurrentState() == ClimbState.Default) {
+        //         climbSub.latchOntoCage();
+        //     } else if (climbSub.getCurrentState() == ClimbState.LatchedOnCage) {
+        //         climbSub.windWinch();
+        //     }
+        // }
     }
 
     @Override

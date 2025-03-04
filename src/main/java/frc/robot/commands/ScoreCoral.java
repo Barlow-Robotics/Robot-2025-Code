@@ -5,87 +5,99 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Arm.ArmState;
-import frc.robot.subsystems.Gripper.GripperState;
+import frc.robot.subsystems.ArmState;
+import frc.robot.subsystems.Elevator;
+// import frc.robot.subsystems.Gripper.GripperState;
 import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.Wrist;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ScoreCoral extends Command {
 
-  private boolean currentlyMoving;
-  private boolean firstTime;
+    private ArmStateManager armStateManager ;
+    private ArmState currentState;
 
-  private ArmState currentState; 
+    private final Elevator theElevator ;
+    private final Arm theArm;
+    private final Wrist theWrist ;
+    private final Gripper theGripper ;
 
-  private final Arm armSub;
-  private final Gripper gripperSub;
-
-  public ScoreCoral(Arm armSub, Gripper gripperSub) {
-    this.gripperSub = gripperSub;
-    this.armSub = armSub;
-    addRequirements(armSub, gripperSub);
-  }
-
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    currentlyMoving = false;
-    firstTime = true;
-  } 
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    currentState = armSub.getArmState();
-    if (!currentlyMoving && firstTime) {
-      if (currentState == ArmState.Level2 || currentState == ArmState.Level3 || currentState == ArmState.Level4) {
-        gripperSub.setState(GripperState.PlacingCoral);
-        if (currentState  == ArmState.Level2)
-          armSub.setDesiredState(ArmState.ScoreLevel2);
-        if (currentState  == ArmState.Level3)
-          armSub.setDesiredState(ArmState.ScoreLevel3);
-        if (currentState  == ArmState.Level4)
-          armSub.setDesiredState(ArmState.ScoreLevel4);
+    private Command currentCommand;
 
 
-        currentlyMoving = true;
-        firstTime = false;
-      }
-      else if (currentState == ArmState.Level1) {
-        gripperSub.setState(GripperState.ReleasingL1);
-        currentlyMoving = true;
-        firstTime = false;
-      }
+    // private final Gripper gripperSub;
+
+    public ScoreCoral(ArmStateManager asm, Elevator e, Arm a, Wrist w,  Gripper g) {
+        armStateManager = asm ;
+        theElevator = e ;
+        theArm = a ;
+        theWrist = w ;
+        theGripper = g ;
+
+        addRequirements(theElevator, theArm, theWrist, theGripper );
     }
 
-    if (currentState == ArmState.Level1 && gripperSub.getState() == GripperState.FinishedReleasingL1) {
-      armSub.setDesiredState(ArmState.SafeToLowerArm);
-      gripperSub.setState(GripperState.PlacingCoral);
-      currentlyMoving = true;
+
+    private Command createL234ScoreCommand( double deltaElevatorHeight, double deltaCarriageHeight, double deltaArmAngle) {
+
+        return Commands.sequence(
+            // new InstantCommand(() -> theGripper.setReleaseMode() ),
+            new InstantCommand( ()-> theGripper.startEjecting()),
+            new ParallelCommandGroup(
+                new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
+                new MoveElevator(theElevator, theElevator.getElevatorHeightInches()+deltaElevatorHeight, theElevator.getCarriageHeightInches()+deltaCarriageHeight) 
+            ) ,
+            new InstantCommand( ()-> theGripper.stop()),
+            new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
+            );            
     }
 
-    if (armSub.hasCompletedMovement()) currentlyMoving = false;
-    
-    if (currentState == ArmState.SafeToLowerArm && !firstTime && !currentlyMoving) {
-      // armSub.setDesiredState(ArmState.WaitingForCoral); // CHANGE: TO ADD LATER
-      currentlyMoving = true;
+
+
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+
+        currentState = armStateManager.getCurrentState();
+
+        if (currentState == ArmState.Level1) {
+            currentCommand = Commands.sequence(
+                new EjectCoral( theGripper).withTimeout(1.0) ,
+                new StopGripper(theGripper),
+                new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist) 
+            ) ;
+        } else if (currentState == ArmState.Level2) {
+            currentCommand = createL234ScoreCommand(0, -4, -30) ;
+        } else if (currentState == ArmState.Level3) {
+            currentCommand = createL234ScoreCommand(0, -4, -30) ;
+        } else if (currentState == ArmState.Level4){
+            currentCommand = createL234ScoreCommand(0, -4, -30) ;
+        } else {
+            // can't score coral if your not at one of the levels
+            currentCommand = new NoOpCommand() ;
+        }
+        currentCommand.schedule();
     }
-      // Wait for it to complete. 
 
-  }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return currentState == ArmState.SafeToLowerArm;
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+    }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return currentCommand.isFinished() ;
+    }
 }
 
-
-// Need to make a new motion magic for L1 
-// Need to make the wrist turn later. 

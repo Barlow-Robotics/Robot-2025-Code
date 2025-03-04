@@ -5,22 +5,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Gripper;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class RunGripper extends Command {
-
-  Gripper gripperSub;
-  Arm armSub;
-
-  /** Creates a new Intake. */
-  public RunGripper(Gripper gripperSub, Arm armSub) {
-    this.gripperSub = gripperSub;
-    this.armSub = armSub;
-
-    addRequirements(gripperSub);
+public class NoOpCommand extends Command {
+  /** Creates a new NoOpCommand. */
+  public NoOpCommand() {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -30,25 +19,15 @@ public class RunGripper extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    // wpk pt this back if we decide we need manual control of the gripper
-    // gripperSub.setVelocity(armSub.getDesiredGripperVel());
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return true ;
-
-    // wpk put this back if we run the gripper manually
-    // return gripperSub.detectedCoral();   // if gripper current is high, then return true. 
+    return true;
   }
 }
-
-
