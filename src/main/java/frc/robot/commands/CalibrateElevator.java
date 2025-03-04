@@ -36,6 +36,7 @@ public class CalibrateElevator extends Command {
     @Override
     public void end(boolean interrupted) {
         theElevator.stopElevatorMotor();
+        theElevator.resetElevatorEncoder();
     }
 
     // Returns true when the command should end.

@@ -35,6 +35,7 @@ public class CalibrateCarriage extends Command {
     @Override
     public void end(boolean interrupted) {
         theElevator.stopCarriageMotor();
+        theElevator.resetCarriageEncoder();
     }
 
     // Returns true when the command should end.

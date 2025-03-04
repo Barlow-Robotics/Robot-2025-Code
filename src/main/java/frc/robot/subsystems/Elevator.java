@@ -212,6 +212,13 @@ public class Elevator extends SubsystemBase {
         carriageMotor.set(0);
     }
 
+    public void resetCarriageEncoder() {
+        carriageMotor.setPosition(0.0);
+    }
+
+    public void resetElevatorEncoder() {
+        elevatorMotor.setPosition(0.0);
+    }
 
     /** Makes sure we never go past our limits of motion */
     private void boundsCheck() {
