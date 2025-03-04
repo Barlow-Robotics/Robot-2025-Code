@@ -165,7 +165,7 @@ public class Robot extends LoggedRobot {
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null) {
-      commandGroup.addCommands(autonomousCommand);
+      commandGroup.addCommands(autonomousCommand.asProxy());
     }
 
     commandGroup.schedule();

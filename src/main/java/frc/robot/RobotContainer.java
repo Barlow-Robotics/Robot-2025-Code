@@ -1,6 +1,8 @@
 
 package frc.robot;
 
+import java.util.Set;
+
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -30,7 +32,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -448,7 +452,7 @@ public RobotContainer(Robot robot) {
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
         SmartDashboard.putData("Selected Auto", autoChooser);
-        autoChooser.setDefaultOption("Choreo 1Auto", driveSub.ChoreoAuto("Top Left 1 Coral"));
+        autoChooser.setDefaultOption("Choreo 1Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Left 1 Coral"), Set.of(driveSub)));
         // autoChooser.addOption("Routine A", new DynamicPathPlanner("Routine A",
         // visionSub));
         // autoChooser.addOption("Routine B", new DynamicPathPlanner("Routine B",
@@ -458,8 +462,8 @@ public RobotContainer(Robot robot) {
         // autoChooser.addOption("Routine D", new DynamicChoreoCommand("Routine D",
         // visionSub, driveSub));
         autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
-
-        autoChooser.addOption("ChoreoTEST", driveSub.ChoreoAuto("Straight Line Path"));
+        autoChooser.addOption("ChoreoTEST", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
+        // autoChooser.addOption("ChoreoTEST", driveSub.ChoreoAuto("Straight Line Path"));
         // autoChooser.addOption("Test1", driveSub.ChoreoAutoWithoutReset("Test1"));
         // autoChooser.addOption("Test2", driveSub.ChoreoAuto("Test2"));
         // autoChooser.addOption("Test3", driveSub.ChoreoAuto("Test3"));
@@ -631,10 +635,10 @@ public RobotContainer(Robot robot) {
                     // Assume the path needs to be flipped for Red vs Blue, this is normally the
                     // case
                     () -> {
-                        var alliance = DriverStation.getAlliance();
-                        if (alliance.isPresent() && DriverStation.isAutonomous()) {
-                            return alliance.get() == DriverStation.Alliance.Red;
-                        }
+                        // var alliance = DriverStation.getAlliance();
+                        // if (alliance.isPresent() && DriverStation.isAutonomous()) {
+                        //     return alliance.get() == DriverStation.Alliance.Red;
+                        // }
 
                         return false;
                     },
