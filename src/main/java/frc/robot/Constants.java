@@ -429,10 +429,15 @@ public class Constants {
         public static final double WinchSprocketDiameter = 0.75;    // Correct per Mr. K 022725
         public static final double WinchSprocketCircumference = WinchSprocketDiameter * Math.PI;
         public static final double RotationsPerWinchInch = 1 / WinchSprocketCircumference * WinchMotorGearRatio;
-        public static final double WinchCableLength = 20;    // Length in inches, fully unwound with harpoon fwd & down
-        public static final double WinchCableLenHarpoonHoriz = 18.5; // Length when the harpoon is pulled to fully horizontal
+        public static final double WinchCableLenHarpoonHoriz = 18.5; // Length (in.) when the harpoon is pulled to fully horizontal
         public static final double WinchCableLenAfterClimb = 11; // Length when we have fully wound the Cable & bot climbed.
-        public static final double WinchAttachRotations = (WinchCableLength - WinchCableLenHarpoonHoriz)/RotationsPerWinchInch; 
+        //  We are assuming that at the start of a match, the winch is wound so that the harpoon is back inside the body.
+        //      For convenience sake, we are just setting this to the same level as a full climb.
+        public static final double WinchCableLenAtRest = WinchCableLenAfterClimb; // Length in inches, fully unwound with harpoon fwd & down
+        //  Below measures the winch rotations required to move from the starting point, i.e. climbed, to horizontal harpoon
+        //      As is, this is a negative value, i.e. we are unwinding the cable.
+        public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)/RotationsPerWinchInch; 
+        //  Below measures the winch rotations required to move from horizontal harpoon to fully back, i.e. climbed.
         public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)/RotationsPerWinchInch;
 
         public static final double WinchMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / WinchMotorGearRatio
@@ -455,16 +460,22 @@ public class Constants {
 
         public static final double SupplyCurrentLimit = 100; // CHANGE
 
-        public static final double CageAngle2 = 0;
-        public static TuneableParameter CageAngle = new TuneableParameter(CageAngle2, 0, 180, true, "TuneableParameter/Climb/CageAngle");
+        public static final double CageAngle2 = WinchAttachRotations * 360;
+        public static TuneableParameter AttachAngle = new TuneableParameter(CageAngle2, 0, 180, true, "TuneableParameter/Climb/CageAngle");
         
-        public static final double WinchedAngle2 = 0;
-        public static TuneableParameter WinchedAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
-        public static final int ServoExtendedPos = 1;
+        public static final double WinchedAngle2 = WinchClimbRotations * 360;
+        public static TuneableParameter ClimbedAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
 
-        public static final double WinchTolerance = 0;
+        //  A value between 0.0 (fully retracted) and 1.0 (fully extended)
+        //      For initial testing, start with a low value.  Movement required is .25-.375 inches.
+        //      Not sure how this translates for this specific device, but full extension is a bit more than 1 in.
+        public static final double ServoExtendedPos = 0.1;  // Low initial value for testing.  Increase in small increments
+                                                            //  as needed.
+        public static final double ServoRetractedPos = 0.0;  // Low initial value for testing.  Increase in small increments
 
-        public static final int ServoTolerance = 0;
+        public static final double WinchTolerance = 15;  //  In degrees..Get the winch rotation within +/- this many degrees
+
+        public static final double ServoTolerance = 0.02;  //  Portion of the servo's (actuator's) range of motion.
 
 
 

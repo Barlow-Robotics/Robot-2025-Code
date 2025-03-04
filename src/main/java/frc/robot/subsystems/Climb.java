@@ -21,6 +21,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,6 +30,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.commands.TuneableParameter;
+import frc.robot.sim.PhysicsSim;
 
 public class Climb extends SubsystemBase {
     /** Creates a new Climb. */
@@ -46,6 +48,7 @@ public class Climb extends SubsystemBase {
     private double desiredWinchAngle = 0;
     private double desiredgetServoPositionition = 0;
     private Servo servo;
+    private boolean simulationInitialized = false;
 
     public Climb() {
         // Motor config
@@ -83,19 +86,29 @@ public class Climb extends SubsystemBase {
     }
 
     public void latchOntoCage() {
-        // CHANGE: extend the servo here (to disengage ratcheting)      
-        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.CageAngle.get()));
-        request.EnableFOC = Constants.IsFocEnabled;
-        winchMotor.setControl(request);
-        desiredWinchAngle = ClimbConstants.CageAngle.get();
+        // Extend the servo here to disengage ratcheting
+        //  CHANGE:  Do we need to wait or otherwise determine that the servo is fully extended before moving on?      
+        extendServo();
+        //  Once the servo is extended to release ratcheting, unwind the cable to move the harpoon forward
+        //  IMPORTANT: 
+        if (Math.abs(ClimbConstants.ServoExtendedPos - getServoPosition()) <= ClimbConstants.ServoTolerance)    // OLD CODE && (getServoPosition() <= (0 + ClimbConstants.ServoTolerance))
+        {
+            //  IMPORTANT: Comment out the following code until we know the servo is extending far enough to
+            //      disengage ratcheting.
+            final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.AttachAngle.get()));
+            request.EnableFOC = Constants.IsFocEnabled;
+            winchMotor.setControl(request);
+            desiredWinchAngle = ClimbConstants.AttachAngle.get();   // Just for logging
+        }
     }
 
     public void windWinch() {
         // CHANGE: retract the servo here (to engage ratcheting)
-        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.WinchedAngle.get()));
+        retractServo();
+        final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.ClimbedAngle.get()));
         request.EnableFOC = Constants.IsFocEnabled;
         winchMotor.setControl(request);
-        desiredWinchAngle = ClimbConstants.WinchedAngle.get();
+        desiredWinchAngle = ClimbConstants.ClimbedAngle.get();  //  Just for logging
     }
 
     public double getWinchPositionDegrees() {
@@ -103,13 +116,13 @@ public class Climb extends SubsystemBase {
     }
 
     public void extendServo() {
-        servo.setPosition(ClimbConstants.ServoExtendedPos); // Should double check that we actually want it fully extended and not at a specific value instead
+        servo.setPosition(ClimbConstants.ServoExtendedPos);
         desiredgetServoPositionition = ClimbConstants.ServoExtendedPos;
     }
 
     public void retractServo() {
-        servo.setPosition(0);
-        desiredgetServoPositionition = 0;
+        servo.setPosition(ClimbConstants.ServoRetractedPos);
+        desiredgetServoPositionition = ClimbConstants.ServoRetractedPos;
     }
 
     public double getServoPosition() {
@@ -117,17 +130,19 @@ public class Climb extends SubsystemBase {
     }
 
     public boolean isLatchedOnCage() {
-        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.CageAngle.get() - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.CageAngle.get() + ClimbConstants.WinchTolerance);
-        boolean withinServoTolerance = (getServoPosition() >= ClimbConstants.ServoExtendedPos - ClimbConstants.ServoTolerance) && (getServoPosition() <= ClimbConstants.ServoExtendedPos + ClimbConstants.ServoTolerance);
+        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.AttachAngle.get() - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.AttachAngle.get() + ClimbConstants.WinchTolerance);
+        boolean withinServoTolerance = (Math.abs(ClimbConstants.ServoExtendedPos - getServoPosition()) <= ClimbConstants.ServoTolerance);  // OLD CODE (getServoPosition() >= ClimbConstants.ServoExtendedPos - ClimbConstants.ServoTolerance) && (getServoPosition() <= ClimbConstants.ServoExtendedPos + ClimbConstants.ServoTolerance);
         return withinWinchTolerance && withinServoTolerance;
     }
 
     public boolean isWinched() {
-        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.WinchedAngle.get() - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.WinchedAngle.get() + ClimbConstants.WinchTolerance);
-        boolean withinServoTolerance = (getServoPosition() >= 0 - ClimbConstants.ServoTolerance) && (getServoPosition() <= 0 + ClimbConstants.ServoTolerance);
+        boolean withinWinchTolerance = (getWinchPositionDegrees() >= ClimbConstants.ClimbedAngle.get() - ClimbConstants.WinchTolerance) && (getWinchPositionDegrees() <= ClimbConstants.ClimbedAngle.get() + ClimbConstants.WinchTolerance);
+        boolean withinServoTolerance = (getServoPosition() - Math.abs(ClimbConstants.ServoRetractedPos) <= ClimbConstants.ServoTolerance);
+// OLD        boolean withinServoTolerance = (getServoPosition() >= 0 - ClimbConstants.ServoTolerance) && (getServoPosition() <= 0 + ClimbConstants.ServoTolerance);
         return withinWinchTolerance && withinServoTolerance;
     }
 
+    //  Looks to be dead code.  Could use in above to methods.
     public boolean withinTolerance(double trueVal, double desiredVal, double tolerance) {
         return (trueVal >= desiredVal - tolerance) && (trueVal <= desiredVal + tolerance);
     }
@@ -176,6 +191,40 @@ public class Climb extends SubsystemBase {
         //     if (status.isOK()) break; }
         // if (!status.isOK()) System.out.println("Could not apply current limit configs to " + motor + " error code: " + status.toString());
     }
+
+    
+    /* SIMULATION */
+
+    public void simulationInit() {
+        PhysicsSim.getInstance().addTalonFX(winchMotor, 0.001);
+
+
+        /* 
+        elevatorHallEffectSim = new DIOSim(elevatorHallEffect);
+        carriageHallEffectSim = new DIOSim(carriageHallEffect); */
+    }
+
+    @Override
+    public void simulationPeriodic() {
+
+        if (!simulationInitialized) {
+            simulationInit();
+            simulationInitialized = true;
+        }
+    
+        // Following pattern from:
+        // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/simulation/simulation-intro.html
+        // armMotorSim = armMotor.getSimState();
+        // var carriageMotorSim = carriageMotor.getSimState();
+        // Winch Motor Sim
+
+        winchMotorSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        double winchVoltage = winchMotorSim.getMotorVoltage();
+        winchMotorModel.setInputVoltage(winchVoltage);
+        winchMotorModel.update(0.02);
+        winchMotorSim.setRotorVelocity(winchMotorModel.getAngularVelocityRPM() / 60.0);
+        winchMotorSim.setRawRotorPosition(winchMotorModel.getAngularPositionRotations());
+       }    
 
     private void logData() {
         Logger.recordOutput("Climb/StateActual", currentState);
