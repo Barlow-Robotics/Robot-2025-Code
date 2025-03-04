@@ -20,6 +20,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -53,13 +54,14 @@ public class Elevator extends SubsystemBase {
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
     TalonFXSimState carriageMotorSim;
+    private final SoftwareLimitSwitchConfigs carriageMotorLimitConfigs;
 
     TalonFX elevatorMotor;
     private final TalonFXSimState elevatorMotorSim;
     private final DCMotorSim elevatorMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
             DCMotor.getKrakenX60Foc(1));
-
+    private final SoftwareLimitSwitchConfigs elevatorMotorLimitConfigs;
 
     private final Robot robot;
 
@@ -78,6 +80,9 @@ public class Elevator extends SubsystemBase {
         elevatorMotor = new TalonFX(ElectronicsIDs.ElevatorMotorID);
         elevatorMotorSim = elevatorMotor.getSimState();
         elevatorMotor.setPosition(0);
+
+        carriageMotorLimitConfigs = new SoftwareLimitSwitchConfigs();
+        elevatorMotorLimitConfigs = new SoftwareLimitSwitchConfigs();
 
         applyAllConfigs();
 
@@ -295,6 +300,11 @@ public class Elevator extends SubsystemBase {
         applyElevatorMotorConfigs(elevatorMotor, "elevatorMotor", InvertedValue.Clockwise_Positive);
         applyCarriageMotorConfigs(carriageMotor, "carriageMotor", InvertedValue.CounterClockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake, NeutralModeValue.Brake);
+
+        elevatorMotorLimitConfigs.withForwardSoftLimitEnable(true);
+        elevatorMotorLimitConfigs.withForwardSoftLimitThreshold(ArmConstants.RotationsPerElevatorInch*(ArmConstants.MaxElevatorHeight));
+        carriageMotorLimitConfigs.withForwardSoftLimitEnable(true);
+        carriageMotorLimitConfigs.withForwardSoftLimitThreshold(ArmConstants.RotationsPerCarriageInch*(ArmConstants.MaxCarriageHeight));
     }
 
 

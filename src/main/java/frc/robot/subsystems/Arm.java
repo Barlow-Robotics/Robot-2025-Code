@@ -20,6 +20,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -52,6 +53,7 @@ public class Arm extends SubsystemBase {
             DCMotor.getKrakenX60Foc(1));
     TalonFXSimState armMotorSim;
     private final CANcoder armEncoder; // https://github.com/CrossTheRoadElec/Phoenix6-Examples/blob/main/java/FusedCANcoder/src/main/java/frc/robot/Robot.java
+    private final SoftwareLimitSwitchConfigs armMotorLimitConfigs;
 
     private final Robot robot;
 
@@ -63,6 +65,7 @@ public class Arm extends SubsystemBase {
         armMotor = new TalonFX(ElectronicsIDs.ArmMotorID);
         armMotorSim = armMotor.getSimState();
         armEncoder = new CANcoder(ElectronicsIDs.ArmEncoderID);
+        armMotorLimitConfigs = new SoftwareLimitSwitchConfigs();
 
         applyAllConfigs();
 
@@ -232,6 +235,11 @@ public class Arm extends SubsystemBase {
         applyArmEncoderConfigs();
         applyArmMotorConfigs(InvertedValue.CounterClockwise_Positive);
         setNeutralMode(NeutralModeValue.Brake);
+
+        armMotorLimitConfigs.withForwardSoftLimitEnable(true);
+        armMotorLimitConfigs.withReverseSoftLimitEnable(true);
+        armMotorLimitConfigs.withForwardSoftLimitThreshold(Units.degreesToRotations(ArmConstants.MaxArmAngle));
+        armMotorLimitConfigs.withReverseSoftLimitThreshold(Units.degreesToRotations(ArmConstants.MinArmAngle));
     }
 
     private void applyArmMotorConfigs(InvertedValue inversion) {
