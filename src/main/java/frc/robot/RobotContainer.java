@@ -347,15 +347,13 @@ public RobotContainer(Robot robot) {
 
         /***************** ALGAE INTAKE *****************/
 
-        intakeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftStick); // CHANGE
-    //    intakeAlgaeButton.onTrue(intakeAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
+        intakeAlgaeButton = new POVButton(operatorController, XboxControllerConstants.POVDown); // CHANGE
         intakeAlgaeButton.onTrue(intakeAlgaeCmd);
 
-        scoreAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper); // CHANGE
+        scoreAlgaeButton = new POVButton(operatorController, XboxControllerConstants.POVRight); // CHANGE
         scoreAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-//        retractIntakeButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick); // CHANGE
-        retractIntakeButton = new JoystickButton(operatorController, 20); // CHANGE
+        retractIntakeButton = new POVButton(operatorController, XboxControllerConstants.POVUp); // CHANGE
         retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/
