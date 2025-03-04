@@ -161,6 +161,7 @@ public Pose2d reefAutoTargetPose = new Pose2d();
 private final LinearFilter xVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 private final LinearFilter yVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 private final LinearFilter twistFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+private final LinearFilter sliderFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 
 private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1)
@@ -232,9 +233,12 @@ public RobotContainer(Robot robot) {
                     double xVelInput = -driverController.getY();
                     double yVelInput = -driverController.getX();
                     double twistInput = -driverController.getTwist();
+                    double sliderInput = -driverController.getThrottle();
+                    
                     Logger.recordOutput("Drive/xVelInput", xVelInput);
                     Logger.recordOutput("Drive/yVelInput", yVelInput);
                     Logger.recordOutput("Drive/twistInput", twistInput);
+                    Logger.recordOutput("Drive/sliderInput", sliderInput);
 
                     double xVelFiltered = xVelFilter.calculate(xVelInput);
                     double yVelFiltered = yVelFilter.calculate(yVelInput);
@@ -247,8 +251,13 @@ public RobotContainer(Robot robot) {
                     double xVelConditioned = xVelFiltered * xVelFiltered * Math.signum(xVelFiltered);
                     double yVelConditioned = yVelFiltered * yVelFiltered * Math.signum(yVelFiltered);
                     double twistConditioned = twistFiltered * twistFiltered * Math.signum(twistFiltered);
+                    
+                    // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
+                    double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
 
-                    double velocityMag = Math
+                    Logger.recordOutput("Drive/velocityMultiplier", maxVelocityMultiplier);
+
+                    double velocityMag = /* maxVelocityMultiplier * */ Math
                             .sqrt(xVelConditioned * xVelConditioned + yVelConditioned * yVelConditioned);
                     if (velocityMag > 1) {
                         xVelConditioned /= velocityMag;
@@ -259,17 +268,13 @@ public RobotContainer(Robot robot) {
                     Logger.recordOutput("Drive/yVelConditioned", yVelConditioned);
                     Logger.recordOutput("Drive/twistConditioned", twistConditioned);
 
-                    return drive.withVelocityX(xVelConditioned * DriveConstants.MaxDriveableVelocity) // Drive forward
-                                                                                                      // with negative Y
-                                                                                                      // (forward)
-                            .withVelocityY(yVelConditioned * DriveConstants.MaxDriveableVelocity) // Drive left with
-                                                                                                  // negative X (left)
-                            .withRotationalRate(twistConditioned * DriveConstants.MaxAngularRadiansPerSecond); // Drive
-                                                                                                               // counterclockwise
-                                                                                                               // with
-                                                                                                               // negative
-                                                                                                               // X
-                                                                                                               // (left)
+                    Logger.recordOutput("Drive/realVelX", xVelConditioned * DriveConstants.MaxDriveableVelocity * maxVelocityMultiplier);
+                    Logger.recordOutput("Drive/realVelY", yVelConditioned * DriveConstants.MaxDriveableVelocity * maxVelocityMultiplier);
+                    Logger.recordOutput("Drive/realVelRot", twistConditioned * DriveConstants.MaxAngularRadiansPerSecond * maxVelocityMultiplier);
+
+                    return drive.withVelocityX(xVelConditioned * DriveConstants.MaxDriveableVelocity * maxVelocityMultiplier)// Drive forward with negative Y (forward)
+                                .withVelocityY(yVelConditioned * DriveConstants.MaxDriveableVelocity * maxVelocityMultiplier) // Drive left with negative X (left)
+                                .withRotationalRate(twistConditioned * DriveConstants.MaxAngularRadiansPerSecond * maxVelocityMultiplier); // Drive counterclockwise with negative X (left)
                 }));
         configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
