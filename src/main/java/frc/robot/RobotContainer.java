@@ -281,8 +281,8 @@ public RobotContainer(Robot robot) {
                                 .withRotationalRate(twistConditioned * DriveConstants.MaxAngularRadiansPerSecond * maxVelocityMultiplier); // Drive counterclockwise with negative X (left)
                 }));
         configureAutoBuilder();
-        autoChooser = AutoBuilder.buildAutoChooser("Tests");
-        SmartDashboard.putData("Auto Mode", autoChooser);
+        // autoChooser = AutoBuilder.buildAutoChooser("Tests");
+        // SmartDashboard.putData("Auto Mode", autoChooser);
         configurePathPlanner();
     }
 
@@ -417,59 +417,26 @@ public RobotContainer(Robot robot) {
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
         NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
-        // NamedCommands.registerCommand("setPositionCoralL4", );
-        // NamedCommands.registerCommand("setPositionCoralL4", );
-        // NamedCommands.registerCommand("setPositionCoralL4", );
 
-        // NamedCommands.registerCommand("StopShooterIntake", stopShooterIntakeCmd);
-        // NamedCommands.registerCommand("SetShooterMountPositionAmp",
-        // setShooterPosAmpCmd);
-        // NamedCommands.registerCommand("SetShooterMountPositionSpeaker",
-        // setShooterPosSpeakerCmd);
-        // NamedCommands.registerCommand("SetShooterMountPositionFloor",
-        // setShooterPosFloorCmd);
-        // NamedCommands.registerCommand("start_intake_shoot", new
-        // SequentialCommandGroup(setShooterPosSpeakerCmd, startShooterIntakeCmd));
-
-        // var alliance = DriverStation.getAlliance();
-        // if (alliance.isPresent()) {
-        // if (alliance.get() == DriverStation.Alliance.Red) {
-        // NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommandRED);
-        // NamedCommands.registerCommand("PivotToCenterNote",
-        // piviotToCenterNoteCommandRED);
-        // NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommandRED);
-        // NamedCommands.registerCommand("PivotToStageNote",
-        // piviotToStageNoteCommandRED);
-        // } else {
-        // NamedCommands.registerCommand("PivotToSpeaker", piviotToSpeakerCommand);
-        // NamedCommands.registerCommand("PivotToCenterNote",
-        // piviotToCenterNoteCommand);
-        // NamedCommands.registerCommand("PivotToAmpNote", piviotToAmpNoteCommand);
-        // NamedCommands.registerCommand("PivotToStageNote", piviotToStageNoteCommand);
-        // }
-        // }
 
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
         SmartDashboard.putData("Selected Auto", autoChooser);
-        autoChooser.setDefaultOption("Choreo 1Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Left 1 Coral"), Set.of(driveSub)));
-        // autoChooser.addOption("Routine A", new DynamicPathPlanner("Routine A",
-        // visionSub));
-        // autoChooser.addOption("Routine B", new DynamicPathPlanner("Routine B",
-        // visionSub));
-        // autoChooser.addOption("Routine C", new DynamicChoreo("Routine C", visionSub,
-        // driveSub));
-        // autoChooser.addOption("Routine D", new DynamicChoreoCommand("Routine D",
-        // visionSub, driveSub));
-        autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
-        autoChooser.addOption("ChoreoTEST", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
-        // autoChooser.addOption("ChoreoTEST", driveSub.ChoreoAuto("Straight Line Path"));
-        // autoChooser.addOption("Test1", driveSub.ChoreoAutoWithoutReset("Test1"));
-        // autoChooser.addOption("Test2", driveSub.ChoreoAuto("Test2"));
-        // autoChooser.addOption("Test3", driveSub.ChoreoAuto("Test3"));
-        // autoChooser.addOption("Test4", driveSub.ChoreoAuto("Test4"));
-        // autoChooser.addOption("Test5", driveSub.ChoreoAuto("Test5"));
-        // autoChooser.addOption("Test6", driveSub.ChoreoAuto("Test6"));
+
+        autoChooser.addOption("Top 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 3 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Bottom 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 2 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Bottom Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Left 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Top Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Right 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Bottom Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Right 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Top 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 2 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Bottom 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 3 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
+        autoChooser.addOption("[TEST] Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
+
+        // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);
 
@@ -493,48 +460,6 @@ public RobotContainer(Robot robot) {
         // Logger.recordOutput(, nu);
     }
 
-    // public Optional<Rotation2d> getRotationTargetOverride(){
-
-    // Optional<Rotation2d> result = Optional.empty() ;
-
-    // // if (RobotState.isAutonomous()) {
-
-    // // // if ( shooterMountSub.getShooterMountState() ==
-    // ShooterMountState.FloorIntake ) {
-    // // // if (visionSub.noteIsVisible() &&
-    // Math.abs(visionSub.getNoteDistanceFromCenter()) <
-    // Constants.VisionConstants.NoteAlignPixelTolerance) {
-    // // // double yaw = visionSub.getNoteDistanceFromCenter();
-    // // // double rotDelta = noteYawPID.calculate(yaw);
-    // // // result = Optional.of( driveSub.getPose().getRotation().plus(new
-    // Rotation2d(rotDelta)) ) ;
-    // // // } else {
-    // // // noteYawPID.reset();
-    // // // }
-    // // // } else if (shooterMountSub.getShooterMountState() ==
-    // ShooterMountState.Speaker && !visionSub.allDetectedTargets.isEmpty()) {
-    // // // var bestTarget = visionSub.getBestTrackableTarget() ;
-    // // // if (bestTarget.isPresent()) {
-    // // // var rotOffset = bestTarget.get().getYaw();
-    // // // rotOffset = targetYawPID.calculate(rotOffset);
-    // // // result = Optional.of( driveSub.getPose().getRotation().plus(new
-    // Rotation2d(rotOffset)) ) ;
-    // // // result = Optional.empty() ;
-
-    // // // // Logger.recordOutput("YawOverrideAlign/targetYaw",
-    // bestTarget.get().getYaw());
-    // // // // Logger.recordOutput("YawOverrideAlign/proposed rot", result.get());
-    // // // // Logger.recordOutput("YawOverrideAlign/rot offset", result.get());
-    // // // } else {
-
-    // // // }
-    // // // noteYawPID.reset();
-
-    // // }
-    // }
-
-    // return result;
-    // }
 
     public Command getAutonomousCommand() {
         if (autoChooser != null) {
