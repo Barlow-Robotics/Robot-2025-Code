@@ -88,7 +88,6 @@ public class PositionGripper extends Command {
     }
 
     // private void realInitializePositionDictionary() {
-    //     // CHANGE all these magic #s (except for wrist)
     //     // need to change speeds to all of these (right now assuming grabing is + and
     //     // release is -)
     //     // The PreL1 and L1 values below are approximations. The PreL1 arm angle and

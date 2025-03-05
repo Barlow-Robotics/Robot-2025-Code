@@ -610,11 +610,8 @@ public class Vision extends SubsystemBase {
 
     // private void addNetworkTableEntries() {
     // NetworkTableInstance.getDefault().getEntry("vision/xPosition").setDouble(0.0);
-    // // CHANGE
     // NetworkTableInstance.getDefault().getEntry("vision/yPosition").setDouble(0.0);
-    // // CHANGE
     // NetworkTableInstance.getDefault().getEntry("vision/zPosition").setDouble(0.0);
-    // // CHANGE
     // }
 
     // public double getSpeakerAprilTagPitch() {

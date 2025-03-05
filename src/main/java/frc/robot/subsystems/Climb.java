@@ -110,7 +110,6 @@ public class Climb extends SubsystemBase {
     }
 
     public void windWinch() {
-        // CHANGE: retract the servo here (to engage ratcheting)
         retractServo();
         final MotionMagicVoltage request = new MotionMagicVoltage(Units.degreesToRotations(ClimbConstants.ClimbedAngle.get()));
         request.EnableFOC = Constants.IsFocEnabled;

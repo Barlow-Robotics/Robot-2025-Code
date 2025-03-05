@@ -73,8 +73,7 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter("/media/sda2/")); // Log to a USB stick
         Logger.addDataReceiver(new NT4Publisher());
         // Publish data to NetworkTables
-        // CHANGE - leaks below
-        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging - ignore leak
     } else {
         Logger.addDataReceiver(new WPILOGWriter(""));
         Logger.addDataReceiver(new NT4Publisher());

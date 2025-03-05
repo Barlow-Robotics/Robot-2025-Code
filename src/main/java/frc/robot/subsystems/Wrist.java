@@ -53,7 +53,7 @@ public class Wrist extends SubsystemBase {
 
     private final Robot robot;
 
-    private double desiredWristAngle = 0; // CHANGE PLACEHOLDER
+    private double desiredWristAngle = 0;
 
     private boolean simulationInitialized = false;
 

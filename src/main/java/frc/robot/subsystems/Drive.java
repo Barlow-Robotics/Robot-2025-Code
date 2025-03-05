@@ -185,7 +185,6 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    // CHANGE - not sure if this is the right/best way to do this, though it might be fine
     public void stopDrive() {
         
         for (int i=0; i<4; i++) {

@@ -57,7 +57,7 @@ public class Arm extends SubsystemBase {
 
     private final Robot robot;
 
-    private double desiredArmAngle = 90; // CHANGE PLACEHOLDER
+    private double desiredArmAngle = 90; 
 
     private boolean simulationInitialized = false;
 

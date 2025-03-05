@@ -349,28 +349,25 @@ public RobotContainer(Robot robot) {
         moveToTravellingButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick);
         moveToTravellingButton.onTrue(setArmPosTravellingCmd);
         
-        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper); // CHANGE
+        moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper);
         moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
 
-        // moveToAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonB); // CHANGE
-        // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
-
-        // moveToAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftTrigger); // CHANGE
+        // moveToAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftTrigger);
         // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
 
         removeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper);
         removeAlgaeButton.onTrue(removeAlgaeCmd);
 
-        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonY); // CHANGE
+        moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonY); 
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
 
-        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonX); // CHANGE
+        moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonX);
         moveToLevel2Button.onTrue(setArmPosLevel2Cmd);
 
-        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonB); // CHANGE
+        moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonB);
         moveToLevel3Button.onTrue(setArmPosLevel3Cmd);
 
-        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonA); // CHANGE
+        moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonA); 
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
 
         startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
@@ -378,24 +375,24 @@ public RobotContainer(Robot robot) {
 
         /***************** ALGAE INTAKE *****************/
 
-        intakeAlgaeButton = new POVButton(operatorController, XboxControllerConstants.POVDown); // CHANGE
+        intakeAlgaeButton = new POVButton(operatorController, XboxControllerConstants.POVDown);
         intakeAlgaeButton.onTrue(intakeAlgaeCmd);
 
-        scoreAlgaeButton = new POVButton(operatorController, XboxControllerConstants.POVRight); // CHANGE
+        scoreAlgaeButton = new POVButton(operatorController, XboxControllerConstants.POVRight);
         scoreAlgaeButton.onTrue(ejectAlgaeCmd).onFalse(stopAlgaeIntakeCmd);
 
-        retractIntakeButton = new POVButton(operatorController, XboxControllerConstants.POVUp); // CHANGE
+        retractIntakeButton = new POVButton(operatorController, XboxControllerConstants.POVUp);
         retractIntakeButton.onTrue(stopAlgaeIntakeCmd);
 
         /***************** GRIPPER *****************/
         
-        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); 
         // runGripperButton.onTrue(Commands.parallel(
         //     runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
         //     setArmPosLoadCoralCmd  // Runs independently
         // )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
 
-        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); // CHANGE
+        // runGripperButton = new JoystickButton(operatorController, LogitechDAConstants.RightStick); 
         // runGripperButton.onTrue(Commands.parallel(
         //     runGripperCmd.andThen(new StopGripper(gripperSub)),  // Use a fresh instance directly
         //     setArmPosLoadCoralCmd  // Runs independently
