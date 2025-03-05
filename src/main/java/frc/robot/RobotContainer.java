@@ -22,6 +22,7 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -145,6 +146,11 @@ private Trigger autoAlignAlgaeButton_2;
 private Trigger runGripperButton;
 private Trigger scoreCoralButton;
 
+private POVButton leftPovButton;
+private POVButton rightPovButton;
+private POVButton upPovButton;
+private POVButton downPovButton;
+
 /* PID */
 private PIDController noteYawPID;
 private PIDController targetYawPID;
@@ -165,10 +171,9 @@ private final LinearFilter sliderFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 
 private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1)
-        .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a
-                                                                                                           // 10%
-                                                                                                           // deadband
+        .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
 private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -227,6 +232,8 @@ public RobotContainer(Robot robot) {
 
     configureBindings();
 
+    drivePovBindings();
+
         driveSub.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 driveSub.applyRequest(() -> {
@@ -275,6 +282,26 @@ public RobotContainer(Robot robot) {
                     return drive.withVelocityX(xVelConditioned * DriveConstants.MaxDriveableVelocity * maxVelocityMultiplier)// Drive forward with negative Y (forward)
                                 .withVelocityY(yVelConditioned * DriveConstants.MaxDriveableVelocity * maxVelocityMultiplier) // Drive left with negative X (left)
                                 .withRotationalRate(twistConditioned * DriveConstants.MaxAngularRadiansPerSecond * maxVelocityMultiplier); // Drive counterclockwise with negative X (left)
+                // }) .andThen(driveSub.applyRequest(() -> {
+                    
+                    // double povInput = driverController.getPOV();
+
+                    // Logger.recordOutput("Drive/povInput", povInput);
+
+                    // double nudgeVelX = 0;
+                    // double nudgeVelY = 0;
+                    // if (Math.abs(povInput-90.0) > 10) { // within tolerance of right pov
+                    //     nudgeVelX = DriveConstants.NudgeSpeed;
+                    // } else if (Math.abs(povInput-270.0) >= 10) { // within tolerance of left pov
+                    //     nudgeVelX = -DriveConstants.NudgeSpeed;
+                    // } else if (Math.abs(povInput-180.0) >= 10) { // within tolerance of down pov
+                    //     nudgeVelY = DriveConstants.NudgeSpeed;
+                    // } else if (Math.abs(povInput-0.0) >= 10 || Math.abs(povInput-360.0) >= 10) {
+                    //     nudgeVelY = -DriveConstants.NudgeSpeed;
+                    // }
+
+                    // ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(nudgeVelX, nudgeVelY, 0.0);
+                    // return nudge.withSpeeds(nudgeSpeeds);
                 }));
         configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
@@ -395,6 +422,60 @@ public RobotContainer(Robot robot) {
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
         resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
+    }
+
+    private void drivePovBindings() {
+        leftPovButton = new POVButton(driverController, 270);
+        leftPovButton.whileTrue(driveSub.applyRequest(() -> {
+            double povInput = driverController.getPOV();
+            double sliderInput = driverController.getThrottle();
+            Logger.recordOutput("Drive/povInput", povInput);
+            Logger.recordOutput("Drive/sliderInput", sliderInput);
+            // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
+            double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to multiply by -1
+            Logger.recordOutput("Drive/nudgeVelocity", vel);
+            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            return nudge.withSpeeds(nudgeSpeeds);}));
+
+        rightPovButton = new POVButton(driverController, 90);
+        rightPovButton.whileTrue(driveSub.applyRequest(() -> {
+            double povInput = driverController.getPOV();
+            double sliderInput = driverController.getThrottle();
+            Logger.recordOutput("Drive/povInput", povInput);
+            Logger.recordOutput("Drive/sliderInput", sliderInput);
+            // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
+            double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to not multiply by -1
+            Logger.recordOutput("Drive/nudgeVelocity", vel);
+            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            return nudge.withSpeeds(nudgeSpeeds);}));
+        
+        upPovButton = new POVButton(driverController, 0);
+        upPovButton.whileTrue(driveSub.applyRequest(() -> {
+            double povInput = driverController.getPOV();
+            double sliderInput = driverController.getThrottle();
+            Logger.recordOutput("Drive/povInput", povInput);
+            Logger.recordOutput("Drive/sliderInput", sliderInput);
+            // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
+            double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to multiply by -1
+            Logger.recordOutput("Drive/nudgeVelocity", vel);
+            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0); 
+            return nudge.withSpeeds(nudgeSpeeds);}));
+        
+        downPovButton = new POVButton(driverController, 180);
+        downPovButton.whileTrue(driveSub.applyRequest(() -> {
+            double povInput = driverController.getPOV();
+            double sliderInput = driverController.getThrottle();
+            Logger.recordOutput("Drive/povInput", povInput);
+            Logger.recordOutput("Drive/sliderInput", sliderInput);
+            // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
+            double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might not need to multiply by -1
+            Logger.recordOutput("Drive/nudgeVelocity", vel);
+            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            return nudge.withSpeeds(nudgeSpeeds);}));
     }
 
     public void configurePathPlanner() {
