@@ -203,7 +203,7 @@ public RobotContainer(Robot robot) {
     scoreCoralCmd = new ScoreCoral(armState, elevatorSub, armSub, wristSub, gripperSub);
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
-    startClimbingCmd = new StartClimbing(climbSub, armSub);
+    startClimbingCmd = new StartClimbing(climbSub, armSub, armState);
 
     goToRight = false;
     // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event

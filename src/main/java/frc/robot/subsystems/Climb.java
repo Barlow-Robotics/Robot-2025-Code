@@ -41,7 +41,7 @@ public class Climb extends SubsystemBase {
                     Constants.ClimbConstants.WinchMotorGearRatio), DCMotor.getKrakenX60Foc(1));
     TalonFXSimState winchMotorSim;
     public enum ClimbState {
-        Default, LatchedOnCage, WinchedOnCage 
+        Default, LatchedOnCage, ReadyToWinch, WinchedOnCage 
     }
     ClimbState currentState = ClimbState.Default;
     ClimbState desiredState = ClimbState.Default;
@@ -49,6 +49,7 @@ public class Climb extends SubsystemBase {
     private double desiredgetServoPositionition = 0;
     private Servo servo;
     private boolean simulationInitialized = false;
+    private int buttonStage = 0; // count presses
 
     public Climb() {
         // Motor config
@@ -66,9 +67,11 @@ public class Climb extends SubsystemBase {
     public void periodic() {
         if (isLatchedOnCage()) {
             currentState = ClimbState.LatchedOnCage;
+            buttonStage = 1;
         }
         else if (isWinched()) {
             currentState = ClimbState.WinchedOnCage;
+            buttonStage = 0;
         }
         else {
             currentState = ClimbState.Default;
@@ -83,6 +86,10 @@ public class Climb extends SubsystemBase {
     public void stop() {
     //     servo.setSpeed(0);
         winchMotor.stopMotor();
+    }
+
+    public int returnButtonState() {
+        return buttonStage; // use to enable two-tier climb function, wait for human player
     }
 
     public void latchOntoCage() {
