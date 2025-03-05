@@ -70,6 +70,8 @@
  "events":[
    {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
        {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
-   {"name":"Marker", "from":{"target":1, "targetTimestamp":1.23861, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"startOuttake"}}]}}}]
+   {"name":"Marker", "from":{"target":1, "targetTimestamp":1.23861, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
+       {"type":"parallel", "data":{"commands":[
+          {"type":"named", "data":{"name":"startOuttake"}},
+          {"type":"named", "data":{"name":"Wait_5"}}]}}]}}}]
 }
