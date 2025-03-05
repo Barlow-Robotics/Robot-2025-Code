@@ -28,8 +28,8 @@ public class StartClimbing extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        ArmState currentState = armStateManager.getCurrentState() ;
-        if (!(currentState == ArmState.Running)) {
+        ArmState currentState = armStateManager.getCurrentState();
+        if (currentState != ArmState.Running) {
             armStateManager.setTargetState(ArmState.Running);
         }
     }

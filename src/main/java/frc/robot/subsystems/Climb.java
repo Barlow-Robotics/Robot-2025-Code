@@ -29,7 +29,6 @@ import frc.robot.Constants;
 // import frc.robot.Constants.AlgaeConstants;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.commands.TuneableParameter;
 import frc.robot.sim.PhysicsSim;
 
 public class Climb extends SubsystemBase {
