@@ -488,9 +488,9 @@ public class Vision extends SubsystemBase {
     // }
 
     // ----- Simulation
-
-    public void simulationPeriodic(Pose2d robotSimPose) {
-        visionSim.update(robotSimPose);
+    @Override
+    public void simulationPeriodic() {
+        visionSim.update(driveSub.getPose());
     }
 
     /** Reset pose history of the robot in the vision system simulation. */

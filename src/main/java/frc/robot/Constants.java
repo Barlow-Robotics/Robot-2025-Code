@@ -54,14 +54,14 @@ public class Constants {
         // from center.
         // NEED TO FIX: wpk need to update these to be more exact.
         public static final Transform3d PoseCameraToRobot = new Transform3d(
-                new Translation3d(0.0, -Units.inchesToMeters(DriveConstants.TrackWidth / 2), Units.inchesToMeters(23)),
-                new Rotation3d(0, Units.degreesToRadians(5), 0));
+                new Translation3d(0.0, Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+12.5), Units.inchesToMeters(23)),
+                new Rotation3d(0, Units.degreesToRadians(0), 0));
         public static final Transform3d RobotToPoseCamera = PoseCameraToRobot.inverse();
 
-        public static final Transform3d TargetCamToRobot =
+        public static final Transform3d TargetCamToRobot = 
                 new Transform3d(
-                    new Translation3d(Units.inchesToMeters(2), Units.inchesToMeters(DriveConstants.TrackWidth/2), Units.inchesToMeters(23)), 
-                    new Rotation3d(0, Units.degreesToRadians(5), 0));
+                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-2.5), Units.inchesToMeters(DriveConstants.TotalWidth/2-9.25), Units.inchesToMeters(12.625)), 
+                    new Rotation3d(0, Units.degreesToRadians(0), 0));
         public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
 
         // // The layout of the AprilTags on the field
@@ -154,6 +154,7 @@ public class Constants {
         public static final double distanceToFrontOfRobot = Units.inchesToMeters(22); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
+        public static final double TotalWidth = Units.inchesToMeters(29);
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
                 new Translation2d(WheelBase / 2, TrackWidth / 2), // front left
                 new Translation2d(WheelBase / 2, -TrackWidth / 2), // front right
