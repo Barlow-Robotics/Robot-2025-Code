@@ -54,7 +54,7 @@ public class Constants {
         // from center.
         // NEED TO FIX: wpk need to update these to be more exact.
         public static final Transform3d PoseCameraToRobot = new Transform3d(
-                new Translation3d(0.0, Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+12.5), Units.inchesToMeters(23)),
+                new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-12.625), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+2.5), Units.inchesToMeters(13.125)),
                 new Rotation3d(0, Units.degreesToRadians(0), 0));
         public static final Transform3d RobotToPoseCamera = PoseCameraToRobot.inverse();
 
