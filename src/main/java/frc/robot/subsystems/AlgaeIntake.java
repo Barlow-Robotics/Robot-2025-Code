@@ -308,7 +308,7 @@ public class AlgaeIntake extends SubsystemBase {
                 // final VoltageOut intakeRequest = new VoltageOut(1.0);
                 // intakeMotor.setControl(intakeRequest);
 
-                final VelocityVoltage intakeRequest = new VelocityVoltage(1.0);
+                final VelocityVoltage intakeRequest = new VelocityVoltage(0.5);
                 intakeMotor.setControl(intakeRequest);
 
 

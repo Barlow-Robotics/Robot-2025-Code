@@ -91,10 +91,19 @@ public class Elevator extends SubsystemBase {
         this.robot = robot;
     }
 
+
+    public double getDesiredElevatorHeightInches() {
+        return desiredElevatorHeight ;
+    }
+
+
     public void setDesiredElevatorHeightInches(double height) {
         this.desiredElevatorHeight = height ;
     }
 
+    public double getDesiredCarriageHeightInches() {
+        return desiredCarriageHeight ;
+    }
     public void setDesiredCarriageHeightInches(double height) {
         this.desiredCarriageHeight = height ;
     }

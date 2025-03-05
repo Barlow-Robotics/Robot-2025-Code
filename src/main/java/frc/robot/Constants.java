@@ -148,7 +148,7 @@ public class Constants {
 
     public static final class DriveConstants {
         
-        public static final double NudgeSpeed = 1.0;
+        public static final double NudgeSpeed = .25;
 
         public static final boolean GyroReversed = false;
         public static final double distanceToFrontOfRobot = Units.inchesToMeters(22); 

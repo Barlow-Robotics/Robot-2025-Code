@@ -46,11 +46,12 @@ public class ScoreCoral extends Command {
 
         return Commands.sequence(
             // new InstantCommand(() -> theGripper.setReleaseMode() ),
-            new InstantCommand( ()-> theGripper.startEjecting()),
             new ParallelCommandGroup(
-                new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
-                new MoveElevator(theElevator, theElevator.getElevatorHeightInches()+deltaElevatorHeight, theElevator.getCarriageHeightInches()+deltaCarriageHeight) 
+                new InstantCommand( ()-> theGripper.startEjecting()),
+                // new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
+                new MoveElevator(theElevator, theElevator.getDesiredElevatorHeightInches()+deltaElevatorHeight, theElevator.getDesiredCarriageHeightInches()+deltaCarriageHeight) 
             ) ,
+            // new MoveElevator(theElevator, theElevator.getDesiredElevatorHeightInches()+deltaArmAngle, theElevator.getDesiredCarriageHeightInches()+deltaArmAngle-1.0), 
             new InstantCommand( ()-> theGripper.stop()),
             new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
             );            
@@ -71,11 +72,11 @@ public class ScoreCoral extends Command {
                 new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist) 
             ) ;
         } else if (currentState == ArmState.Level2) {
-            currentCommand = createL234ScoreCommand(0, -4, -30) ;
+            currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
         } else if (currentState == ArmState.Level3) {
-            currentCommand = createL234ScoreCommand(0, -4, -30) ;
+            currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
         } else if (currentState == ArmState.Level4){
-            currentCommand = createL234ScoreCommand(0, -4, -30) ;
+            currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
         } else {
             // can't score coral if your not at one of the levels
             currentCommand = new NoOpCommand() ;

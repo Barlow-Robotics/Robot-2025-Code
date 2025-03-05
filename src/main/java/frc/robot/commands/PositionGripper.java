@@ -79,9 +79,9 @@ public class PositionGripper extends Command {
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 0, 45, 90, 0.0));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 12.163, 60, 0, 0));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(8.764, 20, 70, 0,0));
-        positionDictionary.put(ArmState.Level4, new ArmStateParameters(24, 20, 60, 0, 0));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 10.0, 55, 0, 0));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(9.0, 15, 55, 0,0));
+        positionDictionary.put(ArmState.Level4, new ArmStateParameters(30, 20, 70.0, 0, 0));
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 16, -75, 0, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 0, 0));
         positionDictionary.put(ArmState.StartAlgaePosition, new ArmStateParameters(0, 0, 45, 90, -0.2));
