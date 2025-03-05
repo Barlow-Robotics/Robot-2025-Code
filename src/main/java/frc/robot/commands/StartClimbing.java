@@ -14,10 +14,13 @@ public class StartClimbing extends Command {
     /** Creates a new StartClimbing. */
     private final Climb climbSub;
     private final Arm armSub;
+    private final ArmStateManager armStateManager ;
 
-    public StartClimbing(Climb climbSub, Arm armSub) {
+    public StartClimbing(Climb climbSub, Arm armSub, ArmStateManager armStateManager) {
         this.climbSub = climbSub;
         this.armSub = armSub;
+        this.armStateManager = armStateManager;
+
         addRequirements(climbSub, armSub);
         // Use addRequirements() here to declare subsystem dependencies.
     }
@@ -25,21 +28,21 @@ public class StartClimbing extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        // ArmState currentState = armSub.getArmState();
-        // if (!(currentState == ArmState.Running)) {
-        //     armSub.setDesiredState(ArmState.Running);
-        // }
+        ArmState currentState = armStateManager.getCurrentState() ;
+        if (!(currentState == ArmState.Running)) {
+            armStateManager.setTargetState(ArmState.Running);
+        }
     }
 
     public void execute() {
-        // ArmState currentState = armSub.getArmState();
-        // if (currentState == ArmState.Running) {
-        //     if (climbSub.getCurrentState() == ClimbState.Default) {
-        //         climbSub.latchOntoCage();
-        //     } else if (climbSub.getCurrentState() == ClimbState.LatchedOnCage) {
-        //         climbSub.windWinch();
-        //     }
-        // }
+        ArmState currentState = armStateManager.getCurrentState() ;
+        if (currentState == ArmState.Running) {
+            if (climbSub.getCurrentState() == ClimbState.Default) {
+                climbSub.latchOntoCage();
+            } else if (climbSub.getCurrentState() == ClimbState.WinchedOnCage && climbSub.returnButtonState() == 1) {
+                climbSub.windWinch();
+            }
+        }
     }
 
     @Override

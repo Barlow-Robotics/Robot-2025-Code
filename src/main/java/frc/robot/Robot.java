@@ -155,17 +155,16 @@ public class Robot extends LoggedRobot {
     SequentialCommandGroup commandGroup = new SequentialCommandGroup();
 
     // if (!calibrationPerformed && Robot.isReal()) {
-    //   Command calibrateElevator = new CalibrateElevator(robotContainer.armSub);
-    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.armSub);
+    //   Command calibrateElevator = new CalibrateElevator(robotContainer.elevatorSub);
+    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.elevatorSub);
       
     //   commandGroup.addCommands(calibrateElevator, calibrateCarriage, new InstantCommand(() -> {this.calibrationPerformed = true;}));
     // }
 
-    // robotContainer.configurePathPlanner();
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     if (autonomousCommand != null) {
-      commandGroup.addCommands(autonomousCommand);
+      commandGroup.addCommands(autonomousCommand.asProxy());
     }
 
     commandGroup.schedule();

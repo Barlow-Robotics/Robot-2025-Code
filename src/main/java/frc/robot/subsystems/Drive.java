@@ -340,10 +340,18 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command ChoreoAuto(String name) {
         try {
-                PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory(name);
-                return AutoBuilder.followPath(path).alongWith(Commands.runOnce(() -> resetPose(path.getStartingDifferentialPose())));
-                // return AutoBuilder.followPath(path).alongWith(Commands.runOnce(() -> resetOdometry(path.getStartingDifferentialPose())));
-                // Do something with the path
+                PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
+                PathPlannerPath finalPath;
+                
+                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                    finalPath = originalPath.flipPath();
+                }
+                else {
+                    finalPath = originalPath;
+                }
+            
+            
+                return AutoBuilder.followPath(finalPath).alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
         } catch (IOException e) {
                 e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
         } catch (ParseException e) {

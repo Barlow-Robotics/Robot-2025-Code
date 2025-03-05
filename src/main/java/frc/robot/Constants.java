@@ -484,12 +484,12 @@ public class Constants {
     }
 
     public static final class GripperConstants {
-        public static final double GripperKP2 =/*testing*/0; // 32; // CHANGE
-        public static TuneableParameter GripperKP = new TuneableParameter(GripperKP2, 0, 1, true, "TuneableParameter/Gripper/PID/GripperKP");
+        public static final double GripperKP2 =/*testing*/0.0; // 32; // CHANGE
+        public static TuneableParameter GripperKP = new TuneableParameter(GripperKP2, 0, 100, true, "TuneableParameter/Gripper/PID/GripperKP");
         public static final double GripperKI2 =/*testing*/0; // 0.001; // CHANGE
-        public static TuneableParameter GripperKI = new TuneableParameter(GripperKI2, 0, 100, true, "TuneableParameter/Gripper/PID/GripperKI");
+        public static TuneableParameter GripperKI = new TuneableParameter(GripperKI2, 0, 1, true, "TuneableParameter/Gripper/PID/GripperKI");
         public static final double GripperKD2 =/*testing*/0; // 0; // CHANGE
-        public static TuneableParameter GripperKD = new TuneableParameter(GripperKD2, 0, 100, true, "TuneableParameter/Gripper/PID/GripperKD");
+        public static TuneableParameter GripperKD = new TuneableParameter(GripperKD2, 0, 10, true, "TuneableParameter/Gripper/PID/GripperKD");
         public static final double GripperFF2 =/*testing*/1; // 0; // CHANGE
         public static TuneableParameter GripperFF = new TuneableParameter(GripperFF2, 0, 100, true, "TuneableParameter/Gripper/PID/GripperFF");
         public static final double GripperIZone2 =/*testing*/0; // 0.15; // CHANGE
@@ -508,13 +508,13 @@ public class Constants {
     }
 
     public static final class AlgaeConstants {
-        public static final double LiftKP2 =/*testing*/3.0; // 0.04; // CHANGE
+        public static final double LiftKP2 =/*testing*/1.5; // 0.04; // CHANGE
         public static TuneableParameter LiftKP = new TuneableParameter(LiftKP2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKP");
         public static final double LiftKI2 =/*testing*/0; // 0.06; // CHANGE
         public static TuneableParameter LiftKI = new TuneableParameter(LiftKI2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKI");
-        public static final double LiftKD2 =/*testing*/0.5; // 0; // CHANGE
+        public static final double LiftKD2 =/*testing*/0.1; // 0; // CHANGE
         public static TuneableParameter LiftKD = new TuneableParameter(LiftKD2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKD");
-        public static final double LiftKV2 =/*testing*/4.0; // 0.13; // CHANGE
+        public static final double LiftKV2 =/*testing*/6.0; // 0.13; // CHANGE
         public static TuneableParameter LiftKV = new TuneableParameter(LiftKV2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftFF");
         public static final double LiftKG2 =/*testing*/0; // 0; // CHANGE
         public static TuneableParameter LiftKG = new TuneableParameter(LiftKG2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/LiftKG");
@@ -537,12 +537,12 @@ public class Constants {
         public static final double IntakeIZone2 =/*testing*/0; // 0.15; // CHANGE
         public static TuneableParameter IntakeIZone = new TuneableParameter(IntakeIZone2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeIZone");
 
-        public static final double IntakeSpeed2 = 2; // CHANGE
-        public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 0, 5, true, "TuneableParameter/AlgaeIntake/IntakeSpeed");
+        public static final double IntakeSpeed2 = 2.5; // CHANGE
+        public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 0, 25, true, "TuneableParameter/AlgaeIntake/IntakeSpeed");
         public static final double EjectSpeed2 = -2; // CHANGE
-        public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, -5, 0, true, "TuneableParameter/AlgaeIntake/EjectSpeed");
+        public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, -25, 0, true, "TuneableParameter/AlgaeIntake/EjectSpeed");
 
-        public static final double LiftCruiseRotationsPerSec = 0.5; // CHANGE
+        public static final double LiftCruiseRotationsPerSec = 0.25; // CHANGE
         public static final double LiftAcceleration = 2*LiftCruiseRotationsPerSec ; // CHANGE
         public static final double LiftJerk = 4*LiftAcceleration; // CHANGE
         
@@ -551,13 +551,13 @@ public class Constants {
         public static final double LiftAngleTolerance = 3.5;
         public static final double SupplyCurrentLimit = 30; // CHANGE
 
-        public static final double restedAngle2 = -8 ; 
-        public static final double deployedAngle2 = 56 + restedAngle2; 
+        public static final double retractedAngle2 = -8 ; 
+        public static final double deployedAngle2 = 56 + retractedAngle2; 
 
         public static final double LiftGearRatio = 60.0/ 14.0 ;
 
         public static TuneableParameter deployedAngle = new TuneableParameter(deployedAngle2, 0, 180, true, "TuneableParameter/AlgaeIntake/DeployedAngle"); //CHANGE
-        public static TuneableParameter restedAngle = new TuneableParameter(restedAngle2,  -180,180, true, "TuneableParameter/AlgaeIntake/RestedAngle");
+        public static TuneableParameter retractedAngle = new TuneableParameter(retractedAngle2,  -180,180, true, "TuneableParameter/AlgaeIntake/RestedAngle");
     }
 
     public static final class AutoConstants {
@@ -654,6 +654,13 @@ public class Constants {
         public static final double ForwardAxisAttenuation = -0.5;
         public static final double LateralAxisAttenuation = 0.5;
         public static final double YawAxisAttenuation = 0.5;
+
+        public static final int POVUp = 0 ;
+        public static final int POVDown = 180 ;
+        public static final int POVLeft = 270 ;
+        public static final int POVRight = 90 ;
+
+
     }
 
     public final class FieldConstants {
