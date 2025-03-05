@@ -41,7 +41,7 @@ public class Climb extends SubsystemBase {
                     Constants.ClimbConstants.WinchMotorGearRatio), DCMotor.getKrakenX60Foc(1));
     TalonFXSimState winchMotorSim;
     public enum ClimbState {
-        Default, LatchedOnCage, ReadyToWinch, WinchedOnCage 
+        Default, LatchedOnCage, WinchedOnCage 
     }
     ClimbState currentState = ClimbState.Default;
     ClimbState desiredState = ClimbState.Default;
