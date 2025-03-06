@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -13,14 +14,26 @@ public class MoveElevator extends Command {
     Elevator theElevator ;
     double targetCarriageHeight ;
     double targetElevatorHeight ;
+    double targetCarriageSpeed  ;
+    double targetElevatorSpeed ;
 
     /** Creates a new MoveElevator. */
     public MoveElevator(Elevator e, double elevatorHeight, double carriageHeight) {
+
+        this(e, elevatorHeight, Constants.ArmConstants.ElevatorCruiseVelocity, carriageHeight, Constants.ArmConstants.CarriageCruiseVelocity) ;
+    }
+
+
+    public MoveElevator(Elevator e, double elevatorHeight, double elevatorVelocity, double carriageHeight, double carriageVelocity) {
+        
         targetCarriageHeight = carriageHeight ;
         targetElevatorHeight = elevatorHeight ;
+        targetElevatorSpeed = elevatorVelocity ;
+        targetCarriageSpeed = carriageVelocity ;
         theElevator = e ;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(theElevator);
+
 
     }
 
@@ -30,7 +43,9 @@ public class MoveElevator extends Command {
     @Override
     public void initialize() {
         theElevator.setDesiredCarriageHeightInches(targetCarriageHeight);
+        theElevator.setCarriageSpeed(targetCarriageSpeed);
         theElevator.setDesiredElevatorHeightInches(targetElevatorHeight);
+        theElevator.setElevatorSpeed(targetElevatorSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
