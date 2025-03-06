@@ -19,6 +19,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -37,6 +38,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Acceleration;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -66,7 +68,11 @@ public class Elevator extends SubsystemBase {
     private final Robot robot;
 
     private double desiredCarriageHeight = 0;
+    private double desiredCarriageSpeed = Constants.ArmConstants.CarriageCruiseVelocity ;
+    private double lastCarriageSpeed = desiredCarriageSpeed ;
     private double desiredElevatorHeight = 0;
+    private double desiredElevatorSpeed = Constants.ArmConstants.ElevatorCruiseVelocity ;
+    private double lastElevatorSpeed = desiredElevatorSpeed ;
 
     private boolean simulationInitialized = false;
 
@@ -125,6 +131,16 @@ public class Elevator extends SubsystemBase {
 
 
     public void setElevatorHeightInches(double desiredInches) {
+
+        // if the desired motion magic velocity has changed, we need to update the configuration
+        if (lastElevatorSpeed != desiredElevatorSpeed) {
+            double rotationsPerSecond = desiredElevatorSpeed * ArmConstants.RotationsPerElevatorInch;
+            double rotationsPerSecondPerSecond = rotationsPerSecond / 0.25;
+            double jerk = rotationsPerSecondPerSecond / 0.1;
+            applyMotionMagicConfigs(elevatorMotor, rotationsPerSecond, rotationsPerSecondPerSecond, jerk);
+            lastElevatorSpeed = desiredElevatorSpeed ;
+        }
+
         double rotations = ((desiredInches /*- ArmConstants.StartingElevatorHeight*/))
                 * ArmConstants.RotationsPerElevatorInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
@@ -153,6 +169,16 @@ public class Elevator extends SubsystemBase {
 
 
     public void setCarriageHeightInches(double desiredInches) {
+
+        // if the desired motion magic velocity has changed, we need to update the configuration
+        if (lastCarriageSpeed != desiredCarriageSpeed) {
+            double rotationsPerSecond = desiredCarriageSpeed * ArmConstants.RotationsPerCarriageInch;
+            double rotationsPerSecondPerSecond = rotationsPerSecond / 0.25;
+            double jerk = rotationsPerSecondPerSecond / 0.1;
+            applyMotionMagicConfigs(carriageMotor, rotationsPerSecond, rotationsPerSecondPerSecond, jerk);
+            lastCarriageSpeed = desiredCarriageSpeed ;
+        }
+
         double rotations = desiredInches * ArmConstants.RotationsPerCarriageInch;
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
         request.EnableFOC = Constants.IsFocEnabled;
@@ -383,6 +409,17 @@ public class Elevator extends SubsystemBase {
 
 
 
+
+    // all units are relative to revolutions per second
+    private void applyMotionMagicConfigs(TalonFX motor, double velocity, double accel, double jerk) {
+        MotionMagicConfigs config = new MotionMagicConfigs() ;
+        config.MotionMagicCruiseVelocity = velocity;
+        config.MotionMagicAcceleration = accel;
+        config.MotionMagicJerk = jerk;
+        motor.getConfigurator().apply(config) ;
+    }
+
+
     private void applyMotorConfigs(TalonFX motor, String motorName, TalonFXConfiguration configs,
             InvertedValue inversion) {
 
@@ -481,7 +518,8 @@ public class Elevator extends SubsystemBase {
 
     /** @param velocity in inches per second */
     public void setElevatorSpeed(Double velocity) {
-        VelocityVoltage request = new VelocityVoltage(velocity * ArmConstants.RotationsPerElevatorInch); // converts from inches/s to RPS
+        desiredElevatorSpeed = velocity ;
+        VelocityVoltage request = new VelocityVoltage(desiredElevatorSpeed * ArmConstants.RotationsPerElevatorInch); // converts from inches/s to RPS
         elevatorMotor.setControl(request);
     }
 
@@ -495,7 +533,8 @@ public class Elevator extends SubsystemBase {
 
     /** @param velocity in inches per second */
     public void setCarriageSpeed(Double velocity) {
-        VelocityVoltage request = new VelocityVoltage(velocity * ArmConstants.RotationsPerElevatorInch); // converts from inches/s to RPS
+        desiredCarriageSpeed = velocity ;
+        VelocityVoltage request = new VelocityVoltage(desiredCarriageSpeed * ArmConstants.RotationsPerElevatorInch); // converts from inches/s to RPS
         carriageMotor.setControl(request);
     }
 
