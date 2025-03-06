@@ -666,7 +666,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = reefSideLengthInches/4; // goes to the middle of the Side
+        public static final double reefOffsetInches = reefSideLengthInches/4-7; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
 }

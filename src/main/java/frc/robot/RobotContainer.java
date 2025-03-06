@@ -66,9 +66,9 @@ import frc.robot.subsystems.Wrist;
 public class RobotContainer {
 /* SUBSYSTEMS */
 public Drive driveSub = TunerConstants.createDrivetrain();
-public Vision visionSub = new Vision(driveSub);
 public final Gripper gripperSub = new Gripper();
 public final Elevator elevatorSub;
+public final Vision visionSub;
 public final Arm armSub;
 public final Wrist wristSub;
 public final Climb climbSub = new Climb();
@@ -177,10 +177,11 @@ private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsA
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
 public RobotContainer(Robot robot) {
-
+    visionSub = new Vision(driveSub, robot);
     elevatorSub = new Elevator(robot);
     armSub = new Arm(robot);
     wristSub = new Wrist(robot);
+
 
     setArmPosTravellingCmd = new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub);
     setArmPosLoadCoralCmd = new LoadCoralFromChute(elevatorSub, armSub, wristSub, gripperSub, armState);
