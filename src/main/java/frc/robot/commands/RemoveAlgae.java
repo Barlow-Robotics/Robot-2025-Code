@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import com.google.flatbuffers.Constants;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -12,6 +14,8 @@ import frc.robot.subsystems.ArmState;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Wrist;
+import frc.robot.Constants.ArmConstants;
+
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class RemoveAlgae extends Command {
@@ -47,7 +51,11 @@ public class RemoveAlgae extends Command {
                 //wpk need to fix magic numbers
                 new InstantCommand(()-> theGripper.startAlgaeRemoval() ) ,
                 // move the elevator up to strip the algae
-                new MoveElevator(theElevator, theElevator.getElevatorHeightInches() + 10.0, 20.0) ,
+                new MoveElevator(theElevator, 
+                    theElevator.getDesiredElevatorHeightInches() + 10.0,
+                    ArmConstants.ElevatorCruiseVelocity / 5.0 ,
+                    20.0, 
+                    ArmConstants.CarriageCruiseVelocity / 5.0) ,
                 new InstantCommand(()-> theGripper.stop() ) ,
                 new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
                 );
