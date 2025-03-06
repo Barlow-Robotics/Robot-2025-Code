@@ -627,9 +627,9 @@ public RobotContainer(Robot robot) {
                                     .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
                     new PPHolonomicDriveController(
                             // PID constants for translation
-                            new PIDConstants(10, 0, 0),
+                            new PIDConstants(0.75, 0, 0.1),
                             // PID constants for rotation
-                            new PIDConstants(7, 0, 0)),
+                            new PIDConstants(0.5, 0, 0)),
                     config,
                     // Assume the path needs to be flipped for Red vs Blue, this is normally the
                     // case
@@ -654,7 +654,7 @@ public RobotContainer(Robot robot) {
             double targetZ) {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
-        PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for
+        PathConstraints constraints = new PathConstraints(1.0,2.0, 4 * Math.PI, 8 * Math.PI); // The constraints for
         if (getChangeToRight() == null) {
             sideOfReef = 0;
         }
@@ -724,8 +724,8 @@ public RobotContainer(Robot robot) {
             // System.out.println(radianRobot);
             double offsetX = Constants.DriveConstants.distanceToFrontOfRobot * Math.cos(radianRobot);
             double offsetY = Constants.DriveConstants.distanceToFrontOfRobot * Math.sin(radianRobot);
-            double reefX = finalPoseOfAprilTagId.getX() + offsetX + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * Math.sin(radianRobot));
-            double reefY = finalPoseOfAprilTagId.getY() + offsetY + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * -Math.cos(radianRobot));
+            double reefX = finalPoseOfAprilTagId.getX() + offsetX + (Constants.FieldConstants.reefOffsetMeters + (Constants.GripperConstants.locationOfGripperToRobotX*-sideOfReef)) * (sideOfReef * Math.sin(radianRobot));
+            double reefY = finalPoseOfAprilTagId.getY() + offsetY + (Constants.FieldConstants.reefOffsetMeters + (Constants.GripperConstants.locationOfGripperToRobotX*-sideOfReef)) * (sideOfReef * -Math.cos(radianRobot));
             reefAutoTargetPose = new Pose2d(reefX, reefY, new Rotation2d(radianRobot + Math.PI));
             // reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()
             //         + Constants.DriveConstants.distanceToFrontOfRobot*Math.cos(radianRobot) + Constants.FieldConstants.reefOffsetMeters

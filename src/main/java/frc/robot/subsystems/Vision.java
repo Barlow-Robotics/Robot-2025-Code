@@ -284,7 +284,7 @@ public class Vision extends SubsystemBase {
                 }
             }
             
-            if (!Robot.isSimulation()) {
+            if (!Robot.isSimulation() && !robot.isAutonomous()) {
                 Pose2d currentPose = driveSub.getPose();
                 var photonEstimate = getEstimatedGlobalPose(currentPose);
                 if (photonEstimate.isPresent()) {

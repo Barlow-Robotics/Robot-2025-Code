@@ -151,7 +151,7 @@ public class Constants {
         public static final double NudgeSpeed = .25;
 
         public static final boolean GyroReversed = false;
-        public static final double distanceToFrontOfRobot = Units.inchesToMeters(22); 
+        public static final double distanceToFrontOfRobot = Units.inchesToMeters(36/2); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
         public static final double TotalWidth = Units.inchesToMeters(29);
@@ -506,6 +506,8 @@ public class Constants {
 
         public static final double currentOfIntakedCoral2 = 2000000; // Change with testing. 
         public static TuneableParameter currentOfIntakedCoral = new TuneableParameter(currentOfIntakedCoral2, 0, 4000000, true, "TuneableParameter/Gripper/currentOfIntakedCoral");
+
+        public static final double locationOfGripperToRobotX = Units.inchesToMeters(1);
     }
 
     public static final class AlgaeConstants {
@@ -666,7 +668,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = reefSideLengthInches/4-7; // goes to the middle of the Side
+        public static final double reefOffsetInches = 7.5; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
 }
