@@ -44,8 +44,8 @@ public class Constants {
     /***************************************************************************/
     public static final class VisionConstants {
         public static final int CameraLightID = 0; // NEED TO FIX/CHANGE
-        public static final String PoseCameraName = "Global_Shutter_Camera";
-        public static final String TargetCameraName = "Arducam_OV9281_USB_Camera";
+        public static final String PoseCameraName = "Climb_Camera";
+        public static final String TargetCameraName = "Reef_Camera";
 
         public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;

@@ -4,13 +4,15 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.SignalLogger;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -22,16 +24,9 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.LogitechExtreme3DConstants;
-import frc.robot.commands.CalibrateCarriage;
-import frc.robot.commands.CalibrateElevator;
-import frc.robot.subsystems.ArmState;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
 
 
 public class Robot extends LoggedRobot {
@@ -212,9 +207,20 @@ public class Robot extends LoggedRobot {
       if (!currentlyFollowingAPath && selectedAutoCommand != null) {
           currentlyFollowingAPath = true;
           currentTeleopCommand = selectedAutoCommand;
+          if (!selectedAutoCommand.getRequirements().isEmpty()) {
           CommandScheduler.getInstance().schedule(selectedAutoCommand);
+          }
       }
+    } 
+    else { // If the button is NOT pressed, cancel the path
+        if (currentlyFollowingAPath && currentTeleopCommand != null) {
+            currentTeleopCommand.cancel();
+            selectedAutoCommand = null;
+            currentTeleopCommand = null;
+            currentlyFollowingAPath = false;
+        }
     }
+
     if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
         currentlyFollowingAPath = false;
         if (currentTeleopCommand != null) {
@@ -224,16 +230,7 @@ public class Robot extends LoggedRobot {
 
         }
     }
-    if (currentlyFollowingAPath) {
-      if (Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisX)) > 0.5 ||Math.abs(RobotContainer.driverController.getRawAxis(LogitechExtreme3DConstants.AxisY )) > 0.5  ) {
-        if (currentTeleopCommand != null) {
-          currentTeleopCommand.cancel();
-          selectedAutoCommand = null;
-          currentTeleopCommand = null;
-    
-        }
-      }
-    }
+
 }
 
   @Override

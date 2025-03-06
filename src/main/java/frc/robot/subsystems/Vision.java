@@ -282,16 +282,17 @@ public class Vision extends SubsystemBase {
                     }
                 }
             }
-
-
-            Pose2d currentPose = driveSub.getPose();
-            var photonEstimate = getEstimatedGlobalPose(currentPose);
-            if (photonEstimate.isPresent()) {
-                driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
-                    photonEstimate.get().timestampSeconds
-                );
-                Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
-            }
+            
+            if (!Robot.isSimulation()) {
+                Pose2d currentPose = driveSub.getPose();
+                var photonEstimate = getEstimatedGlobalPose(currentPose);
+                if (photonEstimate.isPresent()) {
+                    driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
+                        photonEstimate.get().timestampSeconds
+                    );
+                    Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
+                }
+                }
     
 
         }
