@@ -464,10 +464,10 @@ public class Constants {
         public static final double SupplyCurrentLimit = 100; // CHANGE
 
         public static final double CageAngle2 = WinchAttachRotations * 360;
-        public static TuneableParameter AttachAngle = new TuneableParameter(CageAngle2, 0, 180, true, "TuneableParameter/Climb/CageAngle");
+        public static TuneableParameter UnwoundAngle = new TuneableParameter(CageAngle2, 0, 180, true, "TuneableParameter/Climb/CageAngle");
         
         public static final double WinchedAngle2 = WinchClimbRotations * 360;
-        public static TuneableParameter ClimbedAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
+        public static TuneableParameter WoundAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
 
         //  A value between 0.0 (fully retracted) and 1.0 (fully extended)
         //      For initial testing, start with a low value.  Movement required is .25-.375 inches.
