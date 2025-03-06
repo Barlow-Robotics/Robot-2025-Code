@@ -87,7 +87,7 @@ public class Vision extends SubsystemBase {
     private boolean layoutOriginSet = false;
 
     private final Drive driveSub;
-
+    private final Robot robot;
     ////// ------ NOTE VARIABLES ------ //////
 
     boolean noteDetected;
@@ -99,11 +99,12 @@ public class Vision extends SubsystemBase {
     private DatagramChannel visionChannel = null;
     ByteBuffer buffer = ByteBuffer.allocate(1024);
 
-    public Vision(Drive driveSub) /* throws IOException */ {
+    public Vision(Drive driveSub, Robot robot) /* throws IOException */ {
         this.driveSub = driveSub;
+        this.robot = robot;
         targetCamera = new PhotonCamera(TargetCameraName); // left camera
         poseCamera = new PhotonCamera(PoseCameraName); // right camera
-        photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, TargetCamToRobot);
+        photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RobotToTargetCam);
         // photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, poseCamera, PoseCameraToRobot);
         photonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
 
@@ -282,16 +283,17 @@ public class Vision extends SubsystemBase {
                     }
                 }
             }
-
-
-            Pose2d currentPose = driveSub.getPose();
-            var photonEstimate = getEstimatedGlobalPose(currentPose);
-            if (photonEstimate.isPresent()) {
-                driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
-                    photonEstimate.get().timestampSeconds
-                );
-                Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
-            }
+            
+            if (!Robot.isSimulation()) {
+                Pose2d currentPose = driveSub.getPose();
+                var photonEstimate = getEstimatedGlobalPose(currentPose);
+                if (photonEstimate.isPresent()) {
+                    driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
+                        photonEstimate.get().timestampSeconds
+                    );
+                    Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
+                }
+                }
     
 
         }

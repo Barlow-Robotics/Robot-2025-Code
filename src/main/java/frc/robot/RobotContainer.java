@@ -45,7 +45,7 @@ import frc.robot.Constants.XboxControllerConstants;
 // import frc.robot.commands.StartClimbing;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.commands.ScoreCoral;
-import frc.robot.commands.StartClimbing;
+import frc.robot.commands.DoClimb;
 import frc.robot.commands.ArmStateManager;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
@@ -66,9 +66,9 @@ import frc.robot.subsystems.Wrist;
 public class RobotContainer {
 /* SUBSYSTEMS */
 public Drive driveSub = TunerConstants.createDrivetrain();
-public Vision visionSub = new Vision(driveSub);
 public final Gripper gripperSub = new Gripper();
 public final Elevator elevatorSub;
+public final Vision visionSub;
 public final Arm armSub;
 public final Wrist wristSub;
 public final Climb climbSub = new Climb();
@@ -100,7 +100,7 @@ private final StopAlgaeIntake stopAlgaeIntakeCmd;
 private final ScoreCoral scoreCoralCmd;
 private final RemoveAlgae removeAlgaeCmd;
 
-private final StartClimbing startClimbingCmd;
+private final DoClimb startClimbingCmd;
 
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
@@ -177,10 +177,11 @@ private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsA
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
 public RobotContainer(Robot robot) {
-
+    visionSub = new Vision(driveSub, robot);
     elevatorSub = new Elevator(robot);
     armSub = new Arm(robot);
     wristSub = new Wrist(robot);
+
 
     setArmPosTravellingCmd = new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub);
     setArmPosLoadCoralCmd = new LoadCoralFromChute(elevatorSub, armSub, wristSub, gripperSub, armState);
@@ -202,7 +203,7 @@ public RobotContainer(Robot robot) {
     scoreCoralCmd = new ScoreCoral(armState, elevatorSub, armSub, wristSub, gripperSub);
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
-    startClimbingCmd = new StartClimbing(climbSub, armSub, armState);
+    startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
 
     goToRight = false;
     // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
@@ -488,6 +489,7 @@ public RobotContainer(Robot robot) {
         NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
+        NamedCommands.registerCommand("setPositionTraveling", setArmPosTravellingCmd);
         NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
 
 

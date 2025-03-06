@@ -44,8 +44,8 @@ public class Constants {
     /***************************************************************************/
     public static final class VisionConstants {
         public static final int CameraLightID = 0; // NEED TO FIX/CHANGE
-        public static final String PoseCameraName = "Global_Shutter_Camera";
-        public static final String TargetCameraName = "Arducam_OV9281_USB_Camera";
+        public static final String PoseCameraName = "Climb_Camera";
+        public static final String TargetCameraName = "Reef_Camera";
 
         public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
@@ -464,10 +464,10 @@ public class Constants {
         public static final double SupplyCurrentLimit = 100; // CHANGE
 
         public static final double CageAngle2 = WinchAttachRotations * 360;
-        public static TuneableParameter AttachAngle = new TuneableParameter(CageAngle2, 0, 180, true, "TuneableParameter/Climb/CageAngle");
+        public static TuneableParameter UnwoundAngle = new TuneableParameter(CageAngle2, 0, 180, true, "TuneableParameter/Climb/CageAngle");
         
         public static final double WinchedAngle2 = WinchClimbRotations * 360;
-        public static TuneableParameter ClimbedAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
+        public static TuneableParameter WoundAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
 
         //  A value between 0.0 (fully retracted) and 1.0 (fully extended)
         //      For initial testing, start with a low value.  Movement required is .25-.375 inches.
@@ -666,7 +666,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = reefSideLengthInches/4; // goes to the middle of the Side
+        public static final double reefOffsetInches = reefSideLengthInches/4-7; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
 }
