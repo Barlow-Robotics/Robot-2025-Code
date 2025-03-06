@@ -489,6 +489,7 @@ public RobotContainer(Robot robot) {
         NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
+        NamedCommands.registerCommand("setPositionTraveling", setArmPosTravellingCmd);
         NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
 
 
