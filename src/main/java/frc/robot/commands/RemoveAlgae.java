@@ -53,9 +53,9 @@ public class RemoveAlgae extends Command {
                 // move the elevator up to strip the algae
                 new MoveElevator(theElevator, 
                     theElevator.getDesiredElevatorHeightInches() + 10.0,
-                    ArmConstants.ElevatorCruiseVelocity / 5.0 ,
+                    ArmConstants.ElevatorAlgaeRemovalVelocity,
                     20.0, 
-                    ArmConstants.CarriageCruiseVelocity / 5.0) ,
+                    ArmConstants.CarriageAlgaeRemovalVelocity) ,
                 new InstantCommand(()-> theGripper.stop() ) ,
                 new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
                 );

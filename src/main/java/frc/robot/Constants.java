@@ -313,6 +313,10 @@ public class Constants {
         public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE
         public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
+        public static final double ElevatorAlgaeRemovalVelocity = 8.0;
+        // public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE
+        // public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
+
 
 
         public static final double CarriageKP =/*testing*/0.5; // 32; // CHANGE
@@ -339,6 +343,8 @@ public class Constants {
         public static final double CarriageCruiseVelocity = 20.0; // CHANGE In inches per second
         public static final double CarriageAcceleration = 4 * CarriageCruiseVelocity ; // CHANGE In inches per second per second
         public static final double CarriageJerk = 5 * CarriageAcceleration ; // CHANGE - In Inches/s/s
+
+        public static final double CarriageAlgaeRemovalVelocity = 8.0;
 
 
 
@@ -537,7 +543,7 @@ public class Constants {
         public static final double IntakeIZone2 =/*testing*/0; // 0.15; // CHANGE
         public static TuneableParameter IntakeIZone = new TuneableParameter(IntakeIZone2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeIZone");
 
-        public static final double IntakeSpeed2 = 2.5; // CHANGE
+        public static final double IntakeSpeed2 = 4.0; // CHANGE
         public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 0, 25, true, "TuneableParameter/AlgaeIntake/IntakeSpeed");
         public static final double EjectSpeed2 = -2; // CHANGE
         public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, -25, 0, true, "TuneableParameter/AlgaeIntake/EjectSpeed");

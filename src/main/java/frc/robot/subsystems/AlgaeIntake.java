@@ -403,7 +403,7 @@ public class AlgaeIntake extends SubsystemBase {
         talonConfigs.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
 
         // hold gains
-        talonConfigs.Slot2.kP = 5.0;
+        talonConfigs.Slot2.kP = 15.0;
         talonConfigs.Slot2.kI = 0.0;
         talonConfigs.Slot2.kD = 0.2;
         talonConfigs.Slot2.kV = 0;

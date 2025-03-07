@@ -93,16 +93,16 @@ public class Arm extends SubsystemBase {
 
         logData();
 
-        BaseStatusSignal.refreshAll(
-                armMotor.getFault_FusedSensorOutOfSync(false),
-                armMotor.getStickyFault_FusedSensorOutOfSync(false),
-                armMotor.getFault_RemoteSensorDataInvalid(false),
-                armMotor.getStickyFault_RemoteSensorDataInvalid(false),
-                armMotor.getPosition(false),
-                armMotor.getVelocity(false),
-                armEncoder.getPosition(false),
-                armEncoder.getVelocity(false),
-                armMotor.getRotorPosition(false));
+        // BaseStatusSignal.refreshAll(
+        //         armMotor.getFault_FusedSensorOutOfSync(false),
+        //         armMotor.getStickyFault_FusedSensorOutOfSync(false),
+        //         armMotor.getFault_RemoteSensorDataInvalid(false),
+        //         armMotor.getStickyFault_RemoteSensorDataInvalid(false),
+        //         armMotor.getPosition(false),
+        //         armMotor.getVelocity(false),
+        //         armEncoder.getPosition(false),
+        //         armEncoder.getVelocity(false),
+        //         armMotor.getRotorPosition(false));
 
     }
 
