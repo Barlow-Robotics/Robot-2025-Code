@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 // import frc.robot.commands.SetArmPosition;
@@ -365,7 +366,10 @@ public RobotContainer(Robot robot) {
         moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonA); 
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
 
-        startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
+
+        Joystick testingController = new Joystick(0) ;
+//        startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
+        startClimbButton = new JoystickButton(testingController, LogitechDAConstants.ButtonY);  // just for testing
         startClimbButton.onTrue(startClimbingCmd);
 
         /***************** ALGAE INTAKE *****************/

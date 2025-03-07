@@ -49,7 +49,7 @@ public class Arm extends SubsystemBase {
 
     TalonFX armMotor;
     private final DCMotorSim armMotorModel = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 45),
             DCMotor.getKrakenX60Foc(1));
     TalonFXSimState armMotorSim;
     private final CANcoder armEncoder; // https://github.com/CrossTheRoadElec/Phoenix6-Examples/blob/main/java/FusedCANcoder/src/main/java/frc/robot/Robot.java

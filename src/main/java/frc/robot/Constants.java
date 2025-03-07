@@ -373,6 +373,7 @@ public class Constants {
 
         public static final double WristAngleTolerance = 20.0; // CHANGE wpk need to fix this after gains tuned
         public static final double ArmAngleTolerance = 5.0; // CHANGE
+        // public static final double ArmAngleTolerance = 10.0; // change this back after climb testing
         public static final double ElevatorHeightTolerance = 0.5;// CHANGE
         public static final double CarriageHeightTolerance = 0.5;// CHANGE
 
@@ -439,9 +440,9 @@ public class Constants {
         public static final double WinchCableLenAtRest = WinchCableLenAfterClimb; // Length in inches, fully unwound with harpoon fwd & down
         //  Below measures the winch rotations required to move from the starting point, i.e. climbed, to horizontal harpoon
         //      As is, this is a negative value, i.e. we are unwinding the cable.
-        public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)/RotationsPerWinchInch; 
+        public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)*RotationsPerWinchInch; 
         //  Below measures the winch rotations required to move from horizontal harpoon to fully back, i.e. climbed.
-        public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)/RotationsPerWinchInch;
+        public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)*RotationsPerWinchInch;
 
         public static final double WinchMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / WinchMotorGearRatio
                 * WinchSprocketCircumference;
@@ -457,9 +458,9 @@ public class Constants {
         public static TuneableParameter WinchKG = new TuneableParameter(WinchKG2, 0, 1, true, "TuneableParameter/Climb/PID/WinchKG");
 
 
-        public static final double WinchCruiseRotationsPerSec = 0;
-        public static final double WinchAcceleration = 0;
-        public static final double WinchJerk = 0;
+        public static final double WinchCruiseRotationsPerSec = 20;
+        public static final double WinchAcceleration = WinchCruiseRotationsPerSec * 4;
+        public static final double WinchJerk = WinchAcceleration * 10;
 
         public static final double SupplyCurrentLimit = 100; // CHANGE
 
@@ -469,18 +470,14 @@ public class Constants {
         public static final double WinchedAngle2 = WinchClimbRotations * 360;
         public static TuneableParameter WoundAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
 
-        //  A value between 0.0 (fully retracted) and 1.0 (fully extended)
+        //  A value between 1.0 (fully retracted) and 0.0 (fully extended)
         //      For initial testing, start with a low value.  Movement required is .25-.375 inches.
         //      Not sure how this translates for this specific device, but full extension is a bit more than 1 in.
-        public static final double ServoExtendedPos = 0.1;  // Low initial value for testing.  Increase in small increments
+        public static final double ServoExtendedPos = 0.9;  // Low initial value for testing.  Increase in small increments
                                                             //  as needed.
-        public static final double ServoRetractedPos = 0.0;  // Low initial value for testing.  Increase in small increments
+        public static final double ServoRetractedPos = 1.0;  // Low initial value for testing.  Increase in small increments
 
-        public static final double WinchTolerance = 15;  //  In degrees..Get the winch rotation within +/- this many degrees
-
-        public static final double ServoTolerance = 0.02;  //  Portion of the servo's (actuator's) range of motion.
-
-
+        public static final double WinchTolerance = 5;  //  In degrees..Get the winch rotation within +/- this many degrees
 
     }
 
