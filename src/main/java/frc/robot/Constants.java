@@ -71,7 +71,7 @@ public class Constants {
         // The standard deviations of our vision estimated poses, which affect
         // correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
-        public static final Matrix<N3, N1> SingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> SingleTagStdDevs = VecBuilder.fill(1, 1, 0.1);
         public static final Matrix<N3, N1> MultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
         // constants for vision-calculated speaker shooting - LMT
@@ -151,7 +151,7 @@ public class Constants {
         public static final double NudgeSpeed = .25;
 
         public static final boolean GyroReversed = false;
-        public static final double distanceToFrontOfRobot = Units.inchesToMeters(36/2); 
+        public static final double distanceToFrontOfRobot = Units.inchesToMeters(32/2-8); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
         public static final double TotalWidth = Units.inchesToMeters(29);

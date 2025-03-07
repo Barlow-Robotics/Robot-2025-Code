@@ -35,10 +35,10 @@ public class Robot extends LoggedRobot {
 
     private final RobotContainer robotContainer;
     boolean pathPlannerConfigured = false;
-    boolean currentlyFollowingAPath = false;
+    public boolean currentlyFollowingAPath = false;
     Pose2d currentPose;
     Command selectedAutoCommand;
-
+    private int pathRecounter = 0;
     private boolean calibrationPerformed = false;
 
     /***** MECHANISM 2D FOR ADVANTAGE SCOPE *****/
@@ -110,6 +110,12 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.disableSubsytems();
+    currentlyFollowingAPath = false;
+    if (currentTeleopCommand != null) {
+      currentTeleopCommand.cancel();
+      selectedAutoCommand = null;
+      currentTeleopCommand = null;
+    }  
 
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
@@ -119,7 +125,6 @@ public class Robot extends LoggedRobot {
       currentlyFollowingAPath = false;
       selectedAutoCommand = null;
     }
-
   }
 
   @Override
@@ -198,38 +203,40 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {    
-    if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-      if (currentTeleopCommand == null) {
-        selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
-      }
-      
-      if (!currentlyFollowingAPath && selectedAutoCommand != null) {
-          currentlyFollowingAPath = true;
-          currentTeleopCommand = selectedAutoCommand;
-          if (!selectedAutoCommand.getRequirements().isEmpty()) {
-          CommandScheduler.getInstance().schedule(selectedAutoCommand);
+  public void teleopPeriodic() {
+    // if (pathRecounter % 10 == 0) {
+      if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
+        if (currentTeleopCommand == null) {
+          selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
+        }
+        
+        if (!currentlyFollowingAPath && selectedAutoCommand != null) {
+            currentlyFollowingAPath = true;
+            currentTeleopCommand = selectedAutoCommand;
+            if (!selectedAutoCommand.getRequirements().isEmpty()) {
+            CommandScheduler.getInstance().schedule(selectedAutoCommand);
+            }
+        }
+      } 
+      else { // If the button is NOT pressed, cancel the path
+          if (currentlyFollowingAPath && currentTeleopCommand != null) {
+              currentTeleopCommand.cancel();
+              selectedAutoCommand = null;
+              currentTeleopCommand = null;
+              currentlyFollowingAPath = false;
           }
       }
-    } 
-    else { // If the button is NOT pressed, cancel the path
-        if (currentlyFollowingAPath && currentTeleopCommand != null) {
+
+      if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
+          currentlyFollowingAPath = false;
+          if (currentTeleopCommand != null) {
             currentTeleopCommand.cancel();
             selectedAutoCommand = null;
             currentTeleopCommand = null;
-            currentlyFollowingAPath = false;
-        }
-    }
 
-    if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
-        currentlyFollowingAPath = false;
-        if (currentTeleopCommand != null) {
-          currentTeleopCommand.cancel();
-          selectedAutoCommand = null;
-          currentTeleopCommand = null;
-
-        }
-    }
+          }
+      }
+    // }
 
 }
 
