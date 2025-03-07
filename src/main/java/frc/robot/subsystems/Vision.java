@@ -73,7 +73,7 @@ public class Vision extends SubsystemBase {
     private HashSet<Integer> targetAlignSet;
     public OptionalInt activeAlignTargetId;
     private Alliance alliance;
-
+    private int pathRecounter = 0;
     boolean aprilTagDetected = false;
 
     public enum TargetToAlign {
@@ -284,7 +284,8 @@ public class Vision extends SubsystemBase {
                 }
             }
             
-            if (!Robot.isSimulation()) {
+            pathRecounter+=1;
+            if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0)) {
                 Pose2d currentPose = driveSub.getPose();
                 var photonEstimate = getEstimatedGlobalPose(currentPose);
                 if (photonEstimate.isPresent()) {
@@ -293,10 +294,9 @@ public class Vision extends SubsystemBase {
                     );
                     Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
                 }
-                }
-    
-
+            }
         }
+
 
         ////// ------ JETSON NANO COMMUNICATION ------ //////
         try {

@@ -37,29 +37,28 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
-
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
-// import frc.robot.commands.SetArmPosition;
-// import frc.robot.commands.StartClimbing;
-import frc.robot.commands.StopAlgaeIntake;
-import frc.robot.commands.ScoreCoral;
-import frc.robot.commands.DoClimb;
 import frc.robot.commands.ArmStateManager;
+import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
 import frc.robot.commands.PositionGripper;
 // import frc.robot.commands.ReleaseCoral;
 import frc.robot.commands.RemoveAlgae;
-import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
+import frc.robot.commands.ScoreCoral;
+// import frc.robot.commands.SetArmPosition;
+// import frc.robot.commands.StartClimbing;
+import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ArmState;
 import frc.robot.subsystems.Climb;
+import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Wrist;
@@ -233,7 +232,7 @@ public RobotContainer(Robot robot) {
     configureBindings();
 
     drivePovBindings();
-
+    // driveSub.setVisionMeasurementStdDevs(SingleTagStdDevs);
         driveSub.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 driveSub.applyRequest(() -> {
@@ -505,6 +504,8 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Bottom 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 2 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Right 1 Coral (Level3)", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral (Level3)"), Set.of(driveSub)));
+
         autoChooser.addOption("Bottom Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Left 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Top Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Right 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Bottom Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Right 1 Coral"), Set.of(driveSub)));
@@ -631,9 +632,9 @@ public RobotContainer(Robot robot) {
                                     .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
                     new PPHolonomicDriveController(
                             // PID constants for translation
-                            new PIDConstants(10, 0, 0),
+                            new PIDConstants(0.75, 0, 0.1),
                             // PID constants for rotation
-                            new PIDConstants(7, 0, 0)),
+                            new PIDConstants(0.5, 0, 0)),
                     config,
                     // Assume the path needs to be flipped for Red vs Blue, this is normally the
                     // case
@@ -658,7 +659,7 @@ public RobotContainer(Robot robot) {
             double targetZ) {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
-        PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for
+        PathConstraints constraints = new PathConstraints(1.0,2.0, 4 * Math.PI, 8 * Math.PI); // The constraints for
         if (getChangeToRight() == null) {
             sideOfReef = 0;
         }
@@ -720,16 +721,15 @@ public RobotContainer(Robot robot) {
                         finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
                     }
                 }
-
-
             }
+
             // cosine of the degree is multiplied by side of reef.
             double radianRobot = finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians();
             // System.out.println(radianRobot);
             double offsetX = Constants.DriveConstants.distanceToFrontOfRobot * Math.cos(radianRobot);
             double offsetY = Constants.DriveConstants.distanceToFrontOfRobot * Math.sin(radianRobot);
-            double reefX = finalPoseOfAprilTagId.getX() + offsetX + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * Math.sin(radianRobot));
-            double reefY = finalPoseOfAprilTagId.getY() + offsetY + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * -Math.cos(radianRobot));
+            double reefX = finalPoseOfAprilTagId.getX() + offsetX + (Constants.FieldConstants.reefOffsetMeters + (Constants.GripperConstants.locationOfGripperToRobotX*-sideOfReef)) * (sideOfReef * Math.sin(radianRobot));
+            double reefY = finalPoseOfAprilTagId.getY() + offsetY + (Constants.FieldConstants.reefOffsetMeters + (Constants.GripperConstants.locationOfGripperToRobotX*-sideOfReef)) * (sideOfReef * -Math.cos(radianRobot));
             reefAutoTargetPose = new Pose2d(reefX, reefY, new Rotation2d(radianRobot + Math.PI));
             // reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()
             //         + Constants.DriveConstants.distanceToFrontOfRobot*Math.cos(radianRobot) + Constants.FieldConstants.reefOffsetMeters
