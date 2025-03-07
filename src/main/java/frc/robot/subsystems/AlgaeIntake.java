@@ -517,6 +517,9 @@ public class AlgaeIntake extends SubsystemBase {
             System.out.println(
                     "Could not apply current limit configs to " + motor + " error code: " + status.toString());
         }
+
+        motor.resetSignalFrequencies() ;
+
     }
 
     private void setNeutralMode(NeutralModeValue liftMotorMode, NeutralModeValue intakeMotorMode) {

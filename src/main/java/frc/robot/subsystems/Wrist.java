@@ -194,6 +194,8 @@ public class Wrist extends SubsystemBase {
             System.out.println(
                     "Could not apply magnet configs to wrist angle encoder, error code: " + status.toString());
         }
+
+        // wristEncoder.optimizeBusUtilization() ;
     }
 
 

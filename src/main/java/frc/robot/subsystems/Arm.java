@@ -314,6 +314,7 @@ public class Arm extends SubsystemBase {
             System.out.println(
                     "Could not apply current limit configs to " + motor + " error code: " + status.toString());
         }
+        motor.resetSignalFrequencies() ;
     }
 
     private void applyArmEncoderConfigs() {
@@ -351,6 +352,7 @@ public class Arm extends SubsystemBase {
             System.out.println(
                     "Could not apply magnet configs to arm angle encoder, error code: " + status.toString());
         }
+        // armEncoder.optimizeBusUtilization() ;
     }
 
 

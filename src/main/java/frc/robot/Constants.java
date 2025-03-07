@@ -319,18 +319,28 @@ public class Constants {
 
 
 
-        public static final double CarriageKP =/*testing*/0.5; // 32; // CHANGE
-        public static TuneableParameter CarriageKPTP = new TuneableParameter(CarriageKP, 0, 50, true, "TuneableParameter/Arm/PID/ElevatorKP");
-        public static final double CarriageKI =/*testing*/0; // 0.1; // CHANGE
-        public static TuneableParameter CarriageKITP = new TuneableParameter(CarriageKI, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
-        public static final double CarriageKD =/*testing*/0.30; // 0.2; // CHANGE
-        public static TuneableParameter CarriageKDTP = new TuneableParameter(CarriageKD, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
-        public static final double CarriageKV =/*testing*/0.11; // 0.0; // CHANGE
-        public static TuneableParameter CarriageKVTP = new TuneableParameter(CarriageKV, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
-        public static final double CarriageKG =/*testing*/0.1; // 2.7; // CHANGE
-        public static TuneableParameter CarriageKGTP = new TuneableParameter(CarriageKG, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
-        public static final double CarriageKS =/*testing*/0.08; // 0; // CHANGE
-        public static TuneableParameter CarriageKSTP = new TuneableParameter(CarriageKS, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
+        // public static final double CarriageKP =/*testing*/0.5; // 32; // CHANGE
+        // public static TuneableParameter CarriageKPTP = new TuneableParameter(CarriageKP, 0, 50, true, "TuneableParameter/Arm/PID/ElevatorKP");
+        // public static final double CarriageKI =/*testing*/0; // 0.1; // CHANGE
+        // public static TuneableParameter CarriageKITP = new TuneableParameter(CarriageKI, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
+        // public static final double CarriageKD =/*testing*/0.30; // 0.2; // CHANGE
+        // public static TuneableParameter CarriageKDTP = new TuneableParameter(CarriageKD, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
+        // public static final double CarriageKV =/*testing*/0.11; // 0.0; // CHANGE
+        // public static TuneableParameter CarriageKVTP = new TuneableParameter(CarriageKV, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
+        // public static final double CarriageKG =/*testing*/0.1; // 2.7; // CHANGE
+        // public static TuneableParameter CarriageKGTP = new TuneableParameter(CarriageKG, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
+        // public static final double CarriageKS =/*testing*/0.08; // 0; // CHANGE
+        // public static TuneableParameter CarriageKSTP = new TuneableParameter(CarriageKS, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
+
+
+        public static final double CarriageKP = 0.5;   // 32; // CHANGE
+        public static final double CarriageKI = 0;    // 0.1; // CHANGE
+        public static final double CarriageKD = 0.30; // 0.2; // CHANGE
+//        public static final double CarriageKD = 0.00; // 0.2; // CHANGE
+        public static final double CarriageKV = 0.11; // 0.0; // CHANGE
+        public static final double CarriageKG = 0.1;  // 2.7; // CHANGE
+        public static final double CarriageKS = 0.08; // 0; // CHANGE
+
 
         //  Values for Carriage now based on Mr K's spreadsheet
         public static final double CarriageGearRatio = 4.8;

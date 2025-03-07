@@ -265,6 +265,9 @@ public class Climb extends SubsystemBase {
         // if (status.isOK()) break; }
         // if (!status.isOK()) System.out.println("Could not apply current limit configs
         // to " + motor + " error code: " + status.toString());
+
+        motor.resetSignalFrequencies() ;
+
     }
 
     /* SIMULATION */
