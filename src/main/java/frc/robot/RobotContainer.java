@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -47,11 +48,8 @@ import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
 import frc.robot.commands.PositionGripper;
-// import frc.robot.commands.ReleaseCoral;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
-// import frc.robot.commands.SetArmPosition;
-// import frc.robot.commands.StartClimbing;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
@@ -753,6 +751,10 @@ public RobotContainer(Robot robot) {
                     constraints,
                     null,
                     new GoalEndState(0.0, reefAutoTargetPose.getRotation()));
+            
+            if (path.getAllPathPoints().size() < 2) { // If the path is broken (only 1 point), prevents crashing.
+                return Commands.none();
+            }
 
             pathfindingCommand = AutoBuilder.followPath(path);
         }
