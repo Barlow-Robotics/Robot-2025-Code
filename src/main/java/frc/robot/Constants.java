@@ -151,7 +151,7 @@ public class Constants {
         public static final double NudgeSpeed = .25;
 
         public static final boolean GyroReversed = false;
-        public static final double distanceToFrontOfRobot = Units.inchesToMeters(32/2-8); 
+        public static final double distanceToFrontOfRobot = Units.inchesToMeters(32/2-10); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
         public static final double TotalWidth = Units.inchesToMeters(29);

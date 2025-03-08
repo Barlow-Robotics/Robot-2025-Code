@@ -668,7 +668,7 @@ public RobotContainer(Robot robot) {
             double targetZ) {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
-        PathConstraints constraints = new PathConstraints(1.0,2.0, 4 * Math.PI, 8 * Math.PI); // The constraints for
+        PathConstraints constraints = new PathConstraints(1.5,2.0, 6 * Math.PI, 12 * Math.PI); // The constraints for
         if (getChangeToRight() == null) {
             sideOfReef = 0;
         }
