@@ -147,6 +147,9 @@ private POVButton rightPovButton;
 private POVButton upPovButton;
 private POVButton downPovButton;
 
+private Trigger disableVisionButton;
+private Trigger enableVisionButton;
+
 /* PID */
 private PIDController noteYawPID;
 private PIDController targetYawPID;
@@ -417,6 +420,14 @@ public RobotContainer(Robot robot) {
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
         resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
+
+
+        disableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
+        disableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(true))).onFalse(Commands.none());
+
+        enableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
+        enableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(false))).onFalse(Commands.none());
+
     }
 
     private void drivePovBindings() {
