@@ -721,14 +721,15 @@ public RobotContainer(Robot robot) {
                     }
                 }
                 if (armState.isAvailableToGoToCoralStation()) {
-                    if (alliance.get() == DriverStation.Alliance.Blue) {
-                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListCoralStation);
-                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
-                    }
-                    if (alliance.get() == DriverStation.Alliance.Red) {
-                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListCoralStation);
-                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
-                    }
+                    return Commands.none();
+                    // if (alliance.get() == DriverStation.Alliance.Blue) {
+                    //     int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListCoralStation);
+                    //     finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    // }
+                    // if (alliance.get() == DriverStation.Alliance.Red) {
+                    //     int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListCoralStation);
+                    //     finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    // }
                 }
             }
 
