@@ -514,6 +514,7 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Right 1 Coral (Level3)", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral (Level3)"), Set.of(driveSub)));
+        autoChooser.addOption("Top Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Left 1 Coral"), Set.of(driveSub)));
 
         autoChooser.addOption("Bottom Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Left 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Top Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Right 1 Coral"), Set.of(driveSub)));
