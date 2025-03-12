@@ -36,7 +36,7 @@ public class DoClimb extends Command {
         this.elevatorSub = elevatorSub;
         this.wristSub = wristSub;
 
-        comm = new SequentialCommandGroup();
+        // comm = new SequentialCommandGroup();
 
         addRequirements(climbSub, armSub);
         // Use addRequirements() here to declare subsystem dependencies.
@@ -45,17 +45,22 @@ public class DoClimb extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        comm = new SequentialCommandGroup();
+        //comm = new SequentialCommandGroup();
         if (climbSub.getCurrentState() == ClimbState.Idle) {
-            comm = Commands.sequence(
-                    // new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub),
-                    new InstantCommand(() -> climbSub.goToUnwind()));
+            comm = new InstantCommand(() -> climbSub.goToUnwind()) ;
+            // comm = Commands.sequence(
+            //         new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub),
+            //         new InstantCommand(() -> climbSub.goToUnwind())
+            //         );
 
         } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
-            comm = Commands.sequence(
-                    new InstantCommand(() -> climbSub.goToWind()));
+            comm =  new InstantCommand(() -> climbSub.goToWind());
+        } else {
+            comm = null ;
         }
-        comm.schedule();
+        if ( comm != null) {
+            comm.schedule();
+        }
     }
 
     public void execute() {
@@ -71,7 +76,10 @@ public class DoClimb extends Command {
 
     @Override
     public boolean isFinished() {
-        return (comm.isFinished());
+        if ( comm != null) {
+            return (comm.isFinished());
+        }
+        return true ;
     }
 
     @Override

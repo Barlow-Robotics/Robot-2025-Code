@@ -38,6 +38,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
@@ -54,6 +55,7 @@ public class Arm extends SubsystemBase {
     TalonFXSimState armMotorSim;
     private final CANcoder armEncoder; // https://github.com/CrossTheRoadElec/Phoenix6-Examples/blob/main/java/FusedCANcoder/src/main/java/frc/robot/Robot.java
     private final SoftwareLimitSwitchConfigs armMotorLimitConfigs;
+
 
     private final Robot robot;
 
@@ -396,6 +398,7 @@ public class Arm extends SubsystemBase {
         var armEncoderSim = armEncoder.getSimState();
         armEncoderSim.setVelocity(armMotorModel.getAngularVelocityRadPerSec());
         armEncoderSim.setRawPosition(armMotorModel.getAngularPositionRotations());
+
     }
 
 }

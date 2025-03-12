@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.StatusCode;
@@ -33,15 +35,18 @@ import frc.robot.Constants;
 // import frc.robot.Constants.AlgaeConstants;
 import frc.robot.Constants.ClimbConstants;
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Robot;
 import frc.robot.sim.PhysicsSim;
 
 public class Climb extends SubsystemBase {
     /** Creates a new Climb. */
 
+    Robot robot ;
+
     private TalonFX winchMotor;
     private final DCMotorSim winchMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared,
-                    Constants.ClimbConstants.WinchMotorGearRatio),
+                    1),
             DCMotor.getKrakenX60Foc(1));
     TalonFXSimState winchMotorSim;
 
@@ -59,10 +64,16 @@ public class Climb extends SubsystemBase {
     private static final int WindGainSlot = 0 ;
     private static final int UnwindGainSlot = 1 ;
 
+    private final BooleanSupplier releasePawlInTest;
+    private final BooleanSupplier unwindWinchInTest; 
+    private final BooleanSupplier windWinchInTest ;
+
 
     Timer timer ;
 
-    public Climb() {
+    public Climb(Robot r, BooleanSupplier releasePawlInTest, BooleanSupplier unwindWinchInTest, BooleanSupplier windWinchInTest) {
+        robot = r ;
+
         // Motor config
         winchMotor = new TalonFX(ElectronicsIDs.WinchMotorID);
         winchMotorSim = winchMotor.getSimState();
@@ -74,63 +85,94 @@ public class Climb extends SubsystemBase {
         servo.enableDeadbandElimination(true);
         servo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
         timer = new Timer() ;
+
+        this.releasePawlInTest = releasePawlInTest ;
+        this.unwindWinchInTest = unwindWinchInTest;
+        this.windWinchInTest   = windWinchInTest;
+    
+
     }
 
     @Override
     public void periodic() {
-        switch (currentState) {
-            case Idle: {
-                // don't do anything here
-            }
-                break;
 
-            case PrepareToUnwind: {
-
-                VoltageOut request = new VoltageOut(0.25);
-                request.EnableFOC = Constants.IsFocEnabled;
-                winchMotor.setControl(request);
-                releasePawl();
-                if (timer.get() > 0.2) {
-                    timer.stop();
-                    currentState = ClimbState.Unwind;
+        if ( robot.isTeleopEnabled()) {
+            switch (currentState) {
+                case Idle: {
+                    // don't do anything here
                 }
-
-            }
-                break;
-
-            case Unwind: {
-                MotionMagicVoltage request = new MotionMagicVoltage( ClimbConstants.WinchAttachRotations ) ;
-                        // Units.degreesToRotations(ClimbConstants.UnwoundAngle.get()));
-                request.EnableFOC = Constants.IsFocEnabled;
-                winchMotor.setControl(request.withSlot(UnwindGainSlot));
-                desiredWinchPosition = ClimbConstants.WinchAttachRotations; // Just for logging
-                if (isUnwound()) {
-                    winchMotor.set(0);
+                    break;
+    
+                case PrepareToUnwind: {
+    
+                    VoltageOut request = new VoltageOut(0.25);
+                    request.EnableFOC = Constants.IsFocEnabled;
+                    winchMotor.setControl(request);
+                    releasePawl();
+                    if (timer.get() > 0.2) {
+                        timer.stop();
+                        currentState = ClimbState.Unwind;
+                    }
+    
+                }
+                    break;
+    
+                case Unwind: {
+                    MotionMagicVoltage request = new MotionMagicVoltage( ClimbConstants.WinchAttachRotations ) ;
+                            // Units.degreesToRotations(ClimbConstants.UnwoundAngle.get()));
+                    request.EnableFOC = Constants.IsFocEnabled;
+                    winchMotor.setControl(request.withSlot(UnwindGainSlot));
+                    desiredWinchPosition = ClimbConstants.WinchAttachRotations; // Just for logging
+                    if (isUnwound()) {
+                        winchMotor.set(0);
+                        engagePawl();
+                        currentState = ClimbState.ReadyToLatch;
+                    }
+                }
+                    break;
+    
+                case ReadyToLatch: {
+                    // don't do anything here. We're waiting for the driver to engage the cage
+                    // and the operator to press the button
+                }
+                    break;
+                case Wind: {
                     engagePawl();
-                    currentState = ClimbState.ReadyToLatch;
+                    // we want to get back to the position where we started before unwind which is zero because that's
+                    // where it was when we started.
+                    final MotionMagicVoltage request = new MotionMagicVoltage( 0 ) ;
+                    request.EnableFOC = Constants.IsFocEnabled;
+                    winchMotor.setControl(request.withSlot(WindGainSlot));
+                    desiredWinchPosition = 0 ; // Just for logging
+                    if (isWound()) {
+                        winchMotor.set(0);
+                        currentState = ClimbState.Idle;
+                    }
                 }
+                    break;
             }
-                break;
-
-            case ReadyToLatch: {
-                // don't do anything here. We're waiting for the driver to engage the cage
-                // and the operator to press the button
-            }
-                break;
-            case Wind: {
+    
+        } else if (robot.isTestEnabled()) {
+            // logic to allow moving of winch during testing
+            if (releasePawlInTest.getAsBoolean()) {
+                releasePawl();
+            } else {
                 engagePawl();
-                // we want to get back to the position where we started before unwind which is zero because that's
-                // where it was when we started.
-                final MotionMagicVoltage request = new MotionMagicVoltage( 0 ) ;
-                request.EnableFOC = Constants.IsFocEnabled;
-                winchMotor.setControl(request.withSlot(WindGainSlot));
-                desiredWinchPosition = 0 ; // Just for logging
-                if (isWound()) {
-                    winchMotor.set(0);
-                    currentState = ClimbState.Idle;
-                }
             }
-                break;
+
+            if (unwindWinchInTest.getAsBoolean() && releasePawlInTest.getAsBoolean() ) {
+                // set motor voltage to unwind
+                final VoltageOut request = new VoltageOut( -0.5 ) ;
+                winchMotor.setControl(request.withEnableFOC(true));
+            } else if (windWinchInTest.getAsBoolean() ) {
+                // set motor voltage to wind
+                final VoltageOut request = new VoltageOut( 0.5 ) ;
+                winchMotor.setControl(request.withEnableFOC(true));
+            } else {
+                // set motor voltage to wind
+                final VoltageOut request = new VoltageOut( 0.0 ) ;
+                winchMotor.setControl(request.withEnableFOC(true));
+            }
         }
 
         logData();
@@ -187,7 +229,11 @@ public class Climb extends SubsystemBase {
 
     public boolean isUnwound() {
         // wpk we should probably put that magic number in constants so we give it more meaning
-        return withinWinchTolerance(winchMotor.getPosition().getValueAsDouble(), ClimbConstants.WinchAttachRotations) ;
+        boolean returnVal = withinWinchTolerance(winchMotor.getPosition().getValueAsDouble(), ClimbConstants.WinchAttachRotations) ;
+        if ( returnVal){
+            int wpk = 1;
+        }
+        return returnVal ;
     }
 
 
@@ -207,18 +253,18 @@ public class Climb extends SubsystemBase {
         // talonConfigs.Slot0.kD = ClimbConstants.WinchKD.get();
         // talonConfigs.Slot0.kV = ClimbConstants.WinchFF.get();
         // talonConfigs.Slot0.kG = ClimbConstants.WinchKG.get();
-        talonConfigs.Slot0.kP = 0.2;
+        talonConfigs.Slot0.kP = 0.3;
         talonConfigs.Slot0.kI = 0.0;
         talonConfigs.Slot0.kD = 0.0;
-        talonConfigs.Slot0.kV = 1.0;
+        talonConfigs.Slot0.kV = 0.15;
         talonConfigs.Slot0.kG = 0.0;
         talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         // gains for when we unwind the winch with no load attached
-        talonConfigs.Slot1.kP = 5.0;
+        talonConfigs.Slot1.kP = 0.1;
         talonConfigs.Slot1.kI = 0.0;
         talonConfigs.Slot1.kD = 0.0;
-        talonConfigs.Slot1.kV = 10.0;
+        talonConfigs.Slot1.kV = 0.15;
         talonConfigs.Slot1.kG = 0.0;
         talonConfigs.Slot1.GravityType = GravityTypeValue.Elevator_Static;
 
@@ -299,7 +345,7 @@ public class Climb extends SubsystemBase {
         double winchVoltage = winchMotorSim.getMotorVoltage();
         winchMotorModel.setInputVoltage(winchVoltage);
         winchMotorModel.update(0.02);
-        winchMotorSim.setRotorVelocity(winchMotorModel.getAngularVelocityRPM() / 60.0);
+        winchMotorSim.setRotorVelocity(winchMotorModel.getAngularVelocity());
         winchMotorSim.setRawRotorPosition(winchMotorModel.getAngularPositionRotations());
     }
 
@@ -309,6 +355,8 @@ public class Climb extends SubsystemBase {
         Logger.recordOutput("Climb/Winch/RotationsTalon", winchMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Climb/Winch/RotationsDesired", desiredWinchPosition);
         Logger.recordOutput("Climb/Winch/VoltageActual", winchMotor.getMotorVoltage().getValue());
+        Logger.recordOutput("Climb/Winch/ClosedLoopReference", winchMotor.getClosedLoopReference().getValueAsDouble());
+        Logger.recordOutput("Climb/Winch/ClosedLoopFeedForward", winchMotor.getClosedLoopFeedForward().getValueAsDouble());
         Logger.recordOutput("Climb/Winch/ClosedLoopError", winchMotor.getClosedLoopError().getValue());
         Logger.recordOutput("Climb/Winch/ProportionalOutput", winchMotor.getClosedLoopProportionalOutput().getValue());
         Logger.recordOutput("Climb/Winch/DerivativeOutput", winchMotor.getClosedLoopDerivativeOutput().getValue());

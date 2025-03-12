@@ -69,7 +69,7 @@ public final Elevator elevatorSub;
 public final Vision visionSub;
 public final Arm armSub;
 public final Wrist wristSub;
-public final Climb climbSub = new Climb();
+public final Climb climbSub ;
 public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
 public final ArmStateManager armState = new ArmStateManager();
 
@@ -103,6 +103,7 @@ private final DoClimb startClimbingCmd;
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
 /* private */ static Joystick operatorController;
+private static Joystick testController ;
 
 /* BUTTONS */
 private Trigger resetFieldRelativeButton;
@@ -182,6 +183,13 @@ public RobotContainer(Robot robot) {
     elevatorSub = new Elevator(robot);
     armSub = new Arm(robot);
     wristSub = new Wrist(robot);
+
+    climbSub = new Climb( 
+        robot ,
+        () -> testController.getRawButton(Constants.LogitechDAConstants.ButtonY),
+        () -> testController.getPOV() == 270,  // pressing the POV to the left to unwind
+        () -> testController.getPOV() == 90    // pressing the POV to the right to wind
+        ) ;
 
 
     setArmPosTravellingCmd = new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub);
@@ -328,6 +336,7 @@ public RobotContainer(Robot robot) {
     private void configureBindings() {
         driverController = new Joystick(ElectronicsIDs.DriverControllerPort);
         operatorController = new Joystick(ElectronicsIDs.OperatorControllerPort);
+        testController = new  Joystick(ElectronicsIDs.TestControllerPort) ;
 
         /***************** DRIVE *****************/
 
@@ -367,9 +376,9 @@ public RobotContainer(Robot robot) {
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
 
 
-        Joystick testingController = new Joystick(0) ;
-//        startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
-        startClimbButton = new JoystickButton(testingController, LogitechDAConstants.ButtonY);  // just for testing
+        // Joystick testingController = new Joystick(0) ;
+       startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
+        // startClimbButton = new JoystickButton(testingController, LogitechDAConstants.ButtonY);  // just for testing
         startClimbButton.onTrue(startClimbingCmd);
 
         /***************** ALGAE INTAKE *****************/

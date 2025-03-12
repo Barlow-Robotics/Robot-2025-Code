@@ -97,6 +97,7 @@ public class Constants {
 
         public static final int DriverControllerPort = 1;
         public static final int OperatorControllerPort = 2;
+        public static final int TestControllerPort = 0;
 
         /***************************** DRIVE *****************************/
         // CANcoder = 1{locationOnBot}
@@ -138,7 +139,7 @@ public class Constants {
         public static final int GripperMotorID = 61;
 
         /****************************** CLIMB ******************************/
-        public static final int WinchMotorID = 71;
+        public static final int WinchMotorID = 62;
         public static final int ServoID = 1; // CHANGE?
     }
 
