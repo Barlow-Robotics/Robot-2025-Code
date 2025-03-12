@@ -136,6 +136,11 @@ public class Gripper extends SubsystemBase {
         // isEjecting = true;
     }
 
+    public void releaseCoral() {
+        gripperMotor.setVoltage(-1.0);
+        gripperState = GripperState.NoCoral ;
+    }
+
     public void startAlgaeRemoval() {
         gripperMotor.setVoltage(-9);
         gripperState = GripperState.NoCoral ;

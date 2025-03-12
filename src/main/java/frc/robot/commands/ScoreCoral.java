@@ -47,7 +47,7 @@ public class ScoreCoral extends Command {
         return Commands.sequence(
             // new InstantCommand(() -> theGripper.setReleaseMode() ),
             new ParallelCommandGroup(
-                new InstantCommand( ()-> theGripper.startEjecting()),
+                new InstantCommand( ()-> theGripper.releaseCoral()),
                 // new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
                 new MoveElevator(theElevator, theElevator.getDesiredElevatorHeightInches()+deltaElevatorHeight, theElevator.getDesiredCarriageHeightInches()+deltaCarriageHeight) 
             ) ,
@@ -74,7 +74,7 @@ public class ScoreCoral extends Command {
         } else if (currentState == ArmState.Level2) {
             currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
         } else if (currentState == ArmState.Level3) {
-            currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
+            currentCommand = createL234ScoreCommand(0, -6.0, -30) ;
         } else if (currentState == ArmState.Level4){
             currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
         } else {

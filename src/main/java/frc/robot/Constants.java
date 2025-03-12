@@ -47,7 +47,7 @@ public class Constants {
         public static final String PoseCameraName = "Climb_Camera";
         public static final String TargetCameraName = "Reef_Camera";
 
-        public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
+        public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
 
         // Cam mounted facing forward, half a meter forward of center, half a meter up
