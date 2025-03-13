@@ -120,9 +120,6 @@ private Trigger resetOdometryToVision;
 // private Trigger LEDHumanSourceButton;
 // private Trigger LEDHumanFloorButton;
 
-private Trigger shootIntakeButton; // trigger
-private Trigger reverseFloorIntakeButton; // driver button 7
-
 // private Trigger moveToHomeButton;
 private Trigger moveToTravellingButton;
 private Trigger moveToLevel1Button;
@@ -142,7 +139,6 @@ private Trigger retractIntakeButton;
 private Trigger autoAlignAlgaeButton;
 private Trigger autoAlignAlgaeButton_2;
 
-private Trigger runGripperButton;
 private Trigger scoreCoralButton;
 
 private POVButton leftPovButton;
@@ -348,7 +344,7 @@ public RobotContainer(Robot robot) {
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
-        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
+        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         lockWheelsButton.onTrue(lockWheelsCmd);
 
         // moveToCoralButton = new JoystickButton(driverController,

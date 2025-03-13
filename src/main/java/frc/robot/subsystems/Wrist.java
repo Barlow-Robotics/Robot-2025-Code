@@ -5,8 +5,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Volts;
 
 
 import org.littletonrobotics.junction.Logger;
@@ -37,7 +35,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
-import frc.robot.sim.PhysicsSim;
 // import frc.robot.subsystems.Gripper.GripperState;
 
 public class Wrist extends SubsystemBase {
@@ -122,12 +119,13 @@ public class Wrist extends SubsystemBase {
     // }
 
 
-
+    /*
     private boolean isWithinWristAngleTolerance() {
         boolean withinTolerance = (getWristEncoderDegrees() >= desiredWristAngle - ArmConstants.WristAngleTolerance)
                 && (getWristEncoderDegrees() <= desiredWristAngle + ArmConstants.WristAngleTolerance);
         return withinTolerance;
     }
+    */
 
     public void stopWristMotor() {
         wristMotor.set(0);

@@ -2,7 +2,6 @@ package frc.robot.sim;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -46,7 +45,6 @@ class TalonFXSimProfile extends SimProfile {
 
         _motorSim.update(getPeriod());
 
-        /// SET SIM PHYSICS INPUTS
         final double position_rot = _motorSim.getAngularPositionRotations();
         final double velocity_rps = Units.radiansToRotations(_motorSim.getAngularVelocityRadPerSec());
 

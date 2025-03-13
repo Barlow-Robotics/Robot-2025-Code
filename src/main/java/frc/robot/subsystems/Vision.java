@@ -177,18 +177,6 @@ public class Vision extends SubsystemBase {
         redTrackableIDs.put(5, 5); // amp
         redTrackableIDs.put(10, 10); // source
         redTrackableIDs.put(9, 9); // source
-
-        ////// ------ JETSON NANO COMMUNICATION ------ //////
-
-        try {
-            visionChannel = DatagramChannel.open();
-            InetSocketAddress sAddr = new InetSocketAddress(5808);
-            visionChannel.bind(sAddr);
-            visionChannel.configureBlocking(false);
-        } catch (Exception ex) {
-            int wpk = 1;
-        }
-
     }
 
     public AprilTagFieldLayout getLayout() {
@@ -300,47 +288,6 @@ public class Vision extends SubsystemBase {
                     Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
                 }
             }
-        }
-
-
-        ////// ------ JETSON NANO COMMUNICATION ------ //////
-        try {
-            boolean done = false;
-            String message = "";
-            while (!done) {
-                InetSocketAddress sender = (InetSocketAddress) visionChannel.receive(buffer);
-                buffer.flip();
-                int limits = buffer.limit();
-                if (limits > 0) {
-                    byte bytes[] = new byte[limits];
-                    buffer.get(bytes, 0, limits);
-                    message = new String(bytes);
-                    sourceIP = sender.getAddress().toString();
-                } else {
-                    done = true;
-                }
-                buffer.clear();
-            }
-
-            if (message.length() > 0) {
-                Map<String, String> myMap = new HashMap<String, String>();
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                myMap = objectMapper.readValue(message, new TypeReference<HashMap<String, String>>() {
-                });
-                this.noteDetected = Boolean.parseBoolean(myMap.get("detected"));
-                this.noteHeight = Double.parseDouble(myMap.get("bb_height"));
-                this.noteWidth = Double.parseDouble(myMap.get("bb_width"));
-                // wpk temp fix until nano is updated.
-                this.noteDistanceFromCenter = Double.parseDouble(myMap.get("distance_from_center")) ;
-            }
-
-            // var Vision_Info = new JSONObject(received);
-
-            // double aprilTagDistanceFromCenter =
-            // Vision_Info.get(april_tag_distance_from_center);
-        } catch (Exception ex) {
-            System.out.println("Exception reading data");
         }
 
         advantageKitLogging();
