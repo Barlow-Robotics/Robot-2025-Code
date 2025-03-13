@@ -34,12 +34,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.ArmStateManager;
@@ -510,8 +510,17 @@ public RobotContainer(Robot robot) {
         NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
+        // NamedCommands.registerCommand("", setArmPosLevel4Cmd);
+
         NamedCommands.registerCommand("setPositionTraveling", setArmPosTravellingCmd);
+
+        NamedCommands.registerCommand("setPositionLoadCoral", setArmPosLoadCoralCmd);
         NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
+        NamedCommands.registerCommand("StartAlgaeOuttake", setArmPosAlgaeCmd);
+        NamedCommands.registerCommand("1", new WaitCommand(1));
+        NamedCommands.registerCommand("5", new WaitCommand(5));
+
+
 
 
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
@@ -533,6 +542,7 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
+        autoChooser.addOption("AUTOOOOOO", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP"), Set.of(driveSub)));
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
