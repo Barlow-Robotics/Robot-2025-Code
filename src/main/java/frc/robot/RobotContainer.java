@@ -34,12 +34,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.ArmStateManager;
@@ -47,6 +47,7 @@ import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
+import frc.robot.commands.LockWheels;
 import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
@@ -99,6 +100,7 @@ private final ScoreCoral scoreCoralCmd;
 private final RemoveAlgae removeAlgaeCmd;
 
 private final DoClimb startClimbingCmd;
+private final LockWheels lockWheelsCmd;
 
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
@@ -148,6 +150,8 @@ private POVButton rightPovButton;
 private POVButton upPovButton;
 private POVButton downPovButton;
 
+private Trigger lockWheelsButton;
+
 private Trigger disableVisionButton;
 private Trigger enableVisionButton;
 
@@ -174,7 +178,6 @@ private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric(
         .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
-private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -213,6 +216,7 @@ public RobotContainer(Robot robot) {
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
     startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
+    lockWheelsCmd = new LockWheels(driveSub);
 
     goToRight = false;
     // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
@@ -336,13 +340,16 @@ public RobotContainer(Robot robot) {
     private void configureBindings() {
         driverController = new Joystick(ElectronicsIDs.DriverControllerPort);
         operatorController = new Joystick(ElectronicsIDs.OperatorControllerPort);
-        testController = new  Joystick(ElectronicsIDs.TestControllerPort) ;
+        testController = new Joystick(ElectronicsIDs.TestControllerPort) ;
 
         /***************** DRIVE *****************/
 
         // reset the field-centric heading on left bumper press
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
+
+        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
+        lockWheelsButton.onTrue(lockWheelsCmd);
 
         // moveToCoralButton = new JoystickButton(driverController,
         // LogitechExtreme3DConstants.Button8);
@@ -510,8 +517,17 @@ public RobotContainer(Robot robot) {
         NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
         NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
         NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
+        // NamedCommands.registerCommand("", setArmPosLevel4Cmd);
+
         NamedCommands.registerCommand("setPositionTraveling", setArmPosTravellingCmd);
+
+        NamedCommands.registerCommand("setPositionLoadCoral", setArmPosLoadCoralCmd);
         NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
+        NamedCommands.registerCommand("StartAlgaeOuttake", setArmPosAlgaeCmd);
+        NamedCommands.registerCommand("1", new WaitCommand(1));
+        NamedCommands.registerCommand("5", new WaitCommand(5));
+
+
 
 
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
@@ -533,6 +549,9 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_BlueBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_RedBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
+
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 

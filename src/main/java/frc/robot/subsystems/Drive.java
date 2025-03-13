@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
-
 import java.io.IOException;
 import java.util.function.Supplier;
 
@@ -23,6 +20,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -30,6 +29,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.TunerConstants.TunerSwerveDrivetrain;
 
@@ -358,6 +358,58 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         }
         return Commands.none();
         }
+
+    public Command CustomChoreoAuto(String name, boolean mirror) {
+        try {
+            PathPlannerPath originalPath;
+            PathPlannerPath originalPath_2;
+            PathPlannerPath originalPath_3;
+            if (mirror) {
+                originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1").mirrorPath();
+                originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2").mirrorPath();
+                originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3").mirrorPath();
+            }
+            else {
+                originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1");
+                originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2");
+                originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3");
+            }
+
+            PathPlannerPath finalPath;
+            PathPlannerPath finalPath_2;
+            PathPlannerPath finalPath_3;
+
+
+            
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                finalPath = originalPath.flipPath();
+                finalPath_2 = originalPath_2.flipPath();
+                finalPath_3 = originalPath_3.flipPath();
+            }
+            else {
+                finalPath = originalPath;
+                finalPath_2 = originalPath_2;
+                finalPath_3 = originalPath_3;
+            }
+
+            // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2), getFullCommand(finalPath_2));
+        // 
+            return Commands.sequence(getFullCommand(finalPath), new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
+
+        } catch (IOException e) {
+                e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+        } catch (ParseException e) {
+                e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+        }
+        return Commands.none();
+    }
+
+
+    private Command getFullCommand(PathPlannerPath finalPath) {
+        return AutoBuilder.followPath(finalPath).alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
+    }
+
+    
     public Command ChoreoAutoWithoutReset(String name) {
         PathPlannerPath path /* may need to get rid of that -> */ = null;
         try {
