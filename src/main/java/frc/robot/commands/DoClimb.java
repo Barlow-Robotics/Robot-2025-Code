@@ -47,7 +47,8 @@ public class DoClimb extends Command {
     public void initialize() {
         //comm = new SequentialCommandGroup();
         if (climbSub.getCurrentState() == ClimbState.Idle) {
-            comm = new InstantCommand(() -> climbSub.goToUnwind()) ;
+            // comm = new InstantCommand(() -> climbSub.goToUnwind()) ;
+            comm =         new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub);
             // comm = Commands.sequence(
             //         new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub),
             //         new InstantCommand(() -> climbSub.goToUnwind())

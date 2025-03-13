@@ -162,11 +162,11 @@ public class Climb extends SubsystemBase {
 
             if (unwindWinchInTest.getAsBoolean() && releasePawlInTest.getAsBoolean() ) {
                 // set motor voltage to unwind
-                final VoltageOut request = new VoltageOut( -0.5 ) ;
+                final VoltageOut request = new VoltageOut( -6.0 ) ;
                 winchMotor.setControl(request.withEnableFOC(true));
             } else if (windWinchInTest.getAsBoolean() ) {
                 // set motor voltage to wind
-                final VoltageOut request = new VoltageOut( 0.5 ) ;
+                final VoltageOut request = new VoltageOut( 6.0 ) ;
                 winchMotor.setControl(request.withEnableFOC(true));
             } else {
                 // set motor voltage to wind

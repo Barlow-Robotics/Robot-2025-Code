@@ -139,8 +139,8 @@ public class Constants {
         public static final int GripperMotorID = 61;
 
         /****************************** CLIMB ******************************/
-        public static final int WinchMotorID = 62;
-        public static final int ServoID = 1; // CHANGE?
+        public static final int WinchMotorID = 58;
+        public static final int ServoID = 0; // CHANGE?
     }
 
     /***************************************************************************/
@@ -490,7 +490,7 @@ public class Constants {
         //  A value between 1.0 (fully retracted) and 0.0 (fully extended)
         //      For initial testing, start with a low value.  Movement required is .25-.375 inches.
         //      Not sure how this translates for this specific device, but full extension is a bit more than 1 in.
-        public static final double ServoExtendedPos = 0.9;  // Low initial value for testing.  Increase in small increments
+        public static final double ServoExtendedPos = 0.65;  // Low initial value for testing.  Increase in small increments
                                                             //  as needed.
         public static final double ServoRetractedPos = 1.0;  // Low initial value for testing.  Increase in small increments
 
