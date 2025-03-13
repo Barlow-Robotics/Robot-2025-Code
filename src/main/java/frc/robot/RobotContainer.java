@@ -51,6 +51,7 @@ import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.StopAlgaeIntake;
+import frc.robot.commands.LockWheels;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ArmState;
@@ -99,6 +100,7 @@ private final ScoreCoral scoreCoralCmd;
 private final RemoveAlgae removeAlgaeCmd;
 
 private final DoClimb startClimbingCmd;
+private final LockWheels lockWheelsCmd;
 
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
@@ -148,6 +150,8 @@ private POVButton rightPovButton;
 private POVButton upPovButton;
 private POVButton downPovButton;
 
+private Trigger lockWheelsButton;
+
 private Trigger disableVisionButton;
 private Trigger enableVisionButton;
 
@@ -174,7 +178,6 @@ private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric(
         .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
-private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -213,6 +216,7 @@ public RobotContainer(Robot robot) {
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
     startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
+    lockWheelsCmd = new LockWheels(driveSub);
 
     goToRight = false;
     // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
@@ -336,13 +340,16 @@ public RobotContainer(Robot robot) {
     private void configureBindings() {
         driverController = new Joystick(ElectronicsIDs.DriverControllerPort);
         operatorController = new Joystick(ElectronicsIDs.OperatorControllerPort);
-        testController = new  Joystick(ElectronicsIDs.TestControllerPort) ;
+        testController = new Joystick(ElectronicsIDs.TestControllerPort) ;
 
         /***************** DRIVE *****************/
 
         // reset the field-centric heading on left bumper press
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
+
+        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
+        lockWheelsButton.onTrue(lockWheelsCmd);
 
         // moveToCoralButton = new JoystickButton(driverController,
         // LogitechExtreme3DConstants.Button8);
