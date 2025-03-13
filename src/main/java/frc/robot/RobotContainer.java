@@ -344,7 +344,7 @@ public RobotContainer(Robot robot) {
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
-        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
+        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         lockWheelsButton.onTrue(lockWheelsCmd);
 
         // moveToCoralButton = new JoystickButton(driverController,
