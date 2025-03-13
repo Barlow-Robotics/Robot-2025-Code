@@ -31,34 +31,33 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
-
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
-// import frc.robot.commands.SetArmPosition;
-// import frc.robot.commands.StartClimbing;
-import frc.robot.commands.StopAlgaeIntake;
-import frc.robot.commands.ScoreCoral;
-import frc.robot.commands.DoClimb;
 import frc.robot.commands.ArmStateManager;
+import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
 import frc.robot.commands.PositionGripper;
-// import frc.robot.commands.ReleaseCoral;
 import frc.robot.commands.RemoveAlgae;
-import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Elevator;
+import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.StopAlgaeIntake;
+import frc.robot.commands.LockWheels;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ArmState;
 import frc.robot.subsystems.Climb;
+import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Wrist;
@@ -71,7 +70,7 @@ public final Elevator elevatorSub;
 public final Vision visionSub;
 public final Arm armSub;
 public final Wrist wristSub;
-public final Climb climbSub = new Climb();
+public final Climb climbSub ;
 public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
 public final ArmStateManager armState = new ArmStateManager();
 
@@ -101,10 +100,12 @@ private final ScoreCoral scoreCoralCmd;
 private final RemoveAlgae removeAlgaeCmd;
 
 private final DoClimb startClimbingCmd;
+private final LockWheels lockWheelsCmd;
 
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
 /* private */ static Joystick operatorController;
+private static Joystick testController ;
 
 /* BUTTONS */
 private Trigger resetFieldRelativeButton;
@@ -149,6 +150,11 @@ private POVButton rightPovButton;
 private POVButton upPovButton;
 private POVButton downPovButton;
 
+private Trigger lockWheelsButton;
+
+private Trigger disableVisionButton;
+private Trigger enableVisionButton;
+
 /* PID */
 private PIDController noteYawPID;
 private PIDController targetYawPID;
@@ -172,7 +178,6 @@ private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric(
         .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
-private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -181,6 +186,13 @@ public RobotContainer(Robot robot) {
     elevatorSub = new Elevator(robot);
     armSub = new Arm(robot);
     wristSub = new Wrist(robot);
+
+    climbSub = new Climb( 
+        robot ,
+        () -> testController.getRawButton(Constants.LogitechDAConstants.ButtonY),
+        () -> testController.getPOV() == 270,  // pressing the POV to the left to unwind
+        () -> testController.getPOV() == 90    // pressing the POV to the right to wind
+        ) ;
 
 
     setArmPosTravellingCmd = new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub);
@@ -204,6 +216,7 @@ public RobotContainer(Robot robot) {
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
     startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
+    lockWheelsCmd = new LockWheels(driveSub);
 
     goToRight = false;
     // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
@@ -232,7 +245,7 @@ public RobotContainer(Robot robot) {
     configureBindings();
 
     drivePovBindings();
-
+    // driveSub.setVisionMeasurementStdDevs(SingleTagStdDevs);
         driveSub.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 driveSub.applyRequest(() -> {
@@ -327,12 +340,16 @@ public RobotContainer(Robot robot) {
     private void configureBindings() {
         driverController = new Joystick(ElectronicsIDs.DriverControllerPort);
         operatorController = new Joystick(ElectronicsIDs.OperatorControllerPort);
+        testController = new Joystick(ElectronicsIDs.TestControllerPort) ;
 
         /***************** DRIVE *****************/
 
         // reset the field-centric heading on left bumper press
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
+
+        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
+        lockWheelsButton.onTrue(lockWheelsCmd);
 
         // moveToCoralButton = new JoystickButton(driverController,
         // LogitechExtreme3DConstants.Button8);
@@ -365,7 +382,10 @@ public RobotContainer(Robot robot) {
         moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonA); 
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
 
-        startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
+
+        // Joystick testingController = new Joystick(0) ;
+       startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
+        // startClimbButton = new JoystickButton(testingController, LogitechDAConstants.ButtonY);  // just for testing
         startClimbButton.onTrue(startClimbingCmd);
 
         /***************** ALGAE INTAKE *****************/
@@ -416,6 +436,14 @@ public RobotContainer(Robot robot) {
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
         resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
+
+
+        disableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
+        disableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(true))).onFalse(Commands.none());
+
+        enableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
+        enableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(false))).onFalse(Commands.none());
+
     }
 
     private void drivePovBindings() {
@@ -501,6 +529,9 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Bottom 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 2 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral"), Set.of(driveSub)));
+        autoChooser.addOption("Right 1 Coral (Level3)", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral (Level3)"), Set.of(driveSub)));
+        autoChooser.addOption("Top Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Left 1 Coral"), Set.of(driveSub)));
+
         autoChooser.addOption("Bottom Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Left 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Top Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Right 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Bottom Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Right 1 Coral"), Set.of(driveSub)));
@@ -627,9 +658,9 @@ public RobotContainer(Robot robot) {
                                     .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
                     new PPHolonomicDriveController(
                             // PID constants for translation
-                            new PIDConstants(10, 0, 0),
+                            new PIDConstants(0.75, 0, 0.1),
                             // PID constants for rotation
-                            new PIDConstants(7, 0, 0)),
+                            new PIDConstants(0.5, 0, 0)),
                     config,
                     // Assume the path needs to be flipped for Red vs Blue, this is normally the
                     // case
@@ -654,7 +685,7 @@ public RobotContainer(Robot robot) {
             double targetZ) {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
-        PathConstraints constraints = new PathConstraints(1.0, 1.0, 2 * Math.PI, 4 * Math.PI); // The constraints for
+        PathConstraints constraints = new PathConstraints(1.5,2.0, 6 * Math.PI, 12 * Math.PI); // The constraints for
         if (getChangeToRight() == null) {
             sideOfReef = 0;
         }
@@ -707,25 +738,25 @@ public RobotContainer(Robot robot) {
                     }
                 }
                 if (armState.isAvailableToGoToCoralStation()) {
-                    if (alliance.get() == DriverStation.Alliance.Blue) {
-                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListCoralStation);
-                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
-                    }
-                    if (alliance.get() == DriverStation.Alliance.Red) {
-                        int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListCoralStation);
-                        finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
-                    }
+                    return Commands.none();
+                    // if (alliance.get() == DriverStation.Alliance.Blue) {
+                    //     int id = findClosestToRobot(drivePose, Constants.VisionConstants.blueAprilTagListCoralStation);
+                    //     finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    // }
+                    // if (alliance.get() == DriverStation.Alliance.Red) {
+                    //     int id = findClosestToRobot(drivePose, Constants.VisionConstants.redAprilTagListCoralStation);
+                    //     finalPoseOfAprilTagId = visionSub.getLayout().getTagPose(id).get();
+                    // }
                 }
-
-
             }
+
             // cosine of the degree is multiplied by side of reef.
             double radianRobot = finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians();
             // System.out.println(radianRobot);
             double offsetX = Constants.DriveConstants.distanceToFrontOfRobot * Math.cos(radianRobot);
             double offsetY = Constants.DriveConstants.distanceToFrontOfRobot * Math.sin(radianRobot);
-            double reefX = finalPoseOfAprilTagId.getX() + offsetX + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * Math.sin(radianRobot));
-            double reefY = finalPoseOfAprilTagId.getY() + offsetY + Constants.FieldConstants.reefOffsetMeters * (sideOfReef * -Math.cos(radianRobot));
+            double reefX = finalPoseOfAprilTagId.getX() + offsetX + (Constants.FieldConstants.reefOffsetMeters + (Constants.GripperConstants.locationOfGripperToRobotX*-sideOfReef)) * (sideOfReef * Math.sin(radianRobot));
+            double reefY = finalPoseOfAprilTagId.getY() + offsetY + (Constants.FieldConstants.reefOffsetMeters + (Constants.GripperConstants.locationOfGripperToRobotX*-sideOfReef)) * (sideOfReef * -Math.cos(radianRobot));
             reefAutoTargetPose = new Pose2d(reefX, reefY, new Rotation2d(radianRobot + Math.PI));
             // reefAutoTargetPose = new Pose2d(finalPoseOfAprilTagId.getX()
             //         + Constants.DriveConstants.distanceToFrontOfRobot*Math.cos(radianRobot) + Constants.FieldConstants.reefOffsetMeters
@@ -749,6 +780,10 @@ public RobotContainer(Robot robot) {
                     constraints,
                     null,
                     new GoalEndState(0.0, reefAutoTargetPose.getRotation()));
+            
+            if (path.getAllPathPoints().size() < 2) { // If the path is broken (only 1 point), prevents crashing.
+                return Commands.none();
+            }
 
             pathfindingCommand = AutoBuilder.followPath(path);
         }

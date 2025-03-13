@@ -403,9 +403,9 @@ public class AlgaeIntake extends SubsystemBase {
         talonConfigs.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
 
         // hold gains
-        talonConfigs.Slot2.kP = 5.0;
+        talonConfigs.Slot2.kP = 15.0;
         talonConfigs.Slot2.kI = 0.0;
-        talonConfigs.Slot2.kD = 0.2;
+        talonConfigs.Slot2.kD = 0.0;
         talonConfigs.Slot2.kV = 0;
         talonConfigs.Slot2.kG = 0;
         talonConfigs.Slot2.GravityType = GravityTypeValue.Arm_Cosine;
@@ -517,6 +517,9 @@ public class AlgaeIntake extends SubsystemBase {
             System.out.println(
                     "Could not apply current limit configs to " + motor + " error code: " + status.toString());
         }
+
+        motor.resetSignalFrequencies() ;
+
     }
 
     private void setNeutralMode(NeutralModeValue liftMotorMode, NeutralModeValue intakeMotorMode) {

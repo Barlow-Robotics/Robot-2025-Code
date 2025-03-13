@@ -62,7 +62,7 @@ public class Vision extends SubsystemBase {
     private PhotonCamera poseCamera;
     public final PhotonPoseEstimator photonEstimator;
     private double lastEstTimestamp = 0;
-
+    private boolean disabledVision = false;
     private PhotonCameraSim poseCameraSim;
     private PhotonCameraSim targetCameraSim;
     private VisionSystemSim visionSim;
@@ -73,7 +73,7 @@ public class Vision extends SubsystemBase {
     private HashSet<Integer> targetAlignSet;
     public OptionalInt activeAlignTargetId;
     private Alliance alliance;
-
+    private int pathRecounter = 0;
     boolean aprilTagDetected = false;
 
     public enum TargetToAlign {
@@ -256,6 +256,10 @@ public class Vision extends SubsystemBase {
         }
     }
 
+    public void disableTheVision(boolean val) {
+        this.disabledVision = val;
+    }
+
     public void periodic() {
 
         // TODO: feed this pose estimate back to the combined pose estimator in drive
@@ -284,7 +288,9 @@ public class Vision extends SubsystemBase {
                 }
             }
             
-            if (!Robot.isSimulation()) {
+            pathRecounter+=1;
+            // System.out.println(this.disabledVision);
+            if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
                 Pose2d currentPose = driveSub.getPose();
                 var photonEstimate = getEstimatedGlobalPose(currentPose);
                 if (photonEstimate.isPresent()) {
@@ -293,10 +299,9 @@ public class Vision extends SubsystemBase {
                     );
                     Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
                 }
-                }
-    
-
+            }
         }
+
 
         ////// ------ JETSON NANO COMMUNICATION ------ //////
         try {

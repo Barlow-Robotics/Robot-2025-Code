@@ -38,6 +38,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
@@ -49,11 +50,12 @@ public class Arm extends SubsystemBase {
 
     TalonFX armMotor;
     private final DCMotorSim armMotorModel = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 1),
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), Constants.jKgMetersSquared, 45),
             DCMotor.getKrakenX60Foc(1));
     TalonFXSimState armMotorSim;
     private final CANcoder armEncoder; // https://github.com/CrossTheRoadElec/Phoenix6-Examples/blob/main/java/FusedCANcoder/src/main/java/frc/robot/Robot.java
     private final SoftwareLimitSwitchConfigs armMotorLimitConfigs;
+
 
     private final Robot robot;
 
@@ -93,16 +95,16 @@ public class Arm extends SubsystemBase {
 
         logData();
 
-        BaseStatusSignal.refreshAll(
-                armMotor.getFault_FusedSensorOutOfSync(false),
-                armMotor.getStickyFault_FusedSensorOutOfSync(false),
-                armMotor.getFault_RemoteSensorDataInvalid(false),
-                armMotor.getStickyFault_RemoteSensorDataInvalid(false),
-                armMotor.getPosition(false),
-                armMotor.getVelocity(false),
-                armEncoder.getPosition(false),
-                armEncoder.getVelocity(false),
-                armMotor.getRotorPosition(false));
+        // BaseStatusSignal.refreshAll(
+        //         armMotor.getFault_FusedSensorOutOfSync(false),
+        //         armMotor.getStickyFault_FusedSensorOutOfSync(false),
+        //         armMotor.getFault_RemoteSensorDataInvalid(false),
+        //         armMotor.getStickyFault_RemoteSensorDataInvalid(false),
+        //         armMotor.getPosition(false),
+        //         armMotor.getVelocity(false),
+        //         armEncoder.getPosition(false),
+        //         armEncoder.getVelocity(false),
+        //         armMotor.getRotorPosition(false));
 
     }
 
@@ -314,6 +316,7 @@ public class Arm extends SubsystemBase {
             System.out.println(
                     "Could not apply current limit configs to " + motor + " error code: " + status.toString());
         }
+        motor.resetSignalFrequencies() ;
     }
 
     private void applyArmEncoderConfigs() {
@@ -351,6 +354,7 @@ public class Arm extends SubsystemBase {
             System.out.println(
                     "Could not apply magnet configs to arm angle encoder, error code: " + status.toString());
         }
+        // armEncoder.optimizeBusUtilization() ;
     }
 
 
@@ -394,6 +398,7 @@ public class Arm extends SubsystemBase {
         var armEncoderSim = armEncoder.getSimState();
         armEncoderSim.setVelocity(armMotorModel.getAngularVelocityRadPerSec());
         armEncoderSim.setRawPosition(armMotorModel.getAngularPositionRotations());
+
     }
 
 }

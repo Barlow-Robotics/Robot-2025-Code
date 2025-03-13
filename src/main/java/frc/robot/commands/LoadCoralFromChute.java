@@ -61,7 +61,8 @@ public class LoadCoralFromChute extends Command {
                 new InstantCommand( () -> theGripper.startIntaking() ),
                 new MoveElevator(theElevator, 0.0, startingCarriageHeight) ,
                 new WaitCommand(0.25) ,
-                new StopGripper(theGripper) 
+                new StopGripper(theGripper) ,
+                new PositionGripper(armState, ArmState.Running, theElevator, theArm, theWrist)
             ) ;
 
         }

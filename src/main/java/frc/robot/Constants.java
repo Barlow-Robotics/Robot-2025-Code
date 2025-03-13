@@ -47,7 +47,7 @@ public class Constants {
         public static final String PoseCameraName = "Climb_Camera";
         public static final String TargetCameraName = "Reef_Camera";
 
-        public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.CLOSEST_TO_REFERENCE_POSE;
+        public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
 
         // Cam mounted facing forward, half a meter forward of center, half a meter up
@@ -71,7 +71,7 @@ public class Constants {
         // The standard deviations of our vision estimated poses, which affect
         // correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
-        public static final Matrix<N3, N1> SingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> SingleTagStdDevs = VecBuilder.fill(1, 1, 0.1);
         public static final Matrix<N3, N1> MultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
         // constants for vision-calculated speaker shooting - LMT
@@ -97,6 +97,7 @@ public class Constants {
 
         public static final int DriverControllerPort = 1;
         public static final int OperatorControllerPort = 2;
+        public static final int TestControllerPort = 0;
 
         /***************************** DRIVE *****************************/
         // CANcoder = 1{locationOnBot}
@@ -138,7 +139,7 @@ public class Constants {
         public static final int GripperMotorID = 61;
 
         /****************************** CLIMB ******************************/
-        public static final int WinchMotorID = 71;
+        public static final int WinchMotorID = 62;
         public static final int ServoID = 1; // CHANGE?
     }
 
@@ -151,7 +152,7 @@ public class Constants {
         public static final double NudgeSpeed = .25;
 
         public static final boolean GyroReversed = false;
-        public static final double distanceToFrontOfRobot = Units.inchesToMeters(22); 
+        public static final double distanceToFrontOfRobot = Units.inchesToMeters(32/2-10); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
         public static final double TotalWidth = Units.inchesToMeters(29);
@@ -313,20 +314,34 @@ public class Constants {
         public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE
         public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
+        public static final double ElevatorAlgaeRemovalVelocity = 8.0;
+        // public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE
+        // public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
 
-        public static final double CarriageKP =/*testing*/0.5; // 32; // CHANGE
-        public static TuneableParameter CarriageKPTP = new TuneableParameter(CarriageKP, 0, 50, true, "TuneableParameter/Arm/PID/ElevatorKP");
-        public static final double CarriageKI =/*testing*/0; // 0.1; // CHANGE
-        public static TuneableParameter CarriageKITP = new TuneableParameter(CarriageKI, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
-        public static final double CarriageKD =/*testing*/0.30; // 0.2; // CHANGE
-        public static TuneableParameter CarriageKDTP = new TuneableParameter(CarriageKD, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
-        public static final double CarriageKV =/*testing*/0.11; // 0.0; // CHANGE
-        public static TuneableParameter CarriageKVTP = new TuneableParameter(CarriageKV, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
-        public static final double CarriageKG =/*testing*/0.1; // 2.7; // CHANGE
-        public static TuneableParameter CarriageKGTP = new TuneableParameter(CarriageKG, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
-        public static final double CarriageKS =/*testing*/0.08; // 0; // CHANGE
-        public static TuneableParameter CarriageKSTP = new TuneableParameter(CarriageKS, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
+
+        // public static final double CarriageKP =/*testing*/0.5; // 32; // CHANGE
+        // public static TuneableParameter CarriageKPTP = new TuneableParameter(CarriageKP, 0, 50, true, "TuneableParameter/Arm/PID/ElevatorKP");
+        // public static final double CarriageKI =/*testing*/0; // 0.1; // CHANGE
+        // public static TuneableParameter CarriageKITP = new TuneableParameter(CarriageKI, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
+        // public static final double CarriageKD =/*testing*/0.30; // 0.2; // CHANGE
+        // public static TuneableParameter CarriageKDTP = new TuneableParameter(CarriageKD, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
+        // public static final double CarriageKV =/*testing*/0.11; // 0.0; // CHANGE
+        // public static TuneableParameter CarriageKVTP = new TuneableParameter(CarriageKV, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
+        // public static final double CarriageKG =/*testing*/0.1; // 2.7; // CHANGE
+        // public static TuneableParameter CarriageKGTP = new TuneableParameter(CarriageKG, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
+        // public static final double CarriageKS =/*testing*/0.08; // 0; // CHANGE
+        // public static TuneableParameter CarriageKSTP = new TuneableParameter(CarriageKS, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
+
+
+        public static final double CarriageKP = 0.5;   // 32; // CHANGE
+        public static final double CarriageKI = 0;    // 0.1; // CHANGE
+        public static final double CarriageKD = 0.30; // 0.2; // CHANGE
+//        public static final double CarriageKD = 0.00; // 0.2; // CHANGE
+        public static final double CarriageKV = 0.11; // 0.0; // CHANGE
+        public static final double CarriageKG = 0.1;  // 2.7; // CHANGE
+        public static final double CarriageKS = 0.08; // 0; // CHANGE
+
 
         //  Values for Carriage now based on Mr K's spreadsheet
         public static final double CarriageGearRatio = 4.8;
@@ -339,6 +354,8 @@ public class Constants {
         public static final double CarriageCruiseVelocity = 20.0; // CHANGE In inches per second
         public static final double CarriageAcceleration = 4 * CarriageCruiseVelocity ; // CHANGE In inches per second per second
         public static final double CarriageJerk = 5 * CarriageAcceleration ; // CHANGE - In Inches/s/s
+
+        public static final double CarriageAlgaeRemovalVelocity = 8.0;
 
 
 
@@ -373,6 +390,7 @@ public class Constants {
 
         public static final double WristAngleTolerance = 20.0; // CHANGE wpk need to fix this after gains tuned
         public static final double ArmAngleTolerance = 5.0; // CHANGE
+        // public static final double ArmAngleTolerance = 10.0; // change this back after climb testing
         public static final double ElevatorHeightTolerance = 0.5;// CHANGE
         public static final double CarriageHeightTolerance = 0.5;// CHANGE
 
@@ -439,9 +457,9 @@ public class Constants {
         public static final double WinchCableLenAtRest = WinchCableLenAfterClimb; // Length in inches, fully unwound with harpoon fwd & down
         //  Below measures the winch rotations required to move from the starting point, i.e. climbed, to horizontal harpoon
         //      As is, this is a negative value, i.e. we are unwinding the cable.
-        public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)/RotationsPerWinchInch; 
+        public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)*RotationsPerWinchInch; 
         //  Below measures the winch rotations required to move from horizontal harpoon to fully back, i.e. climbed.
-        public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)/RotationsPerWinchInch;
+        public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)*RotationsPerWinchInch;
 
         public static final double WinchMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / WinchMotorGearRatio
                 * WinchSprocketCircumference;
@@ -457,9 +475,9 @@ public class Constants {
         public static TuneableParameter WinchKG = new TuneableParameter(WinchKG2, 0, 1, true, "TuneableParameter/Climb/PID/WinchKG");
 
 
-        public static final double WinchCruiseRotationsPerSec = 0;
-        public static final double WinchAcceleration = 0;
-        public static final double WinchJerk = 0;
+        public static final double WinchCruiseRotationsPerSec = 20;
+        public static final double WinchAcceleration = WinchCruiseRotationsPerSec * 4;
+        public static final double WinchJerk = WinchAcceleration * 10;
 
         public static final double SupplyCurrentLimit = 100; // CHANGE
 
@@ -469,18 +487,14 @@ public class Constants {
         public static final double WinchedAngle2 = WinchClimbRotations * 360;
         public static TuneableParameter WoundAngle = new TuneableParameter(WinchedAngle2, 0, 180, true, "TuneableParameter/Climb/WinchedAngle");
 
-        //  A value between 0.0 (fully retracted) and 1.0 (fully extended)
+        //  A value between 1.0 (fully retracted) and 0.0 (fully extended)
         //      For initial testing, start with a low value.  Movement required is .25-.375 inches.
         //      Not sure how this translates for this specific device, but full extension is a bit more than 1 in.
-        public static final double ServoExtendedPos = 0.1;  // Low initial value for testing.  Increase in small increments
+        public static final double ServoExtendedPos = 0.9;  // Low initial value for testing.  Increase in small increments
                                                             //  as needed.
-        public static final double ServoRetractedPos = 0.0;  // Low initial value for testing.  Increase in small increments
+        public static final double ServoRetractedPos = 1.0;  // Low initial value for testing.  Increase in small increments
 
-        public static final double WinchTolerance = 15;  //  In degrees..Get the winch rotation within +/- this many degrees
-
-        public static final double ServoTolerance = 0.02;  //  Portion of the servo's (actuator's) range of motion.
-
-
+        public static final double WinchTolerance = 5;  //  In degrees..Get the winch rotation within +/- this many degrees
 
     }
 
@@ -506,6 +520,8 @@ public class Constants {
 
         public static final double currentOfIntakedCoral2 = 2000000; // Change with testing. 
         public static TuneableParameter currentOfIntakedCoral = new TuneableParameter(currentOfIntakedCoral2, 0, 4000000, true, "TuneableParameter/Gripper/currentOfIntakedCoral");
+
+        public static final double locationOfGripperToRobotX = Units.inchesToMeters(1);
     }
 
     public static final class AlgaeConstants {
@@ -538,7 +554,7 @@ public class Constants {
         public static final double IntakeIZone2 =/*testing*/0; // 0.15; // CHANGE
         public static TuneableParameter IntakeIZone = new TuneableParameter(IntakeIZone2, 0, 1, true, "TuneableParameter/AlgaeIntake/PID/IntakeIZone");
 
-        public static final double IntakeSpeed2 = 2.5; // CHANGE
+        public static final double IntakeSpeed2 = 4.0; // CHANGE
         public static TuneableParameter IntakeSpeed = new TuneableParameter(IntakeSpeed2, 0, 25, true, "TuneableParameter/AlgaeIntake/IntakeSpeed");
         public static final double EjectSpeed2 = -2; // CHANGE
         public static TuneableParameter EjectSpeed = new TuneableParameter(EjectSpeed2, -25, 0, true, "TuneableParameter/AlgaeIntake/EjectSpeed");
@@ -666,7 +682,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = reefSideLengthInches/4-7; // goes to the middle of the Side
+        public static final double reefOffsetInches = 7.5; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
 }

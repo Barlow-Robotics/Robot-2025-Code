@@ -36,7 +36,7 @@ public class DoClimb extends Command {
         this.elevatorSub = elevatorSub;
         this.wristSub = wristSub;
 
-        comm = new SequentialCommandGroup();
+        // comm = new SequentialCommandGroup();
 
         addRequirements(climbSub, armSub);
         // Use addRequirements() here to declare subsystem dependencies.
@@ -45,26 +45,41 @@ public class DoClimb extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        if (armStateManager.getCurrentState() != ArmState.Climb) {
-            comm = Commands.sequence(
-                    new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub));
+        //comm = new SequentialCommandGroup();
+        if (climbSub.getCurrentState() == ClimbState.Idle) {
+            comm = new InstantCommand(() -> climbSub.goToUnwind()) ;
+            // comm = Commands.sequence(
+            //         new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub),
+            //         new InstantCommand(() -> climbSub.goToUnwind())
+            //         );
+
+        } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
+            comm =  new InstantCommand(() -> climbSub.goToWind());
+        } else {
+            comm = null ;
+        }
+        if ( comm != null) {
+            comm.schedule();
         }
     }
 
     public void execute() {
         
-        if (climbSub.getCurrentState() == ClimbState.Idle) {
-            comm = Commands.sequence(new InstantCommand(() -> climbSub.goToUnwind()));
-        } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
-            comm = Commands.sequence(new InstantCommand(() -> climbSub.goToWind()));
-        }
+        // if (climbSub.getCurrentState() == ClimbState.Idle) {
+        //     comm = Commands.sequence(new InstantCommand(() -> climbSub.goToUnwind()));
+        // } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
+        //     comm = Commands.sequence(new InstantCommand(() -> climbSub.goToWind()));
+        // }
 
-        comm.schedule();
+        // comm.schedule();
     }
 
     @Override
     public boolean isFinished() {
-        return (climbSub.getCurrentState() == ClimbState.Wind);
+        if ( comm != null) {
+            return (comm.isFinished());
+        }
+        return true ;
     }
 
     @Override

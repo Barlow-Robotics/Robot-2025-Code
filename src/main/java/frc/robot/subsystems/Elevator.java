@@ -106,6 +106,7 @@ public class Elevator extends SubsystemBase {
     public void setDesiredElevatorHeightInches(double height) {
         this.desiredElevatorHeight = height ;
     }
+    
 
     public double getDesiredCarriageHeightInches() {
         return desiredCarriageHeight ;
@@ -382,12 +383,12 @@ public class Elevator extends SubsystemBase {
 
     private void applyCarriageMotorConfigs(TalonFX motor, String motorName, InvertedValue inversion) {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
-        talonConfigs.Slot0.kP = ArmConstants.CarriageKPTP.get();
-        talonConfigs.Slot0.kI = ArmConstants.CarriageKITP.get();
-        talonConfigs.Slot0.kD = ArmConstants.CarriageKDTP.get();
-        talonConfigs.Slot0.kV = ArmConstants.CarriageKVTP.get();
-        talonConfigs.Slot0.kG = ArmConstants.CarriageKGTP.get();
-        talonConfigs.Slot0.kS = ArmConstants.CarriageKSTP.get();
+        talonConfigs.Slot0.kP = ArmConstants.CarriageKP;
+        talonConfigs.Slot0.kI = ArmConstants.CarriageKI;
+        talonConfigs.Slot0.kD = ArmConstants.CarriageKD;
+        talonConfigs.Slot0.kV = ArmConstants.CarriageKV;
+        talonConfigs.Slot0.kG = ArmConstants.CarriageKG;
+        talonConfigs.Slot0.kS = ArmConstants.CarriageKS;
         talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         var motionMagicConfigs = talonConfigs.MotionMagic;
@@ -467,6 +468,8 @@ public class Elevator extends SubsystemBase {
             System.out.println(
                     "Could not apply current limit configs to " + motor + " error code: " + status.toString());
         }
+
+        motor.resetSignalFrequencies() ;
     }
 
 
