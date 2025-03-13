@@ -47,11 +47,11 @@ import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
+import frc.robot.commands.LockWheels;
 import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.StopAlgaeIntake;
-import frc.robot.commands.LockWheels;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ArmState;
@@ -549,7 +549,9 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
-        autoChooser.addOption("AUTOOOOOO", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP"), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_BlueBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_RedBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
+
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 

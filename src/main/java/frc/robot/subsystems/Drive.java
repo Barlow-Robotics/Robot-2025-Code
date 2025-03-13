@@ -359,11 +359,21 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         return Commands.none();
         }
 
-    public Command CustomChoreoAuto(String name) {
+    public Command CustomChoreoAuto(String name, boolean mirror) {
         try {
-            PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1");
-            PathPlannerPath originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2");
-            PathPlannerPath originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3");
+            PathPlannerPath originalPath;
+            PathPlannerPath originalPath_2;
+            PathPlannerPath originalPath_3;
+            if (mirror) {
+                originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1").mirrorPath();
+                originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2").mirrorPath();
+                originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3").mirrorPath();
+            }
+            else {
+                originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1");
+                originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2");
+                originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3");
+            }
 
             PathPlannerPath finalPath;
             PathPlannerPath finalPath_2;
@@ -384,7 +394,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
 
             // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2), getFullCommand(finalPath_2));
         // 
-            return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2), getFullCommand(finalPath_2), new WaitCommand(2), getFullCommand(finalPath_3));
+            return Commands.sequence(getFullCommand(finalPath), new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
 
         } catch (IOException e) {
                 e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
