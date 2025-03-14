@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -533,7 +534,6 @@ public RobotContainer(Robot robot) {
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
         SmartDashboard.putData("Selected Auto", autoChooser);
-
         autoChooser.addOption("Top 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 3 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Bottom 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 2 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
@@ -549,8 +549,10 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
-        autoChooser.addOption("2_Coral_BlueBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
-        autoChooser.addOption("2_Coral_RedBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
+        // SequentialCommandGroup commandGroup1 = new SequentialCommandGroup(new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub));
+
+        autoChooser.addOption("2_Coral_BlueBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_RedBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
 
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
@@ -562,16 +564,16 @@ public RobotContainer(Robot robot) {
 
         PathPlannerLogging.setLogCurrentPoseCallback(
                 (currentPose) -> {
-                    Logger.recordOutput("Odometry/CurrentPose", currentPose);
+                    Logger.recordOutput("Auto/CurrentPose", currentPose);
                 });
         PathPlannerLogging.setLogActivePathCallback(
                 (activePath) -> {
                     Logger.recordOutput(
-                            "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+                            "Auto/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
                 });
         PathPlannerLogging.setLogTargetPoseCallback(
                 (targetPose) -> {
-                    Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+                    Logger.recordOutput("Auto/TrajectorySetpoint", targetPose);
                 });
 
         // Logger.recordOutput(, nu);

@@ -44,8 +44,9 @@ public class Constants {
     /***************************************************************************/
     public static final class VisionConstants {
         public static final int CameraLightID = 0; // NEED TO FIX/CHANGE
-        public static final String PoseCameraName = "Climb_Camera";
-        public static final String TargetCameraName = "Reef_Camera";
+        public static final String ClimbCameraName = "Climb_Camera";
+        public static final String ElevatorCameraName = "Reef_Camera";
+        public static final String RightClimbCamName = "";
 
         public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
@@ -53,16 +54,25 @@ public class Constants {
         // Cam mounted facing forward, half a meter forward of center, half a meter up
         // from center.
         // NEED TO FIX: wpk need to update these to be more exact.
-        public static final Transform3d PoseCameraToRobot = new Transform3d(
+        public static final Transform3d ClimbCameraToRobot = new Transform3d(
                 new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-12.625), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+2.5), Units.inchesToMeters(13.125)),
                 new Rotation3d(0, Units.degreesToRadians(0), 0));
-        public static final Transform3d RobotToPoseCamera = PoseCameraToRobot.inverse();
+        public static final Transform3d RobotToClimbCamera = ClimbCameraToRobot.inverse();
 
-        public static final Transform3d TargetCamToRobot = 
+        public static final Transform3d ElevatorCamToRobot = 
                 new Transform3d(
                     new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-2.5), Units.inchesToMeters(DriveConstants.TotalWidth/2-9.25), Units.inchesToMeters(12.625)), 
                     new Rotation3d(0, Units.degreesToRadians(0), 0));
-        public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
+        public static final Transform3d RobotToElevatorCam = ElevatorCamToRobot.inverse();
+
+        public static final Transform3d RightClimbCamToRobot = 
+                new Transform3d(
+                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-2.5), Units.inchesToMeters(DriveConstants.TotalWidth/2-9.25), Units.inchesToMeters(12.625)), 
+                    new Rotation3d(0, Units.degreesToRadians(0), 0)); //  NEED TO FIX. 
+        public static final Transform3d RobotToRightClimbCam = RightClimbCamToRobot.inverse();
+
+
+        
 
         // // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025ReefscapeAndyMark
