@@ -5,23 +5,14 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.VisionConstants.FallbackVisionStrategy;
-import static frc.robot.Constants.VisionConstants.PoseCameraName;
-import static frc.robot.Constants.VisionConstants.PoseCameraToRobot;
-import static frc.robot.Constants.VisionConstants.RobotToTargetCam;
-import static frc.robot.Constants.VisionConstants.TargetCamToRobot;
-import static frc.robot.Constants.VisionConstants.FieldTagLayout;
-import static frc.robot.Constants.VisionConstants.TargetCameraName;
-import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
-
-import java.util.Hashtable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,34 +32,48 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
+import static frc.robot.Constants.VisionConstants.FallbackVisionStrategy;
+import static frc.robot.Constants.VisionConstants.FieldTagLayout;
+import static frc.robot.Constants.VisionConstants.ClimbCameraName;
+import static frc.robot.Constants.VisionConstants.ClimbCameraToRobot;
+import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
+import static frc.robot.Constants.VisionConstants.RightClimbCamName;
+import static frc.robot.Constants.VisionConstants.RobotToElevatorCam;
+import static frc.robot.Constants.VisionConstants.RobotToRightClimbCam;
+import static frc.robot.Constants.VisionConstants.ElevatorCameraName;
+
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class Vision extends SubsystemBase {
 
     ////// ------ PHOTON VISION AND APRIL TAG VARIABLES ------ //////
 
-    private PhotonCamera targetCamera;
-    private PhotonCamera poseCamera;
-    public final PhotonPoseEstimator photonEstimator;
+    private PhotonCamera elevatorCamera;
+    private PhotonCamera climbCamera;
+    private PhotonCamera rightClimbCam;
+    public final PhotonPoseEstimator ElevatorPhotonEstimator;
+    public final PhotonPoseEstimator rightClimbPhotonEstimator;
     private double lastEstTimestamp = 0;
     private boolean disabledVision = false;
-    private PhotonCameraSim poseCameraSim;
-    private PhotonCameraSim targetCameraSim;
+    private PhotonCameraSim climbCameraSim;
+    private PhotonCameraSim elevatorCameraSim;
     private VisionSystemSim visionSim;
     private Transform3d robotToCamera;
     private PhotonTrackedTarget currentBestTarget;
-    private PhotonTrackedTarget currentBestAlignTarget;
+    private PhotonTrackedTarget currentBestAlignTarget = null;
     public List<PhotonTrackedTarget> allDetectedTargets;
     private HashSet<Integer> targetAlignSet;
     public OptionalInt activeAlignTargetId;
@@ -76,24 +81,20 @@ public class Vision extends SubsystemBase {
     private int pathRecounter = 0;
     boolean aprilTagDetected = false;
 
-    public enum TargetToAlign {
-        Speaker, Amp, Source, Stage, /* Note */
-    }
-
-    Hashtable<Integer, Integer> blueTrackableIDs = new Hashtable<>();
-    Hashtable<Integer, Integer> redTrackableIDs = new Hashtable<>();
+    // Hashtable<Integer, Integer> blueTrackableIDs = new Hashtable<>();
+    // Hashtable<Integer, Integer> redTrackableIDs = new Hashtable<>();
 
     private final AprilTagFieldLayout aprilTagFieldLayout;
     private boolean layoutOriginSet = false;
 
     private final Drive driveSub;
     private final Robot robot;
-    ////// ------ NOTE VARIABLES ------ //////
+    ////// ------ CORAL VARIABLES ------ //////
 
-    boolean noteDetected;
-    double noteDistanceFromCenter;
-    double noteHeight;
-    double noteWidth;
+    boolean coralDetected;
+    double coralDistanceFromCenter;
+    double coralHeight;
+    double coralWidth;
     String sourceIP = "Nothing Received" ;
 
     private DatagramChannel visionChannel = null;
@@ -102,11 +103,17 @@ public class Vision extends SubsystemBase {
     public Vision(Drive driveSub, Robot robot) /* throws IOException */ {
         this.driveSub = driveSub;
         this.robot = robot;
-        targetCamera = new PhotonCamera(TargetCameraName); // left camera
-        poseCamera = new PhotonCamera(PoseCameraName); // right camera
-        photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RobotToTargetCam);
-        // photonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, poseCamera, PoseCameraToRobot);
-        photonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
+        elevatorCamera = new PhotonCamera(ElevatorCameraName); // left camera
+        rightClimbCam = new PhotonCamera(RightClimbCamName);
+        climbCamera = new PhotonCamera(ClimbCameraName); // right camera
+
+        // elevatorPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, poseCamera, PoseCameraToRobot);
+        ElevatorPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RobotToElevatorCam);
+        ElevatorPhotonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
+
+
+        rightClimbPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RobotToRightClimbCam);
+        rightClimbPhotonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
 
         alliance = DriverStation.Alliance.Red;
         if (DriverStation.isEnabled()) {
@@ -150,33 +157,23 @@ public class Vision extends SubsystemBase {
             // Create a PhotonCameraSim which will update the linked PhotonCamera's values
             // with visible
             // targets.
-            poseCameraSim = new PhotonCameraSim(poseCamera, cameraProp);
-            targetCameraSim = new PhotonCameraSim(targetCamera, cameraProp);
+            climbCameraSim = new PhotonCameraSim(climbCamera, cameraProp);
+            elevatorCameraSim = new PhotonCameraSim(elevatorCamera, cameraProp);
             // Add the simulated camera to view the targets on this simulated field.
 
-            visionSim.addCamera(poseCameraSim, PoseCameraToRobot);
-            visionSim.addCamera(targetCameraSim, RobotToTargetCam);
+            visionSim.addCamera(climbCameraSim, ClimbCameraToRobot);
+            visionSim.addCamera(elevatorCameraSim, RobotToElevatorCam);
 
-            poseCameraSim.enableDrawWireframe(true);
+            climbCameraSim.enableDrawWireframe(true);
         }
 
         // catch (IOException e) {
         // // TODO decide what you want to do if the layout fails to load
-        // photonEstimator = new PhotonPoseEstimator(null, null, camera, null);
+        // elevatorPhotonEstimator = new PhotonPoseEstimator(null, null, camera, null);
         // }
         // Pose3d robotPose =
         // PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(),
         // fieldTags.getTagPose(target.getFiducialId()), robotToCamera);
-
-        blueTrackableIDs.put(7, 7); // speaker
-        blueTrackableIDs.put(6, 6); // amp
-        blueTrackableIDs.put(1, 1); // source
-        blueTrackableIDs.put(2, 2); // source
-
-        redTrackableIDs.put(4, 4); // speaker
-        redTrackableIDs.put(5, 5); // amp
-        redTrackableIDs.put(10, 10); // source
-        redTrackableIDs.put(9, 9); // source
     }
 
     public AprilTagFieldLayout getLayout() {
@@ -196,98 +193,56 @@ public class Vision extends SubsystemBase {
         }
     }
 
-    public void alignTo(TargetToAlign target) {
-        targetAlignSet.clear();
-        // aligningWithNote = false;
-        // if (target == TargetToAlign.Note) { // Not sure that this works
-        // aligningWithNote = true;
-        // } else
-        if (alliance == DriverStation.Alliance.Blue) {
-            switch (target) {
-                case Speaker:
-                    targetAlignSet.add(7);
-                    targetAlignSet.add(8);
-                    break;
-                case Source:
-                    targetAlignSet.add(2);
-                    targetAlignSet.add(1);
-                    break;
-                case Amp:
-                    targetAlignSet.add(6);
-                    break;
-                case Stage:
-                    targetAlignSet.add(15);
-                    targetAlignSet.add(14);
-                    targetAlignSet.add(16);
-                    break;
-
-            }
-        } else {
-            switch (target) {
-                case Speaker:
-                    targetAlignSet.add(3);
-                    targetAlignSet.add(4);
-                    break;
-                case Source:
-                    targetAlignSet.add(9);
-                    targetAlignSet.add(10);
-                    break;
-                case Amp:
-                    targetAlignSet.add(5);
-                    break;
-                case Stage:
-                    targetAlignSet.add(11);
-                    targetAlignSet.add(12);
-                    targetAlignSet.add(13);
-                    break;
-            }
-        }
-    }
-
     public void disableTheVision(boolean val) {
         this.disabledVision = val;
     }
+
+    public void updateVisionLocalization(Pose2d drivePose) {
+        var visionEst = getEstimatedGlobalPose(drivePose, VisionConstants.ElevatorCameraName);
+        visionEst.ifPresent(
+                est -> {
+                    driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
+                    Logger.recordOutput("Drive/ElevatorCameraPoseEstimate", est.estimatedPose.toPose2d());
+
+                    // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraOneStdDev);
+                    // m_PoseEstimator.addVisionMeasurement(
+                    //         est.estimatedPose.toPose2d(), est.timestampSeconds);
+                });
+
+        visionEst = getEstimatedGlobalPose(drivePose, VisionConstants.RightClimbCamName);
+        visionEst.ifPresent(
+                est -> {
+                    // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraTwoStdDev);
+                    driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
+                    Logger.recordOutput("Drive/RightClimbPoseEstimate", est.estimatedPose.toPose2d());
+
+                });
+        
+    }
+
+
 
     public void periodic() {
 
         // TODO: feed this pose estimate back to the combined pose estimator in drive
         // setLayoutOrigin();
         // Find all the results from the tracking camera
-        var tracking_result = getLatestTrackingResult();
+        // var tracking_result = getLatestTrackingResult();
 
         // Update the current bestAlignTarget based on the chosen target
         currentBestAlignTarget = null;
 
+        if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
+            Pose2d currentPose = driveSub.getPose();
+            updateVisionLocalization(currentPose);
+            // var photonEstimate = getEstimatedGlobalPose(currentPose, "elevatorCam");
 
-        if (tracking_result.isPresent()) {
-            allDetectedTargets = tracking_result.get().getTargets();
-
-            if (tracking_result.get().hasTargets()) {
-
-                // allDetectedTargets = tracking_result.get().getTargets();
-                currentBestTarget = tracking_result.get().getBestTarget();
-            }
-            if (activeAlignTargetId.isPresent()) {
-                for (PhotonTrackedTarget target : allDetectedTargets) {
-                    if (target.getFiducialId() == activeAlignTargetId.getAsInt()) {
-                        currentBestAlignTarget = target;
-                        break;
-                    }
-                }
-            }
-            
-            pathRecounter+=1;
-            // System.out.println(this.disabledVision);
-            if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
-                Pose2d currentPose = driveSub.getPose();
-                var photonEstimate = getEstimatedGlobalPose(currentPose);
-                if (photonEstimate.isPresent()) {
-                    driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
-                        photonEstimate.get().timestampSeconds
-                    );
-                    Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
-                }
-            }
+            // if (photonEstimate.isPresent()) {
+            //     driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
+            //         photonEstimate.get().timestampSeconds
+            //     );
+            //     Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
+            // }
         }
 
         advantageKitLogging();
@@ -297,18 +252,18 @@ public class Vision extends SubsystemBase {
     // Pose stuff
     ///////////////////////////////////
 
-    public PhotonPipelineResult getLatestPoseResult() {
+    // public PhotonPipelineResult getLatestPoseResult() {
 
-        return poseCamera.getLatestResult();
-    }
+    //     return poseCamera.getLatestResult();
+    // }
 
-    public Optional<PhotonPipelineResult> getLatestTrackingResult() {
-        if (targetCamera.isConnected()) {
-            return Optional.of(targetCamera.getLatestResult());
-        } else {
-            return Optional.empty();
-        }
-    }
+    // public Optional<PhotonPipelineResult> getLatestTrackingResult() {
+    //     if (elevatorCamera.isConnected()) {
+    //         return Optional.of(elevatorCamera.getLatestResult());
+    //     } else {
+    //         return Optional.empty();
+    //     }
+    // }
 
     ///////////////////////////////////
     // Tracking stuff
@@ -319,60 +274,26 @@ public class Vision extends SubsystemBase {
     // This uses the simple approach and assumes that we won't be seeing multiple
     // that we're interested in or that
     // the first one in the list is the best one.
-    public Optional<PhotonTrackedTarget> getBestTrackableTarget() {
-        if (DriverStation.getAlliance().isPresent()) {
-            for (var tempTarget : allDetectedTargets) {
-                if (DriverStation.getAlliance().get() == Alliance.Red
-                        && redTrackableIDs.contains(tempTarget.getFiducialId())) {
-                    return Optional.of(tempTarget);
-                }
-                if (DriverStation.getAlliance().get() == Alliance.Blue
-                        && blueTrackableIDs.contains(tempTarget.getFiducialId())) {
-                    return Optional.of(tempTarget);
-                }
-            }
-        }
-        return Optional.empty();
-    }
+    // public Optional<PhotonTrackedTarget> getBestTrackableTarget() {
+    //     if (DriverStation.getAlliance().isPresent()) {
+    //         for (var tempTarget : allDetectedTargets) {
+    //             if (DriverStation.getAlliance().get() == Alliance.Red
+    //                     && redTrackableIDs.contains(tempTarget.getFiducialId())) {
+    //                 return Optional.of(tempTarget);
+    //             }
+    //             if (DriverStation.getAlliance().get() == Alliance.Blue
+    //                     && blueTrackableIDs.contains(tempTarget.getFiducialId())) {
+    //                 return Optional.of(tempTarget);
+    //             }
+    //         }
+    //     }
+    //     return Optional.empty();
+    // }
 
     public Optional<PhotonTrackedTarget> getTarget(int id) {
         for (var tempTarget : allDetectedTargets) {
             if ((tempTarget.getFiducialId() == id)) {
                 return Optional.of(tempTarget);
-            }
-        }
-        return Optional.empty();
-    }
-
-    public int getSpeakerTagID() {
-        if (DriverStation.getAlliance().isPresent()) {
-            if (DriverStation.getAlliance().get() == Alliance.Red) {
-                return VisionConstants.RedSpeakerCenterAprilTagID;
-            }
-            if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                return VisionConstants.BlueSpeakerCenterAprilTagID;
-            }
-        }
-        return VisionConstants.BlueSpeakerCenterAprilTagID; // no alliance info so pick one.
-    }
-
-    public Optional<Pose3d> getSpeakerPose() {
-        return aprilTagFieldLayout.getTagPose(getSpeakerTagID());
-    }
-
-    public Optional<PhotonTrackedTarget> getSpeakerTarget() {
-        if (DriverStation.getAlliance().isPresent()) {
-            if (allDetectedTargets != null) {
-                for (var tempTarget : allDetectedTargets) {
-                    if (DriverStation.getAlliance().get() == Alliance.Red
-                            && tempTarget.getFiducialId() == VisionConstants.RedSpeakerCenterAprilTagID) {
-                        return Optional.of(tempTarget);
-                    }
-                    if (DriverStation.getAlliance().get() == Alliance.Blue
-                            && tempTarget.getFiducialId() == VisionConstants.BlueSpeakerCenterAprilTagID) {
-                        return Optional.of(tempTarget);
-                    }
-                }
             }
         }
         return Optional.empty();
@@ -387,29 +308,49 @@ public class Vision extends SubsystemBase {
      *         timestamp, and targets
      *         used for estimation.
      */
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d robotPose) {
-        if (targetCamera.isConnected()) {
-            photonEstimator.setReferencePose(robotPose);
-            var visionEst = photonEstimator.update(targetCamera.getLatestResult());
-            double latestTimestamp = targetCamera.getLatestResult().getTimestampSeconds();
-            boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
-            if (Robot.isSimulation()) {
-                visionEst.ifPresentOrElse(
-                        est -> getSimDebugField()
-                                .getObject("VisionEstimation")
-                                .setPose(est.estimatedPose.toPose2d()),
-                        () -> {
-                            if (newResult)
-                                getSimDebugField().getObject("VisionEstimation").setPoses();
-                        });
+    
+    // public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d robotPose) {
+    //     if (elevatorCamera.isConnected()) {
+    //         elevatorPhotonEstimator.setReferencePose(robotPose);
+    //         var visionEst = elevatorPhotonEstimator.update(elevatorCamera.getLatestResult());
+    //         double latestTimestamp = elevatorCamera.getLatestResult().getTimestampSeconds();
+    //         boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
+    //         if (Robot.isSimulation()) {
+    //             visionEst.ifPresentOrElse(
+    //                     est -> getSimDebugField()
+    //                             .getObject("VisionEstimation")
+    //                             .setPose(est.estimatedPose.toPose2d()),
+    //                     () -> {
+    //                         if (newResult)
+    //                             getSimDebugField().getObject("VisionEstimation").setPoses();
+    //                     });
+    //         }
+    //         if (newResult)
+    //             lastEstTimestamp = latestTimestamp;
+    //         return visionEst;
+    //     } else {
+    //         return Optional.empty();
+    //     }
+    // }
+
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d robotPose, String cameraName) {
+        Optional<EstimatedRobotPose> visionEst = Optional.empty();
+        if(elevatorCamera.getName().equals(cameraName) && elevatorCamera.isConnected()){
+            ElevatorPhotonEstimator.setReferencePose(robotPose);
+            for (var change : elevatorCamera.getAllUnreadResults()) {
+                visionEst = ElevatorPhotonEstimator.update(change);
+                //updateEstimationStdDevs(visionEst, m_cameraOneEstimator, change.getTargets());
             }
-            if (newResult)
-                lastEstTimestamp = latestTimestamp;
-            return visionEst;
-        } else {
-            return Optional.empty();
+        } else if(climbCamera.getName().equals(cameraName) && rightClimbCam.isConnected()){
+            rightClimbPhotonEstimator.setReferencePose(robotPose);
+            for (var change : climbCamera.getAllUnreadResults()) {
+                visionEst = rightClimbPhotonEstimator.update(change);
+                // updateEstimationStdDevs(visionEst, m_cameraOneEstimator, change.getTargets());
+            }
         }
+        return visionEst;
     }
+
 
     // // wpk not used anywhere
     // public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
@@ -418,7 +359,7 @@ public class Vision extends SubsystemBase {
     // int numTags = 0;
     // double avgDist = 0;
     // for (var tgt : targets) {
-    // var tagPose = photonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+    // var tagPose = elevatorPhotonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
     // if (tagPose.isEmpty())
     // continue;
     // numTags++;
@@ -555,127 +496,24 @@ public class Vision extends SubsystemBase {
         if (activeAlignTargetId.isPresent()) {
             Logger.recordOutput("vision/activeAlignTarget", activeAlignTargetId.getAsInt());
         }
-
-        Logger.recordOutput("vision/note_detection/note_is_visible", this.noteIsVisible());
-        Logger.recordOutput("vision/note_detection/distance_from_center", this.getNoteDistanceFromCenter());
-        Logger.recordOutput("vision/note_detection/width", this.getNoteWidth());
-        Logger.recordOutput("vision/note_detection/height", this.getNoteHeight());
     }
 
-    // private void addNetworkTableEntries() {
-    // NetworkTableInstance.getDefault().getEntry("vision/xPosition").setDouble(0.0);
-    // NetworkTableInstance.getDefault().getEntry("vision/yPosition").setDouble(0.0);
-    // NetworkTableInstance.getDefault().getEntry("vision/zPosition").setDouble(0.0);
-    // }
-
-    // public double getSpeakerAprilTagPitch() {
-    // // returns InvalidAngle constant if not facing speaker
-
-    // var poseResult = getLatestPoseResult();
-    // if (!poseResult.hasTargets())
-    // return (VisionConstants.InvalidAngle);
-
-    // var target = poseResult.getBestTarget();
-    // int targetAprilTagID = target.getFiducialId();
-
-    // // check that target is the Speaker's center AprilTag
-    // if (targetAprilTagID == VisionConstants.NullAprilTagID) {
-    // // Vision has no target acquired
-    // return (VisionConstants.InvalidAngle);
-    // }
-    // // If the primary target is not a speaker center AprilTag...
-    // else if (targetAprilTagID != VisionConstants.RedSpeakerCenterAprilTagID
-    // && targetAprilTagID != VisionConstants.BlueSpeakerCenterAprilTagID) {
-    // // Walk the list of found AprilTags aside from the primary
-    // // to see if desired speaker center AprilTag is in the list
-    // List<PhotonTrackedTarget> targets = poseResult.getTargets();
-    // target = null;
-    // for (var tempTarget : targets) {
-    // if ((tempTarget.getFiducialId() ==
-    // VisionConstants.RedSpeakerCenterAprilTagID) ||
-    // tempTarget.getFiducialId() == VisionConstants.BlueSpeakerCenterAprilTagID)
-    // {
-    // target = tempTarget;
-    // break;
-    // }
-    // }
-    // }
-    // if (target != null){
-    // return target.getPitch();
-    // }
-    // else {
-    // return(VisionConstants.InvalidAngle);
-    // }
-    // }
-
-    // public double getSpeakerTargetDistance()
-    // {
-    // var poseResult = getLatestPoseResult();
-    // if (!poseResult.hasTargets())
-    // return (VisionConstants.NoTargetDistance);
-
-    // var target = poseResult.getBestTarget();
-    // int targetAprilTagID = target.getFiducialId();
-
-    // // check that target is the Speaker's center AprilTag
-    // // Does this just duplicate the poseResults.hasTargets() test above???
-    // if (targetAprilTagID == VisionConstants.NullAprilTagID) {
-    // // Vision has no target acquired
-    // return (VisionConstants.NoTargetDistance);
-    // }
-
-    // // If the primary target is not a speaker center AprilTag...
-    // target = null;
-    // if (targetAprilTagID != VisionConstants.RedSpeakerCenterAprilTagID
-    // && targetAprilTagID != VisionConstants.BlueSpeakerCenterAprilTagID)
-    // {
-    // // Walk the list of found AprilTags aside from the primary
-    // // to see if desired speaker center AprilTag is in the list
-    // List<PhotonTrackedTarget> targets = poseResult.getTargets();
-    // for (var tempTarget : targets) {
-    // if ((tempTarget.getFiducialId() ==
-    // VisionConstants.RedSpeakerCenterAprilTagID) ||
-    // tempTarget.getFiducialId() == VisionConstants.BlueSpeakerCenterAprilTagID)
-    // {
-    // target = tempTarget;
-    // break;
-    // }
-    // }
-    // }
-
-    // if (target != null)
-    // // Is the X value is the distance to the AprilTag?
-    // // Or do I need to compute it as the length of the hypotenuse
-    // // where X and Y are the sides of the right angle
-    // // Or, maybe we can use getTargetDistance() to find this?
-    // // ==> This method doesn't find the Speaker AprilTag we need.
-    // // ==> It just uses the target that is currently "best aligned"
-    // return(target.getBestCameraToTarget().getX());
-    // else
-    // // What should we return when there is no target?
-    // return(VisionConstants.NoTargetDistance);
-    // }
-
-    public boolean noteIsVisible() {
-        return this.noteDetected;
+    public boolean coralIsVisible() {
+        return this.coralDetected;
     }
-
-    // public boolean isAligningWithNote() {
-    //     return aligningWithNote;
-    // }
-
-    public double getNoteDistanceFromCenter() {
+    public double getCoralDistanceFromCenter() {
         // tell how many pixels the note is from the center of the screen.
-        return this.noteDistanceFromCenter;
+        return this.coralDistanceFromCenter;
     }
 
-    public double getNoteHeight() {
-        return this.noteHeight;
+    public double getCoralHeight() {
+        return this.coralHeight;
     }
 
-    public double getNoteWidth() {
-        return this.noteWidth;
+    public double getCoralWidth() {
+        return this.coralWidth;
     }
+  
     public List<PhotonTrackedTarget> getAllDetectedTargets() {
         return this.allDetectedTargets;
     }

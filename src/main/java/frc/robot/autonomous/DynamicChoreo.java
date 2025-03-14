@@ -36,6 +36,9 @@ public class DynamicChoreo extends Command {
         path1Completed = false;
     }
 
+    public static double coralIsVisible() {
+        return AutoConstants.coralIsVisible.get();
+    }
     private void initializeAutos(String name) {
         switch (name) {
             case "Routine C":
@@ -59,7 +62,7 @@ public class DynamicChoreo extends Command {
 
     private void decideNextPath() {
         if (path1Completed) {
-            if (noteIsVisible() == 1) {
+            if (coralIsVisible() == 1) {
                 currentCommand.cancel();
                 currentCommand = noteCommand;
             } else {
@@ -80,8 +83,5 @@ public class DynamicChoreo extends Command {
         if (currentCommand != null) {
             currentCommand.end(interrupted);
         }
-    }
-    public static double noteIsVisible() {
-        return AutoConstants.coralIsVisible.get();
     }
 }
