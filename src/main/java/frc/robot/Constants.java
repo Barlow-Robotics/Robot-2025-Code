@@ -75,8 +75,6 @@ public class Constants {
         public static final Matrix<N3, N1> MultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
         // constants for vision-calculated speaker shooting - LMT
-        public static final int RedSpeakerCenterAprilTagID = 4;
-        public static final int BlueSpeakerCenterAprilTagID = 7;
         public static final int NullAprilTagID = -1;
         public static final double InvalidAngle = -361;
         public static final double NoTargetDistance = -1;

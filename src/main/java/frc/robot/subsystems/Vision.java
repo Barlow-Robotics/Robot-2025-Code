@@ -76,10 +76,6 @@ public class Vision extends SubsystemBase {
     private int pathRecounter = 0;
     boolean aprilTagDetected = false;
 
-    public enum TargetToAlign {
-        Speaker, Amp, Source, Stage, /* Note */
-    }
-
     Hashtable<Integer, Integer> blueTrackableIDs = new Hashtable<>();
     Hashtable<Integer, Integer> redTrackableIDs = new Hashtable<>();
 
@@ -88,12 +84,12 @@ public class Vision extends SubsystemBase {
 
     private final Drive driveSub;
     private final Robot robot;
-    ////// ------ NOTE VARIABLES ------ //////
+    ////// ------ CORAL VARIABLES ------ //////
 
-    boolean noteDetected;
-    double noteDistanceFromCenter;
-    double noteHeight;
-    double noteWidth;
+    boolean coralDetected;
+    double coralDistanceFromCenter;
+    double coralHeight;
+    double coralWidth;
     String sourceIP = "Nothing Received" ;
 
     private DatagramChannel visionChannel = null;
@@ -167,16 +163,6 @@ public class Vision extends SubsystemBase {
         // Pose3d robotPose =
         // PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(),
         // fieldTags.getTagPose(target.getFiducialId()), robotToCamera);
-
-        blueTrackableIDs.put(7, 7); // speaker
-        blueTrackableIDs.put(6, 6); // amp
-        blueTrackableIDs.put(1, 1); // source
-        blueTrackableIDs.put(2, 2); // source
-
-        redTrackableIDs.put(4, 4); // speaker
-        redTrackableIDs.put(5, 5); // amp
-        redTrackableIDs.put(10, 10); // source
-        redTrackableIDs.put(9, 9); // source
     }
 
     public AprilTagFieldLayout getLayout() {
@@ -192,54 +178,6 @@ public class Vision extends SubsystemBase {
                                 ? OriginPosition.kBlueAllianceWallRightSide
                                 : OriginPosition.kRedAllianceWallRightSide);
                 this.layoutOriginSet = true;
-            }
-        }
-    }
-
-    public void alignTo(TargetToAlign target) {
-        targetAlignSet.clear();
-        // aligningWithNote = false;
-        // if (target == TargetToAlign.Note) { // Not sure that this works
-        // aligningWithNote = true;
-        // } else
-        if (alliance == DriverStation.Alliance.Blue) {
-            switch (target) {
-                case Speaker:
-                    targetAlignSet.add(7);
-                    targetAlignSet.add(8);
-                    break;
-                case Source:
-                    targetAlignSet.add(2);
-                    targetAlignSet.add(1);
-                    break;
-                case Amp:
-                    targetAlignSet.add(6);
-                    break;
-                case Stage:
-                    targetAlignSet.add(15);
-                    targetAlignSet.add(14);
-                    targetAlignSet.add(16);
-                    break;
-
-            }
-        } else {
-            switch (target) {
-                case Speaker:
-                    targetAlignSet.add(3);
-                    targetAlignSet.add(4);
-                    break;
-                case Source:
-                    targetAlignSet.add(9);
-                    targetAlignSet.add(10);
-                    break;
-                case Amp:
-                    targetAlignSet.add(5);
-                    break;
-                case Stage:
-                    targetAlignSet.add(11);
-                    targetAlignSet.add(12);
-                    targetAlignSet.add(13);
-                    break;
             }
         }
     }
@@ -339,40 +277,6 @@ public class Vision extends SubsystemBase {
         for (var tempTarget : allDetectedTargets) {
             if ((tempTarget.getFiducialId() == id)) {
                 return Optional.of(tempTarget);
-            }
-        }
-        return Optional.empty();
-    }
-
-    public int getSpeakerTagID() {
-        if (DriverStation.getAlliance().isPresent()) {
-            if (DriverStation.getAlliance().get() == Alliance.Red) {
-                return VisionConstants.RedSpeakerCenterAprilTagID;
-            }
-            if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                return VisionConstants.BlueSpeakerCenterAprilTagID;
-            }
-        }
-        return VisionConstants.BlueSpeakerCenterAprilTagID; // no alliance info so pick one.
-    }
-
-    public Optional<Pose3d> getSpeakerPose() {
-        return aprilTagFieldLayout.getTagPose(getSpeakerTagID());
-    }
-
-    public Optional<PhotonTrackedTarget> getSpeakerTarget() {
-        if (DriverStation.getAlliance().isPresent()) {
-            if (allDetectedTargets != null) {
-                for (var tempTarget : allDetectedTargets) {
-                    if (DriverStation.getAlliance().get() == Alliance.Red
-                            && tempTarget.getFiducialId() == VisionConstants.RedSpeakerCenterAprilTagID) {
-                        return Optional.of(tempTarget);
-                    }
-                    if (DriverStation.getAlliance().get() == Alliance.Blue
-                            && tempTarget.getFiducialId() == VisionConstants.BlueSpeakerCenterAprilTagID) {
-                        return Optional.of(tempTarget);
-                    }
-                }
             }
         }
         return Optional.empty();
@@ -555,127 +459,24 @@ public class Vision extends SubsystemBase {
         if (activeAlignTargetId.isPresent()) {
             Logger.recordOutput("vision/activeAlignTarget", activeAlignTargetId.getAsInt());
         }
-
-        Logger.recordOutput("vision/note_detection/note_is_visible", this.noteIsVisible());
-        Logger.recordOutput("vision/note_detection/distance_from_center", this.getNoteDistanceFromCenter());
-        Logger.recordOutput("vision/note_detection/width", this.getNoteWidth());
-        Logger.recordOutput("vision/note_detection/height", this.getNoteHeight());
     }
 
-    // private void addNetworkTableEntries() {
-    // NetworkTableInstance.getDefault().getEntry("vision/xPosition").setDouble(0.0);
-    // NetworkTableInstance.getDefault().getEntry("vision/yPosition").setDouble(0.0);
-    // NetworkTableInstance.getDefault().getEntry("vision/zPosition").setDouble(0.0);
-    // }
-
-    // public double getSpeakerAprilTagPitch() {
-    // // returns InvalidAngle constant if not facing speaker
-
-    // var poseResult = getLatestPoseResult();
-    // if (!poseResult.hasTargets())
-    // return (VisionConstants.InvalidAngle);
-
-    // var target = poseResult.getBestTarget();
-    // int targetAprilTagID = target.getFiducialId();
-
-    // // check that target is the Speaker's center AprilTag
-    // if (targetAprilTagID == VisionConstants.NullAprilTagID) {
-    // // Vision has no target acquired
-    // return (VisionConstants.InvalidAngle);
-    // }
-    // // If the primary target is not a speaker center AprilTag...
-    // else if (targetAprilTagID != VisionConstants.RedSpeakerCenterAprilTagID
-    // && targetAprilTagID != VisionConstants.BlueSpeakerCenterAprilTagID) {
-    // // Walk the list of found AprilTags aside from the primary
-    // // to see if desired speaker center AprilTag is in the list
-    // List<PhotonTrackedTarget> targets = poseResult.getTargets();
-    // target = null;
-    // for (var tempTarget : targets) {
-    // if ((tempTarget.getFiducialId() ==
-    // VisionConstants.RedSpeakerCenterAprilTagID) ||
-    // tempTarget.getFiducialId() == VisionConstants.BlueSpeakerCenterAprilTagID)
-    // {
-    // target = tempTarget;
-    // break;
-    // }
-    // }
-    // }
-    // if (target != null){
-    // return target.getPitch();
-    // }
-    // else {
-    // return(VisionConstants.InvalidAngle);
-    // }
-    // }
-
-    // public double getSpeakerTargetDistance()
-    // {
-    // var poseResult = getLatestPoseResult();
-    // if (!poseResult.hasTargets())
-    // return (VisionConstants.NoTargetDistance);
-
-    // var target = poseResult.getBestTarget();
-    // int targetAprilTagID = target.getFiducialId();
-
-    // // check that target is the Speaker's center AprilTag
-    // // Does this just duplicate the poseResults.hasTargets() test above???
-    // if (targetAprilTagID == VisionConstants.NullAprilTagID) {
-    // // Vision has no target acquired
-    // return (VisionConstants.NoTargetDistance);
-    // }
-
-    // // If the primary target is not a speaker center AprilTag...
-    // target = null;
-    // if (targetAprilTagID != VisionConstants.RedSpeakerCenterAprilTagID
-    // && targetAprilTagID != VisionConstants.BlueSpeakerCenterAprilTagID)
-    // {
-    // // Walk the list of found AprilTags aside from the primary
-    // // to see if desired speaker center AprilTag is in the list
-    // List<PhotonTrackedTarget> targets = poseResult.getTargets();
-    // for (var tempTarget : targets) {
-    // if ((tempTarget.getFiducialId() ==
-    // VisionConstants.RedSpeakerCenterAprilTagID) ||
-    // tempTarget.getFiducialId() == VisionConstants.BlueSpeakerCenterAprilTagID)
-    // {
-    // target = tempTarget;
-    // break;
-    // }
-    // }
-    // }
-
-    // if (target != null)
-    // // Is the X value is the distance to the AprilTag?
-    // // Or do I need to compute it as the length of the hypotenuse
-    // // where X and Y are the sides of the right angle
-    // // Or, maybe we can use getTargetDistance() to find this?
-    // // ==> This method doesn't find the Speaker AprilTag we need.
-    // // ==> It just uses the target that is currently "best aligned"
-    // return(target.getBestCameraToTarget().getX());
-    // else
-    // // What should we return when there is no target?
-    // return(VisionConstants.NoTargetDistance);
-    // }
-
-    public boolean noteIsVisible() {
-        return this.noteDetected;
+    public boolean coralIsVisible() {
+        return this.coralDetected;
     }
-
-    // public boolean isAligningWithNote() {
-    //     return aligningWithNote;
-    // }
-
-    public double getNoteDistanceFromCenter() {
+    public double getCoralDistanceFromCenter() {
         // tell how many pixels the note is from the center of the screen.
-        return this.noteDistanceFromCenter;
+        return this.coralDistanceFromCenter;
     }
 
-    public double getNoteHeight() {
-        return this.noteHeight;
+    public double getCoralHeight() {
+        return this.coralHeight;
     }
 
-    public double getNoteWidth() {
-        return this.noteWidth;
+    public double getCoralWidth() {
+        return this.coralWidth;
     }
+  
     public List<PhotonTrackedTarget> getAllDetectedTargets() {
         return this.allDetectedTargets;
     }
