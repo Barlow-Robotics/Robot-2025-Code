@@ -73,7 +73,7 @@ public class Vision extends SubsystemBase {
     private VisionSystemSim visionSim;
     private Transform3d robotToCamera;
     private PhotonTrackedTarget currentBestTarget;
-    private PhotonTrackedTarget currentBestAlignTarget;
+    private PhotonTrackedTarget currentBestAlignTarget = null;
     public List<PhotonTrackedTarget> allDetectedTargets;
     private HashSet<Integer> targetAlignSet;
     public OptionalInt activeAlignTargetId;
@@ -227,43 +227,22 @@ public class Vision extends SubsystemBase {
         // TODO: feed this pose estimate back to the combined pose estimator in drive
         // setLayoutOrigin();
         // Find all the results from the tracking camera
-        var tracking_result = getLatestTrackingResult();
+        // var tracking_result = getLatestTrackingResult();
 
         // Update the current bestAlignTarget based on the chosen target
         currentBestAlignTarget = null;
 
+        if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
+            Pose2d currentPose = driveSub.getPose();
+            updateVisionLocalization(currentPose);
+            // var photonEstimate = getEstimatedGlobalPose(currentPose, "elevatorCam");
 
-        if (tracking_result.isPresent()) {
-            allDetectedTargets = tracking_result.get().getTargets();
-
-            if (tracking_result.get().hasTargets()) {
-
-                // allDetectedTargets = tracking_result.get().getTargets();
-                currentBestTarget = tracking_result.get().getBestTarget();
-            }
-            if (activeAlignTargetId.isPresent()) {
-                for (PhotonTrackedTarget target : allDetectedTargets) {
-                    if (target.getFiducialId() == activeAlignTargetId.getAsInt()) {
-                        currentBestAlignTarget = target;
-                        break;
-                    }
-                }
-            }
-            
-            // pathRecounter+=1;
-            // System.out.println(this.disabledVision);
-            if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
-                Pose2d currentPose = driveSub.getPose();
-                updateVisionLocalization(currentPose);
-                // var photonEstimate = getEstimatedGlobalPose(currentPose, "elevatorCam");
-
-                // if (photonEstimate.isPresent()) {
-                //     driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
-                //         photonEstimate.get().timestampSeconds
-                //     );
-                //     Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
-                // }
-            }
+            // if (photonEstimate.isPresent()) {
+            //     driveSub.addVisionMeasurement(photonEstimate.get().estimatedPose.toPose2d(), 
+            //         photonEstimate.get().timestampSeconds
+            //     );
+            //     Logger.recordOutput("Drive/PhotonPoseEstimate", photonEstimate.get().estimatedPose.toPose2d());
+            // }
         }
 
         advantageKitLogging();
@@ -278,13 +257,13 @@ public class Vision extends SubsystemBase {
     //     return poseCamera.getLatestResult();
     // }
 
-    public Optional<PhotonPipelineResult> getLatestTrackingResult() {
-        if (elevatorCamera.isConnected()) {
-            return Optional.of(elevatorCamera.getLatestResult());
-        } else {
-            return Optional.empty();
-        }
-    }
+    // public Optional<PhotonPipelineResult> getLatestTrackingResult() {
+    //     if (elevatorCamera.isConnected()) {
+    //         return Optional.of(elevatorCamera.getLatestResult());
+    //     } else {
+    //         return Optional.empty();
+    //     }
+    // }
 
     ///////////////////////////////////
     // Tracking stuff
