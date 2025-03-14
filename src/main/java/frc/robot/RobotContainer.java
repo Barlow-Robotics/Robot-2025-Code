@@ -121,9 +121,6 @@ private Trigger resetOdometryToVision;
 // private Trigger LEDHumanSourceButton;
 // private Trigger LEDHumanFloorButton;
 
-private Trigger shootIntakeButton; // trigger
-private Trigger reverseFloorIntakeButton; // driver button 7
-
 // private Trigger moveToHomeButton;
 private Trigger moveToTravellingButton;
 private Trigger moveToLevel1Button;
@@ -143,7 +140,6 @@ private Trigger retractIntakeButton;
 private Trigger autoAlignAlgaeButton;
 private Trigger autoAlignAlgaeButton_2;
 
-private Trigger runGripperButton;
 private Trigger scoreCoralButton;
 
 private POVButton leftPovButton;
@@ -157,8 +153,8 @@ private Trigger disableVisionButton;
 private Trigger enableVisionButton;
 
 /* PID */
-private PIDController noteYawPID;
-private PIDController targetYawPID;
+// private PIDController noteYawPID;
+// private PIDController targetYawPID;
 
 /* AUTO */
 private SendableChooser<Command> autoChooser;
@@ -172,14 +168,14 @@ public Pose2d reefAutoTargetPose = new Pose2d();
 private final LinearFilter xVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 private final LinearFilter yVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 private final LinearFilter twistFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
-private final LinearFilter sliderFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+// private final LinearFilter sliderFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 
 private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1)
         .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
-private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+// private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
 public RobotContainer(Robot robot) {
@@ -231,17 +227,17 @@ public RobotContainer(Robot robot) {
     // frame.add(robotController); frame.pack(); frame.setVisible(true);
     // });
     moveToCoral = false;
-    noteYawPID = new PIDController(
-            DriveConstants.YawOverrideAlignNoteKP,
-            DriveConstants.YawOverrideAlignNoteKI,
-            DriveConstants.YawOverrideAlignNoteKD);
-    noteYawPID.setSetpoint(0.0);
+    // noteYawPID = new PIDController(
+    //         DriveConstants.YawOverrideAlignNoteKP,
+    //         DriveConstants.YawOverrideAlignNoteKI,
+    //         DriveConstants.YawOverrideAlignNoteKD);
+    // noteYawPID.setSetpoint(0.0);
 
-    targetYawPID = new PIDController(
-            DriveConstants.TargetYawOverrideAlignNoteKP,
-            DriveConstants.TargetYawOverrideAlignNoteKI,
-            DriveConstants.TargetYawOverrideAlignNoteKD);
-    targetYawPID.setSetpoint(0.0);
+    // targetYawPID = new PIDController(
+    //         DriveConstants.TargetYawOverrideAlignNoteKP,
+    //         DriveConstants.TargetYawOverrideAlignNoteKI,
+    //         DriveConstants.TargetYawOverrideAlignNoteKD);
+    // targetYawPID.setSetpoint(0.0);
 
     configureBindings();
 
@@ -316,6 +312,8 @@ public RobotContainer(Robot robot) {
                     // ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(nudgeVelX, nudgeVelY, 0.0);
                     // return nudge.withSpeeds(nudgeSpeeds);
                 }));
+
+                
         configureAutoBuilder();
         // autoChooser = AutoBuilder.buildAutoChooser("Tests");
         // SmartDashboard.putData("Auto Mode", autoChooser);
@@ -349,7 +347,7 @@ public RobotContainer(Robot robot) {
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
-        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
+        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
         lockWheelsButton.onTrue(lockWheelsCmd);
 
         // moveToCoralButton = new JoystickButton(driverController,

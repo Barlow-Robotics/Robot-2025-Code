@@ -85,8 +85,6 @@ public class Constants {
         public static final Matrix<N3, N1> MultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
         // constants for vision-calculated speaker shooting - LMT
-        public static final int RedSpeakerCenterAprilTagID = 4;
-        public static final int BlueSpeakerCenterAprilTagID = 7;
         public static final int NullAprilTagID = -1;
         public static final double InvalidAngle = -361;
         public static final double NoTargetDistance = -1;
@@ -286,7 +284,7 @@ public class Constants {
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleKV2 = 10.0; // CHANGE
+        public static final double ArmAngleKV2 = 9.0; // CHANGE
         public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleKV2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
         public static final double ArmAngleKG2 = 0.25;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
@@ -306,11 +304,11 @@ public class Constants {
         public static TuneableParameter ElevatorKI = new TuneableParameter(ElevatorKI2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
         public static final double ElevatorKD2 =/*testing*/0.3; // 0.2; // CHANGE
         public static TuneableParameter ElevatorKD = new TuneableParameter(ElevatorKD2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
-        public static final double ElevatorKV2 =/*testing*/0.26; // 0.0; // CHANGE
+        public static final double ElevatorKV2 =/*testing*/0.135; // 0.0; // CHANGE
         public static TuneableParameter ElevatorKV = new TuneableParameter(ElevatorKV2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
-        public static final double ElevatorKG2 =/*testing*/0.2; // 2.7; // CHANGE
+        public static final double ElevatorKG2 =/*testing*/0.12; // 2.7; // CHANGE
         public static TuneableParameter ElevatorKG = new TuneableParameter(ElevatorKG2, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
-        public static final double ElevatorKS2 =/*testing*/0.1; // 0; // CHANGE
+        public static final double ElevatorKS2 =/*testing*/0.05; // 0; // CHANGE
         public static TuneableParameter ElevatorKS = new TuneableParameter(ElevatorKS2, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
         public static final double ElevatorGearRatio = 5;//15;
         // public static final double ElevatorSprocketDiameter = 2.36; // inches // CHANGE

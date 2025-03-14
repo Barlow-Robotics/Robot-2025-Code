@@ -4,13 +4,9 @@
 
 package frc.robot.commands;
 
-import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Elevator;
@@ -63,7 +59,6 @@ public class DoClimb extends Command {
             comm.schedule();
         }
     }
-
     public void execute() {
         
         // if (climbSub.getCurrentState() == ClimbState.Idle) {

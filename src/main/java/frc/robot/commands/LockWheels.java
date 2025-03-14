@@ -4,20 +4,13 @@
 
 package frc.robot.commands;
 
-import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.Drive;
-import frc.robot.RobotContainer;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class LockWheels extends Command {
-  private Drive driveSub;
+  private final Drive driveSub;
   private final SwerveRequest.SwerveDriveBrake brake;
   public LockWheels(Drive driveSub) {
     this.driveSub = driveSub;
@@ -39,11 +32,6 @@ public class LockWheels extends Command {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return true;
+  public void end(boolean interrupted) {
   }
 }

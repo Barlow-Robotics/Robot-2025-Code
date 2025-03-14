@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -21,7 +20,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
@@ -171,14 +169,14 @@ public class Gripper extends SubsystemBase {
         return false;
     }
 
-    private double getCurrent() {
-        return gripperMotor.getOutputCurrent();
-    }
+    //private double getCurrent() {
+    //    return gripperMotor.getOutputCurrent();
+    //}
 
 
-    private double getIntakeEncoderDegrees() {
-        return Units.rotationsToDegrees(gripperMotor.getAbsoluteEncoder().getPosition());
-    }
+    //private double getIntakeEncoderDegrees() {
+    //    return Units.rotationsToDegrees(gripperMotor.getAbsoluteEncoder().getPosition());
+    //}
 
     /* LOGGING */
     private void logData() {
