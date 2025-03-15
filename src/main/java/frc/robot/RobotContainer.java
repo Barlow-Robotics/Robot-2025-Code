@@ -175,7 +175,6 @@ private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric(
         .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
-// private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
@@ -349,7 +348,7 @@ public RobotContainer(Robot robot) {
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
         lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
-        lockWheelsButton.onTrue(new InstantCommand(() -> lockWheels())).onFalse(Commands.none());
+        lockWheelsButton.whileTrue(driveSub.applyRequest( ()->brake));
 
         // moveToCoralButton = new JoystickButton(driverController,
         // LogitechExtreme3DConstants.Button8);
@@ -446,9 +445,7 @@ public RobotContainer(Robot robot) {
 
     }
 
-    protected Command lockWheels() {
-        return driveSub.applyRequest(SwerveRequest.SwerveDriveBrake::new).withName("Swerve.Xbrake");
-    }
+    
 
     private void drivePovBindings() {
         leftPovButton = new POVButton(driverController, 270);
