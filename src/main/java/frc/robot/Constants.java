@@ -89,6 +89,8 @@ public class Constants {
         public static final double InvalidAngle = -361;
         public static final double NoTargetDistance = -1;
 
+        public static final double AutoAlignVelocityConstant = 3; 
+
         public static final int[] blueAprilTagListReef = {17, 18, 19, 20, 21, 22};
         public static final int[] redAprilTagListReef = {6, 7, 8, 9, 10, 11};
 

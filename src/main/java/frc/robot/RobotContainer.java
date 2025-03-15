@@ -49,7 +49,6 @@ import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
-import frc.robot.commands.LockWheels;
 import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
@@ -834,9 +833,9 @@ public RobotContainer(Robot robot) {
         double sliderInput = -driverController.getThrottle();
         double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
 
-        swerveRequest.VelocityX*=3*maxVelocityMultiplier;
-        swerveRequest.VelocityY*=3*maxVelocityMultiplier;
-        swerveRequest.RotationalRate*=3*maxVelocityMultiplier;
+        swerveRequest.VelocityX*=Constants.VisionConstants.AutoAlignVelocityConstant*maxVelocityMultiplier;
+        swerveRequest.VelocityY*=Constants.VisionConstants.AutoAlignVelocityConstant*maxVelocityMultiplier;
+        swerveRequest.RotationalRate*=Constants.VisionConstants.AutoAlignVelocityConstant*maxVelocityMultiplier;
 
 
         return driveSub.applyRequest(() -> swerveRequest).until(() -> 
