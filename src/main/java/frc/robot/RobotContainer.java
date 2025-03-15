@@ -460,9 +460,14 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to multiply by -1
+            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            }
             return nudge.withSpeeds(nudgeSpeeds);}));;
 
         rightPovButton = new POVButton(driverController, 90);
@@ -473,9 +478,14 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to not multiply by -1
+            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            }
             return nudge.withSpeeds(nudgeSpeeds);}));
         
         upPovButton = new POVButton(driverController, 0);
@@ -486,9 +496,14 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to multiply by -1
+            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0); 
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(0.0, -vel, 0.0);
+            }
             return nudge.withSpeeds(nudgeSpeeds);}));
         
         downPovButton = new POVButton(driverController, 180);
@@ -499,9 +514,14 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might not need to multiply by -1
+            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(0.0, -vel, 0.0);
+            }
             return nudge.withSpeeds(nudgeSpeeds);}));
     }
 

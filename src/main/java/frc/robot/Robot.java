@@ -94,6 +94,10 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("vision/differenceInPosition", Units.metersToFeet(Math.abs(robotContainer.driveSub.getPose().getX()- robotContainer.reefAutoTargetPose.getX())));
     Logger.recordOutput("vision/reefAutoTargetPose", robotContainer.reefAutoTargetPose);
 
+    
+    Logger.recordOutput("Arm/CurrentState", robotContainer.armState.getCurrentState());
+    Logger.recordOutput("Arm/DesiredState", robotContainer.armState.getTargetState());
+
 
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
@@ -204,6 +208,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
+
     // if (pathRecounter % 10 == 0) {
       if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
         if ( selectedAutoCommand != null) {
@@ -246,6 +251,7 @@ public class Robot extends LoggedRobot {
             
       // }
     // }
+
 
 }
 
