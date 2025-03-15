@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.ArmStateManager;
@@ -101,7 +102,6 @@ private final ScoreCoral scoreCoralCmd;
 private final RemoveAlgae removeAlgaeCmd;
 
 private final DoClimb startClimbingCmd;
-private final LockWheels lockWheelsCmd;
 
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
@@ -147,6 +147,7 @@ private POVButton leftPovButton;
 private POVButton rightPovButton;
 private POVButton upPovButton;
 private POVButton downPovButton;
+private POVButton brakePovButton;
 
 private Trigger lockWheelsButton;
 
@@ -177,6 +178,7 @@ private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric(
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
 // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
 public RobotContainer(Robot robot) {
@@ -214,14 +216,13 @@ public RobotContainer(Robot robot) {
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
     startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
-    lockWheelsCmd = new LockWheels(driveSub);
 
     goToRight = false;
     // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
     // Dispatch Thread
     // SwingUtilities.invokeLater(() -> { robotController = new
     // RobotController(communicator);
-    // SwingUtilities.invokeLater(() -> {
+    // SwingUtilities.invokeLater(() ->{
     // robotController = new RobotController(communicator);
     // JFrame frame = new JFrame("Robot Controller");
     // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -297,7 +298,7 @@ public RobotContainer(Robot robot) {
                     // double povInput = driverController.getPOV();
 
                     // Logger.recordOutput("Drive/povInput", povInput);
-
+ 
                     // double nudgeVelX = 0;
                     // double nudgeVelY = 0;
                     // if (Math.abs(povInput-90.0) > 10) { // within tolerance of right pov
@@ -349,8 +350,8 @@ public RobotContainer(Robot robot) {
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
-        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
-        lockWheelsButton.onTrue(lockWheelsCmd);
+        lockWheelsButton = new JoystickButton(driverController, LogitechDAConstants.ButtonB);
+        lockWheelsButton.onTrue(new InstantCommand(() -> lockWheels())).onFalse(Commands.none());
 
         // moveToCoralButton = new JoystickButton(driverController,
         // LogitechExtreme3DConstants.Button8);
@@ -447,6 +448,10 @@ public RobotContainer(Robot robot) {
 
     }
 
+    protected Command lockWheels() {
+        return driveSub.applyRequest(SwerveRequest.SwerveDriveBrake::new).withName("Swerve.Xbrake");
+    }
+
     private void drivePovBindings() {
         leftPovButton = new POVButton(driverController, 270);
         leftPovButton.whileTrue(driveSub.applyRequest(() -> {
@@ -459,7 +464,7 @@ public RobotContainer(Robot robot) {
             double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to multiply by -1
             Logger.recordOutput("Drive/nudgeVelocity", vel);
             ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
-            return nudge.withSpeeds(nudgeSpeeds);}));
+            return nudge.withSpeeds(nudgeSpeeds);}));;
 
         rightPovButton = new POVButton(driverController, 90);
         rightPovButton.whileTrue(driveSub.applyRequest(() -> {
