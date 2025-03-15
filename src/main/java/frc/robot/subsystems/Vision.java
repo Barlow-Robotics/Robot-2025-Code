@@ -224,14 +224,6 @@ public class Vision extends SubsystemBase {
 
     public void periodic() {
 
-        // TODO: feed this pose estimate back to the combined pose estimator in drive
-        // setLayoutOrigin();
-        // Find all the results from the tracking camera
-        // var tracking_result = getLatestTrackingResult();
-
-        // Update the current bestAlignTarget based on the chosen target
-        currentBestAlignTarget = null;
-
         if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
             Pose2d currentPose = driveSub.getPose();
             updateVisionLocalization(currentPose);

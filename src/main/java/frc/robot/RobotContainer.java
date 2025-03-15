@@ -8,6 +8,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
@@ -22,6 +23,7 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -126,6 +128,7 @@ private Trigger moveToLevel2Button;
 private Trigger moveToLevel3Button;
 private Trigger moveToLevel4Button;
 private Trigger moveToLoadCoralButton ;
+
 // private Trigger moveToAlgaeButton;
 private Trigger removeAlgaeButton;
 
@@ -316,6 +319,7 @@ public RobotContainer(Robot robot) {
         // autoChooser = AutoBuilder.buildAutoChooser("Tests");
         // SmartDashboard.putData("Auto Mode", autoChooser);
         configurePathPlanner();
+
     }
 
     // public void stop() {
@@ -616,7 +620,7 @@ public RobotContainer(Robot robot) {
                 return null;
             }
         }
-        return setUpPathplannerOTF(usingVision, drivePose, targetX, targetY, targetZ);
+        return setUpPathplannerOTF(usingVision, drivePose, targetX, targetY, targetZ, true);
     }
 
     // public void changeCoralVision(boolean val) {
@@ -692,7 +696,7 @@ public RobotContainer(Robot robot) {
     }
 
     public Command setUpPathplannerOTF(boolean usingVision, Pose2d drivePose, double targetX, double targetY,
-            double targetZ) {
+            double targetZ, boolean usingManualAuto) {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
         PathConstraints constraints = new PathConstraints(1.5,2.0, 6 * Math.PI, 12 * Math.PI); // The constraints for
@@ -774,28 +778,35 @@ public RobotContainer(Robot robot) {
             //         finalPoseOfAprilTagId.getY() + (Constants.FieldConstants.reefOffsetMeters
             //                 * (sideOfReef * Math.cos(radianRobot))) + Constants.DriveConstants.distanceToFrontOfRobot*Math.sin(radianRobot),
             //         new Rotation2d(radianRobot + Math.PI));
-            var waypoints = PathPlannerPath.waypointsFromPoses(
-                    new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
-                    // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) //
-                    // vision AprilTag Detection
-                    reefAutoTargetPose
-            // new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 *
-            // (Constants.DriveConstants.WheelBase),
-            // finalPose?OfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef),
-            // new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
-            );
 
-            PathPlannerPath path = new PathPlannerPath(
-                    waypoints,
-                    constraints,
-                    null,
-                    new GoalEndState(0.0, reefAutoTargetPose.getRotation()));
-            
-            if (path.getAllPathPoints().size() < 2) { // If the path is broken (only 1 point), prevents crashing.
-                return Commands.none();
+            if (usingManualAuto) {
+                pathfindingCommand = manualPathing(reefAutoTargetPose);
             }
+            else {
 
-            pathfindingCommand = AutoBuilder.followPath(path);
+                var waypoints = PathPlannerPath.waypointsFromPoses(
+                        new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
+                        // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) //
+                        // vision AprilTag Detection
+                        reefAutoTargetPose
+                // new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 *
+                // (Constants.DriveConstants.WheelBase),
+                // finalPose?OfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef),
+                // new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
+                );
+
+                PathPlannerPath path = new PathPlannerPath(
+                        waypoints,
+                        constraints,
+                        null,
+                        new GoalEndState(0.0, reefAutoTargetPose.getRotation()));
+                
+                if (path.getAllPathPoints().size() < 2) { // If the path is broken (only 1 point), prevents crashing.
+                    return Commands.none();
+                }
+
+                pathfindingCommand = AutoBuilder.followPath(path);
+            }
         }
         Logger.recordOutput("finalPoseOfTargetAprilTag", reefAutoTargetPose);
 
@@ -803,8 +814,30 @@ public RobotContainer(Robot robot) {
     }
 
 
-    public void manualPathing(Pose2d currentPose, Pose2d targetPose) {
+    public Command manualPathing(Pose2d targetPose) {
 
+        Translation2d translationDelta = (driveSub.getPose().getTranslation()).minus(targetPose.getTranslation());
+        // System.out.println(translationDelta);
+        double rotationDelta = targetPose.getRotation().minus(driveSub.getPose().getRotation()).getRadians();
+
+        FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
+            .withVelocityX(translationDelta.getX()) 
+            .withVelocityY(translationDelta.getY())
+            .withRotationalRate(rotationDelta)
+            ;
+
+        double sliderInput = -driverController.getThrottle();
+        double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+
+        swerveRequest.VelocityX*=3*maxVelocityMultiplier;
+        swerveRequest.VelocityY*=3*maxVelocityMultiplier;
+        swerveRequest.RotationalRate*=3*maxVelocityMultiplier;
+
+
+        return driveSub.applyRequest(() -> swerveRequest).until(() -> 
+            driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.05 &&
+            Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()) < 0.01
+        );
     }
 
 }
