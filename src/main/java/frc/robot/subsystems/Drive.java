@@ -394,7 +394,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
 
             // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2), getFullCommand(finalPath_2));
         // 
-            return Commands.sequence(getFullCommand(finalPath), new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
+            return Commands.sequence(getFullCommandWithReset(finalPath), new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
 
             // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new WaitCommand(1), /*sequentalCommand1.asProxy(), sequentalCommand1.asProxy(),*/ new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
 
@@ -407,9 +407,13 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     }
 
 
-    private Command getFullCommand(PathPlannerPath finalPath) {
+    private Command getFullCommandWithReset(PathPlannerPath finalPath) {
         return AutoBuilder.followPath(finalPath).alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
     }
+    private Command getFullCommand(PathPlannerPath finalPath) {
+        return AutoBuilder.followPath(finalPath);
+    }
+
 
     
     public Command ChoreoAutoWithoutReset(String name) {
