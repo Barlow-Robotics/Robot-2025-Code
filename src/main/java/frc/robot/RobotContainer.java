@@ -8,6 +8,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
@@ -18,11 +19,11 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -47,7 +48,6 @@ import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
-import frc.robot.commands.LockWheels;
 import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
@@ -100,7 +100,6 @@ private final ScoreCoral scoreCoralCmd;
 private final RemoveAlgae removeAlgaeCmd;
 
 private final DoClimb startClimbingCmd;
-private final LockWheels lockWheelsCmd;
 
 /* CONTROLLERS */
 /* private */ static Joystick driverController;
@@ -120,9 +119,6 @@ private Trigger resetOdometryToVision;
 // private Trigger LEDHumanSourceButton;
 // private Trigger LEDHumanFloorButton;
 
-private Trigger shootIntakeButton; // trigger
-private Trigger reverseFloorIntakeButton; // driver button 7
-
 // private Trigger moveToHomeButton;
 private Trigger moveToTravellingButton;
 private Trigger moveToLevel1Button;
@@ -130,6 +126,7 @@ private Trigger moveToLevel2Button;
 private Trigger moveToLevel3Button;
 private Trigger moveToLevel4Button;
 private Trigger moveToLoadCoralButton ;
+
 // private Trigger moveToAlgaeButton;
 private Trigger removeAlgaeButton;
 
@@ -142,13 +139,13 @@ private Trigger retractIntakeButton;
 private Trigger autoAlignAlgaeButton;
 private Trigger autoAlignAlgaeButton_2;
 
-private Trigger runGripperButton;
 private Trigger scoreCoralButton;
 
 private POVButton leftPovButton;
 private POVButton rightPovButton;
 private POVButton upPovButton;
 private POVButton downPovButton;
+private POVButton brakePovButton;
 
 private Trigger lockWheelsButton;
 
@@ -156,8 +153,8 @@ private Trigger disableVisionButton;
 private Trigger enableVisionButton;
 
 /* PID */
-private PIDController noteYawPID;
-private PIDController targetYawPID;
+// private PIDController noteYawPID;
+// private PIDController targetYawPID;
 
 /* AUTO */
 private SendableChooser<Command> autoChooser;
@@ -171,14 +168,14 @@ public Pose2d reefAutoTargetPose = new Pose2d();
 private final LinearFilter xVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 private final LinearFilter yVelFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 private final LinearFilter twistFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
-private final LinearFilter sliderFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
+// private final LinearFilter sliderFilter = LinearFilter.singlePoleIIR(0.1, 0.02);
 
 private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1)
         .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
-private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
 public RobotContainer(Robot robot) {
@@ -216,31 +213,30 @@ public RobotContainer(Robot robot) {
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
     startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
-    lockWheelsCmd = new LockWheels(driveSub);
 
     goToRight = false;
     // communicator = new RobotCommunicator(); // Initialize GUI on the Swing Event
     // Dispatch Thread
     // SwingUtilities.invokeLater(() -> { robotController = new
     // RobotController(communicator);
-    // SwingUtilities.invokeLater(() -> {
+    // SwingUtilities.invokeLater(() ->{
     // robotController = new RobotController(communicator);
     // JFrame frame = new JFrame("Robot Controller");
     // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     // frame.add(robotController); frame.pack(); frame.setVisible(true);
     // });
     moveToCoral = false;
-    noteYawPID = new PIDController(
-            DriveConstants.YawOverrideAlignNoteKP,
-            DriveConstants.YawOverrideAlignNoteKI,
-            DriveConstants.YawOverrideAlignNoteKD);
-    noteYawPID.setSetpoint(0.0);
+    // noteYawPID = new PIDController(
+    //         DriveConstants.YawOverrideAlignNoteKP,
+    //         DriveConstants.YawOverrideAlignNoteKI,
+    //         DriveConstants.YawOverrideAlignNoteKD);
+    // noteYawPID.setSetpoint(0.0);
 
-    targetYawPID = new PIDController(
-            DriveConstants.TargetYawOverrideAlignNoteKP,
-            DriveConstants.TargetYawOverrideAlignNoteKI,
-            DriveConstants.TargetYawOverrideAlignNoteKD);
-    targetYawPID.setSetpoint(0.0);
+    // targetYawPID = new PIDController(
+    //         DriveConstants.TargetYawOverrideAlignNoteKP,
+    //         DriveConstants.TargetYawOverrideAlignNoteKI,
+    //         DriveConstants.TargetYawOverrideAlignNoteKD);
+    // targetYawPID.setSetpoint(0.0);
 
     configureBindings();
 
@@ -299,7 +295,7 @@ public RobotContainer(Robot robot) {
                     // double povInput = driverController.getPOV();
 
                     // Logger.recordOutput("Drive/povInput", povInput);
-
+ 
                     // double nudgeVelX = 0;
                     // double nudgeVelY = 0;
                     // if (Math.abs(povInput-90.0) > 10) { // within tolerance of right pov
@@ -315,10 +311,13 @@ public RobotContainer(Robot robot) {
                     // ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(nudgeVelX, nudgeVelY, 0.0);
                     // return nudge.withSpeeds(nudgeSpeeds);
                 }));
+
+                
         configureAutoBuilder();
         // autoChooser = AutoBuilder.buildAutoChooser("Tests");
         // SmartDashboard.putData("Auto Mode", autoChooser);
         configurePathPlanner();
+
     }
 
     // public void stop() {
@@ -348,8 +347,8 @@ public RobotContainer(Robot robot) {
         resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
-        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
-        lockWheelsButton.onTrue(lockWheelsCmd);
+        lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
+        lockWheelsButton.whileTrue(driveSub.applyRequest( ()->brake));
 
         // moveToCoralButton = new JoystickButton(driverController,
         // LogitechExtreme3DConstants.Button8);
@@ -446,6 +445,8 @@ public RobotContainer(Robot robot) {
 
     }
 
+    
+
     private void drivePovBindings() {
         leftPovButton = new POVButton(driverController, 270);
         leftPovButton.whileTrue(driveSub.applyRequest(() -> {
@@ -455,10 +456,15 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to multiply by -1
+            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
-            return nudge.withSpeeds(nudgeSpeeds);}));
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            }
+            return nudge.withSpeeds(nudgeSpeeds);}));;
 
         rightPovButton = new POVButton(driverController, 90);
         rightPovButton.whileTrue(driveSub.applyRequest(() -> {
@@ -468,9 +474,14 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to not multiply by -1
+            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(0.0, vel, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            }
             return nudge.withSpeeds(nudgeSpeeds);}));
         
         upPovButton = new POVButton(driverController, 0);
@@ -481,9 +492,14 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might need to multiply by -1
+            double vel = DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0); 
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(0.0, -vel, 0.0);
+            }
             return nudge.withSpeeds(nudgeSpeeds);}));
         
         downPovButton = new POVButton(driverController, 180);
@@ -494,9 +510,14 @@ public RobotContainer(Robot robot) {
             Logger.recordOutput("Drive/sliderInput", sliderInput);
             // Converts from old range (1 to -1) to desired range (1 to 0.4, 4.5 m/s to 1.8 m/s)
             double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier; // might not need to multiply by -1
+            double vel = -1 * DriveConstants.NudgeSpeed / maxVelocityMultiplier;
             Logger.recordOutput("Drive/nudgeVelocity", vel);
-            ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            ChassisSpeeds nudgeSpeeds;
+            if(armState.getCurrentState() != ArmState.Climb) {
+                nudgeSpeeds = new ChassisSpeeds(vel, 0.0, 0.0);
+            } else {
+                nudgeSpeeds = new ChassisSpeeds(0.0, -vel, 0.0);
+            }
             return nudge.withSpeeds(nudgeSpeeds);}));
     }
 
@@ -533,7 +554,6 @@ public RobotContainer(Robot robot) {
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
         SmartDashboard.putData("Selected Auto", autoChooser);
-
         autoChooser.addOption("Top 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 3 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Bottom 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 2 Coral"), Set.of(driveSub)));
         autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
@@ -549,8 +569,10 @@ public RobotContainer(Robot robot) {
         autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
         autoChooser.addOption("[TEST] Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
-        autoChooser.addOption("2_Coral_BlueBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
-        autoChooser.addOption("2_Coral_RedBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
+        // SequentialCommandGroup commandGroup1 = new SequentialCommandGroup(new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub));
+
+        autoChooser.addOption("2_Coral_BlueBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_RedBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
 
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
@@ -562,16 +584,16 @@ public RobotContainer(Robot robot) {
 
         PathPlannerLogging.setLogCurrentPoseCallback(
                 (currentPose) -> {
-                    Logger.recordOutput("Odometry/CurrentPose", currentPose);
+                    Logger.recordOutput("Auto/CurrentPose", currentPose);
                 });
         PathPlannerLogging.setLogActivePathCallback(
                 (activePath) -> {
                     Logger.recordOutput(
-                            "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+                            "Auto/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
                 });
         PathPlannerLogging.setLogTargetPoseCallback(
                 (targetPose) -> {
-                    Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+                    Logger.recordOutput("Auto/TrajectorySetpoint", targetPose);
                 });
 
         // Logger.recordOutput(, nu);
@@ -618,7 +640,7 @@ public RobotContainer(Robot robot) {
                 return null;
             }
         }
-        return setUpPathplannerOTF(usingVision, drivePose, targetX, targetY, targetZ);
+        return setUpPathplannerOTF(usingVision, drivePose, targetX, targetY, targetZ, true);
     }
 
     // public void changeCoralVision(boolean val) {
@@ -694,7 +716,7 @@ public RobotContainer(Robot robot) {
     }
 
     public Command setUpPathplannerOTF(boolean usingVision, Pose2d drivePose, double targetX, double targetY,
-            double targetZ) {
+            double targetZ, boolean usingManualAuto) {
         Command pathfindingCommand = null;
         double sideOfReef = -1;
         PathConstraints constraints = new PathConstraints(1.5,2.0, 6 * Math.PI, 12 * Math.PI); // The constraints for
@@ -776,32 +798,66 @@ public RobotContainer(Robot robot) {
             //         finalPoseOfAprilTagId.getY() + (Constants.FieldConstants.reefOffsetMeters
             //                 * (sideOfReef * Math.cos(radianRobot))) + Constants.DriveConstants.distanceToFrontOfRobot*Math.sin(radianRobot),
             //         new Rotation2d(radianRobot + Math.PI));
-            var waypoints = PathPlannerPath.waypointsFromPoses(
-                    new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
-                    // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) //
-                    // vision AprilTag Detection
-                    reefAutoTargetPose
-            // new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 *
-            // (Constants.DriveConstants.WheelBase),
-            // finalPose?OfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef),
-            // new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
-            );
 
-            PathPlannerPath path = new PathPlannerPath(
-                    waypoints,
-                    constraints,
-                    null,
-                    new GoalEndState(0.0, reefAutoTargetPose.getRotation()));
-            
-            if (path.getAllPathPoints().size() < 2) { // If the path is broken (only 1 point), prevents crashing.
-                return Commands.none();
+            if (usingManualAuto) {
+                pathfindingCommand = manualPathing(reefAutoTargetPose);
             }
+            else {
 
-            pathfindingCommand = AutoBuilder.followPath(path);
+                var waypoints = PathPlannerPath.waypointsFromPoses(
+                        new Pose2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation()),
+                        // new Pose2d(drivePose.getX()+targetX, drivePose.getY()+targetY, test2) //
+                        // vision AprilTag Detection
+                        reefAutoTargetPose
+                // new Pose2d(finalPoseOfAprilTagId.getX()-0.025406 *
+                // (Constants.DriveConstants.WheelBase),
+                // finalPose?OfAprilTagId.getY()+(Constants.FieldConstants.reefOffsetMeters*sideOfReef),
+                // new Rotation2d(finalPoseOfAprilTagId.getRotation().toRotation2d().getRadians()+Math.PI))
+                );
+
+                PathPlannerPath path = new PathPlannerPath(
+                        waypoints,
+                        constraints,
+                        null,
+                        new GoalEndState(0.0, reefAutoTargetPose.getRotation()));
+                
+                if (path.getAllPathPoints().size() < 2) { // If the path is broken (only 1 point), prevents crashing.
+                    return Commands.none();
+                }
+
+                pathfindingCommand = AutoBuilder.followPath(path);
+            }
         }
         Logger.recordOutput("finalPoseOfTargetAprilTag", reefAutoTargetPose);
 
         return pathfindingCommand;
+    }
+
+
+    public Command manualPathing(Pose2d targetPose) {
+
+        Translation2d translationDelta = (driveSub.getPose().getTranslation()).minus(targetPose.getTranslation());
+        // System.out.println(translationDelta);
+        double rotationDelta = targetPose.getRotation().minus(driveSub.getPose().getRotation()).getRadians();
+
+        FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
+            .withVelocityX(translationDelta.getX()) 
+            .withVelocityY(translationDelta.getY())
+            .withRotationalRate(rotationDelta)
+            ;
+
+        double sliderInput = -driverController.getThrottle();
+        double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+
+        swerveRequest.VelocityX*=Constants.VisionConstants.AutoAlignVelocityConstant*maxVelocityMultiplier;
+        swerveRequest.VelocityY*=Constants.VisionConstants.AutoAlignVelocityConstant*maxVelocityMultiplier;
+        swerveRequest.RotationalRate*=Constants.VisionConstants.AutoAlignVelocityConstant*maxVelocityMultiplier;
+
+
+        return driveSub.applyRequest(() -> swerveRequest).until(() -> 
+            driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.05 &&
+            Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()) < 0.01
+        );
     }
 
 }

@@ -72,9 +72,9 @@ public class ScoreCoral extends Command {
                 new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist) 
             ) ;
         } else if (currentState == ArmState.Level2) {
-            currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
+            currentCommand = createL234ScoreCommand(0, -7.0, -30) ;
         } else if (currentState == ArmState.Level3) {
-            currentCommand = createL234ScoreCommand(0, -6.0, -30) ;
+            currentCommand = createL234ScoreCommand(0, -7.0, -30) ;
         } else if (currentState == ArmState.Level4){
             currentCommand = createL234ScoreCommand(0, -4.0, -30) ;
         } else {

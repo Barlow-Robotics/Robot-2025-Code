@@ -6,13 +6,12 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.subsystems.ArmState;
 import frc.robot.subsystems.Elevator;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class CalibrateElevator extends Command {
 
-    private Elevator theElevator;
+    private final Elevator theElevator;
     // private ArmStateManager armStateManager;
 
     public CalibrateElevator(Elevator e /*, ArmStateManager a*/) {

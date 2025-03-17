@@ -79,7 +79,7 @@ public class PositionGripper extends Command {
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 0, 45, 90, 0.0));
-        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 10.0, 55, 0, 0));
+        positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 8.0, 55, 0, 0));
         positionDictionary.put(ArmState.Level3, new ArmStateParameters(9.0, 15, 55, 0,0));
         positionDictionary.put(ArmState.Level4, new ArmStateParameters(27.65, 21.137, 48.34, 0, 0));
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 16, -75, 0, 0));

@@ -94,6 +94,10 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("vision/differenceInPosition", Units.metersToFeet(Math.abs(robotContainer.driveSub.getPose().getX()- robotContainer.reefAutoTargetPose.getX())));
     Logger.recordOutput("vision/reefAutoTargetPose", robotContainer.reefAutoTargetPose);
 
+    
+    Logger.recordOutput("Arm/CurrentState", robotContainer.armState.getCurrentState());
+    Logger.recordOutput("Arm/DesiredState", robotContainer.armState.getTargetState());
+
 
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
@@ -204,21 +208,30 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
+
     // if (pathRecounter % 10 == 0) {
       if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-        if (currentTeleopCommand == null) {
-          selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
+        if ( selectedAutoCommand != null) {
+          selectedAutoCommand.cancel();
         }
+        selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
+        currentTeleopCommand = selectedAutoCommand;
+        CommandScheduler.getInstance().schedule(selectedAutoCommand);
+        currentlyFollowingAPath = true;
+
         
-        if (!currentlyFollowingAPath && selectedAutoCommand != null) {
-            currentlyFollowingAPath = true;
-            currentTeleopCommand = selectedAutoCommand;
-            if (!selectedAutoCommand.getRequirements().isEmpty()) {
-            CommandScheduler.getInstance().schedule(selectedAutoCommand);
-            }
-        }
-      } 
-      else { // If the button is NOT pressed, cancel the path
+        // if (currentTeleopCommand == null) {
+        // }
+        
+      //   if (!currentlyFollowingAPath && selectedAutoCommand != null) {
+      //       currentlyFollowingAPath = true;
+      //       currentTeleopCommand = selectedAutoCommand;
+      //       if (!selectedAutoCommand.getRequirements().isEmpty()) {
+      //       CommandScheduler.getInstance().schedule(selectedAutoCommand);
+      //       }
+      //   }
+      // } 
+      } else { // If the button is NOT pressed, cancel the path
           if (currentlyFollowingAPath && currentTeleopCommand != null) {
               currentTeleopCommand.cancel();
               selectedAutoCommand = null;
@@ -227,16 +240,18 @@ public class Robot extends LoggedRobot {
           }
       }
 
-      if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
-          currentlyFollowingAPath = false;
-          if (currentTeleopCommand != null) {
-            currentTeleopCommand.cancel();
-            selectedAutoCommand = null;
-            currentTeleopCommand = null;
+      // if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
+      //     currentlyFollowingAPath = false;
+      //     if (currentTeleopCommand != null) {
+      //       currentTeleopCommand.cancel();
+      //       selectedAutoCommand = null;
+      //       currentTeleopCommand = null;
 
-          }
-      }
+      //     }
+            
+      // }
     // }
+
 
 }
 

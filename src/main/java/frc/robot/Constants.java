@@ -44,8 +44,9 @@ public class Constants {
     /***************************************************************************/
     public static final class VisionConstants {
         public static final int CameraLightID = 0; // NEED TO FIX/CHANGE
-        public static final String PoseCameraName = "Climb_Camera";
-        public static final String TargetCameraName = "Reef_Camera";
+        public static final String ClimbCameraName = "Climb_Camera";
+        public static final String ElevatorCameraName = "Reef_Camera";
+        public static final String RightClimbCamName = "";
 
         public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
@@ -53,16 +54,25 @@ public class Constants {
         // Cam mounted facing forward, half a meter forward of center, half a meter up
         // from center.
         // NEED TO FIX: wpk need to update these to be more exact.
-        public static final Transform3d PoseCameraToRobot = new Transform3d(
+        public static final Transform3d ClimbCameraToRobot = new Transform3d(
                 new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-12.625), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+2.5), Units.inchesToMeters(13.125)),
                 new Rotation3d(0, Units.degreesToRadians(0), 0));
-        public static final Transform3d RobotToPoseCamera = PoseCameraToRobot.inverse();
+        public static final Transform3d RobotToClimbCamera = ClimbCameraToRobot.inverse();
 
-        public static final Transform3d TargetCamToRobot = 
+        public static final Transform3d ElevatorCamToRobot = 
                 new Transform3d(
                     new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-2.5), Units.inchesToMeters(DriveConstants.TotalWidth/2-9.25), Units.inchesToMeters(12.625)), 
                     new Rotation3d(0, Units.degreesToRadians(0), 0));
-        public static final Transform3d RobotToTargetCam = TargetCamToRobot.inverse();
+        public static final Transform3d RobotToElevatorCam = ElevatorCamToRobot.inverse();
+
+        public static final Transform3d RightClimbCamToRobot = 
+                new Transform3d(
+                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-2.5), Units.inchesToMeters(DriveConstants.TotalWidth/2-9.25), Units.inchesToMeters(12.625)), 
+                    new Rotation3d(0, Units.degreesToRadians(0), 0)); //  NEED TO FIX. 
+        public static final Transform3d RobotToRightClimbCam = RightClimbCamToRobot.inverse();
+
+
+        
 
         // // The layout of the AprilTags on the field
         public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025ReefscapeAndyMark
@@ -75,11 +85,11 @@ public class Constants {
         public static final Matrix<N3, N1> MultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
         // constants for vision-calculated speaker shooting - LMT
-        public static final int RedSpeakerCenterAprilTagID = 4;
-        public static final int BlueSpeakerCenterAprilTagID = 7;
         public static final int NullAprilTagID = -1;
         public static final double InvalidAngle = -361;
         public static final double NoTargetDistance = -1;
+
+        public static final double AutoAlignVelocityConstant = 3; 
 
         public static final int[] blueAprilTagListReef = {17, 18, 19, 20, 21, 22};
         public static final int[] redAprilTagListReef = {6, 7, 8, 9, 10, 11};
@@ -276,7 +286,7 @@ public class Constants {
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleKV2 = 10.0; // CHANGE
+        public static final double ArmAngleKV2 = 9.0; // CHANGE
         public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleKV2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
         public static final double ArmAngleKG2 = 0.25;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
@@ -296,11 +306,11 @@ public class Constants {
         public static TuneableParameter ElevatorKI = new TuneableParameter(ElevatorKI2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKI");
         public static final double ElevatorKD2 =/*testing*/0.3; // 0.2; // CHANGE
         public static TuneableParameter ElevatorKD = new TuneableParameter(ElevatorKD2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorKD");
-        public static final double ElevatorKV2 =/*testing*/0.26; // 0.0; // CHANGE
+        public static final double ElevatorKV2 =/*testing*/0.135; // 0.0; // CHANGE
         public static TuneableParameter ElevatorKV = new TuneableParameter(ElevatorKV2, 0, 1, true, "TuneableParameter/Arm/PID/ElevatorFF");
-        public static final double ElevatorKG2 =/*testing*/0.2; // 2.7; // CHANGE
+        public static final double ElevatorKG2 =/*testing*/0.12; // 2.7; // CHANGE
         public static TuneableParameter ElevatorKG = new TuneableParameter(ElevatorKG2, 0, 3, true, "TuneableParameter/Arm/PID/ElevatorKG");
-        public static final double ElevatorKS2 =/*testing*/0.1; // 0; // CHANGE
+        public static final double ElevatorKS2 =/*testing*/0.05; // 0; // CHANGE
         public static TuneableParameter ElevatorKS = new TuneableParameter(ElevatorKS2, 0,1, true, "TuneableParameter/Arm/PID/ElevatorKS");
         public static final double ElevatorGearRatio = 5;//15;
         // public static final double ElevatorSprocketDiameter = 2.36; // inches // CHANGE
@@ -365,7 +375,7 @@ public class Constants {
         /* WRIST */
 
         public static final double WristAngleCANcoderMagnetOffset = -0.219971;// old (not sure where this came from): 0.48583;
-        public static final double WristAngleGearRatio = 12;
+        public static final double WristAngleGearRatio = 20;
         public static final double WristAngleDegreesPerMotorRotation = 360.0 / WristAngleGearRatio;
 
         public static final double WristKP2 =/*testing*/0; // 2; // CHANGE

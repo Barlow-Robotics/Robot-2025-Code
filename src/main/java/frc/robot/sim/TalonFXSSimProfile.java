@@ -2,7 +2,6 @@ package frc.robot.sim;
 
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.sim.TalonFXSSimState;
-import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;

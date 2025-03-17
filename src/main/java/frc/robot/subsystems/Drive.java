@@ -339,27 +339,26 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
 
     public Command ChoreoAuto(String name) {
         try {
-                PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
-                PathPlannerPath finalPath;
-                
-                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-                    finalPath = originalPath.flipPath();
-                }
-                else {
-                    finalPath = originalPath;
-                }
-            
-            
-                return AutoBuilder.followPath(finalPath).alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
+            PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
+            PathPlannerPath finalPath;
+
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                finalPath = originalPath.flipPath();
+            } else {
+                finalPath = originalPath;
+            }
+
+            return AutoBuilder.followPath(finalPath)
+                    .alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
         } catch (IOException e) {
-                e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+            e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
         } catch (ParseException e) {
-                e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+            e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
         }
         return Commands.none();
-        }
+    }
 
-    public Command CustomChoreoAuto(String name, boolean mirror) {
+    public Command CustomChoreoAuto(String name, boolean mirror/*, SequentialCommandGroup sequentalCommand1*/) {
         try {
             PathPlannerPath originalPath;
             PathPlannerPath originalPath_2;
@@ -391,10 +390,13 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                 finalPath_2 = originalPath_2;
                 finalPath_3 = originalPath_3;
             }
+            
 
             // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2), getFullCommand(finalPath_2));
         // 
             return Commands.sequence(getFullCommand(finalPath), new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
+
+            // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new WaitCommand(1), /*sequentalCommand1.asProxy(), sequentalCommand1.asProxy(),*/ new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
 
         } catch (IOException e) {
                 e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
@@ -433,7 +435,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         // Logger.recordOutput("Drive/PoseEstimate", poseEstimator.getEstimatedPosition());
         Logger.recordOutput("Drive/Heading", getState().RawHeading);
         Logger.recordOutput("Drive/Odometry/X", getPose().getX());
-        // Logger.recordOutput("Drive/Odometry/Y", odometry.getPoseMeters().getY());
+        Logger.recordOutput("Drive/Odometry/Y", getPose().getY());
         // Logger.recordOutput("Drive/CurrentSupply/FrontLeftDrive", frontLeft.getDriveCurrent());
         // Logger.recordOutput("Drive/CurrentSupply/FrontLeftTurn", frontLeft.getTurnCurrent());
         // Logger.recordOutput("Drive/CurrentSupply/FrontRightDrive", frontRight.getDriveCurrent());

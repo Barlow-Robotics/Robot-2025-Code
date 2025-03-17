@@ -86,13 +86,13 @@ public class DynamicPathPlanner extends Command {
     @Override
     public void execute() {
         i+=1;
-        if (noteIsVisible() == 1 && !autosModified && i >= 300 && isAutoFinished()) { // after 5 seconds do this
+        if (coralIsVisible() == 1 && !autosModified && i >= 300 && isAutoFinished()) { // after 5 seconds do this
             cancelAndScheduleCommandGroup();            
             modifyAutosBasedOnVision(autosToRemove, newAutoCaseNote);
             autosModified = true;
             scheduleCommandGroup();
         }
-        else if (!(noteIsVisible() == 1) && !autosModified && i >= 300 && isAutoFinished()) {
+        else if (!(coralIsVisible() == 1) && !autosModified && i >= 300 && isAutoFinished()) {
             cancelAndScheduleCommandGroup();            
             modifyAutosBasedOnVision(autosToRemove, newAutoCaseNoNote);
             autosModified = true;
@@ -140,7 +140,7 @@ public class DynamicPathPlanner extends Command {
     public boolean isAutoFinished() {            
         return !CommandScheduler.getInstance().isScheduled(commandGroup);   
     }
-    public static double noteIsVisible() {
+    public static double coralIsVisible() {
         return AutoConstants.coralIsVisible.get();
     }
 
