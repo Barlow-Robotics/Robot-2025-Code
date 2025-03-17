@@ -16,7 +16,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"8.05 m", "val":8.05}, "y":{"exp":"7.28 m", "val":7.28}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":46, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"7.05 m", "val":7.05}, "y":{"exp":"7.28 m", "val":7.28}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"6.05 m", "val":6.05}, "y":{"exp":"7.28 m", "val":7.28}, "heading":{"exp":"180 deg", "val":3.141592653589793}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
@@ -83,7 +83,5 @@
  },
  "events":[
    {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"setPositionTraveling"}}]}}},
-   {"name":"Marker", "from":{"target":1, "targetTimestamp":2.25139, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"parallel", "data":{"commands":[
-       {"type":"named", "data":{"name":"Wait_5"}}]}}}]
+       {"type":"named", "data":{"name":"setPositionTraveling"}}]}}}]
 }
