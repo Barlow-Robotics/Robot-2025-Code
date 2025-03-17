@@ -554,25 +554,27 @@ public RobotContainer(Robot robot) {
         autoChooser = AutoBuilder.buildAutoChooser(); // in order to remove autos, you must log into the roborio and
                                                       // delete them there
         SmartDashboard.putData("Selected Auto", autoChooser);
-        autoChooser.addOption("Top 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 3 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Bottom 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 2 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Right 1 Coral (Level3)", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral (Level3)"), Set.of(driveSub)));
-        autoChooser.addOption("Top Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Left 1 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Top 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 3 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Bottom 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 2 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Left from Bottom 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Bottom 1 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Right 1 Coral (Level3)", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral (Level3)"), Set.of(driveSub)));
+        // autoChooser.addOption("Top Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Left 1 Coral"), Set.of(driveSub)));
 
-        autoChooser.addOption("Bottom Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Left 1 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Top Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Right 1 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Bottom Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Right 1 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Top 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 2 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Bottom 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 3 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
-        autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
-        autoChooser.addOption("[TEST] Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Straight Line Path"), Set.of(driveSub)));
+        // autoChooser.addOption("Bottom Left 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Left 1 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Top Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top Right 1 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Bottom Right 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom Right 1 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Top 2 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Top 2 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Bottom 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 3 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
+        // autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
         // SequentialCommandGroup commandGroup1 = new SequentialCommandGroup(new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub));
 
-        autoChooser.addOption("2_Coral_BlueBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
-        autoChooser.addOption("2_Coral_RedBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
+
+        autoChooser.addOption("Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
+        autoChooser.addOption("Score L1 Path", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L1 Path"), Set.of(driveSub)));
+        autoChooser.addOption("Score L3 Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral (Level3)"), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_Broke_OtherBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
+        autoChooser.addOption("2_Coral_AllainceBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
 
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
