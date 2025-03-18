@@ -35,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -48,6 +47,7 @@ import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
 import frc.robot.commands.LoadCoralFromChute;
+import frc.robot.commands.MoveElevator;
 import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
@@ -569,7 +569,19 @@ public RobotContainer(Robot robot) {
         // autoChooser.addOption("Bottom 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 3 Coral"), Set.of(driveSub)));
         // autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         // autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
-        SequentialCommandGroup commandGroup1 = new SequentialCommandGroup(new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub));
+        Command commandGroup1 = Commands.sequence(
+            //wpk need to fix magic numbers
+            new InstantCommand(()-> gripperSub.startAlgaeRemoval() ) ,
+            // move the elevator up to strip the algae
+            new MoveElevator(elevatorSub, 
+                elevatorSub.getDesiredElevatorHeightInches() + 4,
+                Constants.ArmConstants.ElevatorAlgaeRemovalVelocity,
+                20.0, 
+                Constants.ArmConstants.CarriageAlgaeRemovalVelocity) ,
+            new InstantCommand(()-> gripperSub.stop() ) ,
+            new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub)
+            );
+        
 
 
         autoChooser.addOption("Leave Zone", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));

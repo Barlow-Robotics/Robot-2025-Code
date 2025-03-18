@@ -90,6 +90,5 @@
  },
  "events":[
    {"name":"Marker", "from":{"target":1, "targetTimestamp":0.46289, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
-       {"type":"named", "data":{"name":"setPositionTraveling"}},
        {"type":"named", "data":{"name":"setPositionLoadCoral"}}]}}}]
 }
