@@ -101,7 +101,5 @@
    {"name":"Marker", "from":{"target":1, "targetTimestamp":1.3873, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"setPositionCoralL1"}}]}}},
    {"name":"Marker", "from":{"target":2, "targetTimestamp":1.94392, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
-       {"type":"named", "data":{"name":"startOuttake"}},
-       {"type":"named", "data":{"name":"StartAlgaeOuttake"}},
-       {"type":"named", "data":{"name":"StartAlgaeOuttake"}}]}}}]
+       {"type":"named", "data":{"name":"startOuttakeWithoutTravelling"}}]}}}]
 }

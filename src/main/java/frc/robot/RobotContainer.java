@@ -35,7 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -51,6 +51,7 @@ import frc.robot.commands.LoadCoralFromChute;
 import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
 import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.ScoreCoralWithoutTravel;
 import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
@@ -97,6 +98,7 @@ private final StopAlgaeIntake stopAlgaeIntakeCmd;
 // private final StopGripper stopGripperCmd;
 
 private final ScoreCoral scoreCoralCmd;
+private final ScoreCoralWithoutTravel scoreCoralCmdWithoutTravelling;
 private final RemoveAlgae removeAlgaeCmd;
 
 private final DoClimb startClimbingCmd;
@@ -210,6 +212,7 @@ public RobotContainer(Robot robot) {
     // runGripperCmd = new StartIntakingWithGripper(gripperSub, armSub);
     // stopGripperCmd = new StopGripper(gripperSub);
     scoreCoralCmd = new ScoreCoral(armState, elevatorSub, armSub, wristSub, gripperSub);
+    scoreCoralCmdWithoutTravelling = new ScoreCoralWithoutTravel(armState, elevatorSub, armSub, wristSub, gripperSub);
     removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
     startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
@@ -544,10 +547,9 @@ public RobotContainer(Robot robot) {
 
         NamedCommands.registerCommand("setPositionLoadCoral", setArmPosLoadCoralCmd);
         NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
-        NamedCommands.registerCommand("StartAlgaeOuttake", setArmPosAlgaeCmd);
-        NamedCommands.registerCommand("1", new WaitCommand(1));
-        NamedCommands.registerCommand("5", new WaitCommand(5));
+        NamedCommands.registerCommand("startOuttakeWithoutTravelling", scoreCoralCmdWithoutTravelling);
 
+        // NamedCommands.registerCommand("StartAlgaeOuttake", setArmPosAlgaeCmd);
 
 
 
@@ -567,14 +569,14 @@ public RobotContainer(Robot robot) {
         // autoChooser.addOption("Bottom 3 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Bottom 3 Coral"), Set.of(driveSub)));
         // autoChooser.addOption("Left from Top 1 Coral", new DeferredCommand(() -> driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         // autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() -> driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
-        // SequentialCommandGroup commandGroup1 = new SequentialCommandGroup(new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub));
+        SequentialCommandGroup commandGroup1 = new SequentialCommandGroup(new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub));
 
 
         autoChooser.addOption("Leave Zone", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
         autoChooser.addOption("Score L1 Path", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L1 Path"), Set.of(driveSub)));
         autoChooser.addOption("Score L3 Path", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
         // autoChooser.addOption("2-Coral_Broke_OtherBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true), Set.of(driveSub)));
-        autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false), Set.of(driveSub)));
+        autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, commandGroup1), Set.of(driveSub)));
 
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
