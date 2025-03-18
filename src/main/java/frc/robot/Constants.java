@@ -15,7 +15,9 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -598,6 +600,11 @@ public class Constants {
         public static final double kPThetaController =/*testing*/0; // 1;
 
         public static final double MaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4; // default: 720 deg
+
+        // TODO: Base these on reef / arm geometry
+        public static final Transform2d AlgaeOffset = new Transform2d(0, 0, Rotation2d.kZero);
+        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(6), Rotation2d.kZero);
+        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-6), Rotation2d.kZero);
 
     }
 
