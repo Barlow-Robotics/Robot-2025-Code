@@ -224,7 +224,7 @@ public class Vision extends SubsystemBase {
 
     public void periodic() {
 
-        if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
+        if (!Robot.isSimulation() && !robot.isAutonomous() && (pathRecounter % 10 == 0) && !this.disabledVision) {
             Pose2d currentPose = driveSub.getPose();
             updateVisionLocalization(currentPose);
             // var photonEstimate = getEstimatedGlobalPose(currentPose, "elevatorCam");

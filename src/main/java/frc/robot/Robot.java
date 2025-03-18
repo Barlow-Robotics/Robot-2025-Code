@@ -11,7 +11,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.SignalLogger;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -31,14 +30,8 @@ import frc.robot.Constants.ElectronicsIDs;
 
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
-    private Command currentTeleopCommand;
 
     private final RobotContainer robotContainer;
-    boolean pathPlannerConfigured = false;
-    public boolean currentlyFollowingAPath = false;
-    Pose2d currentPose;
-    Command selectedAutoCommand;
-    private int pathRecounter = 0;
     private boolean calibrationPerformed = false;
 
     /***** MECHANISM 2D FOR ADVANTAGE SCOPE *****/
@@ -114,39 +107,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.disableSubsytems();
-    currentlyFollowingAPath = false;
-    if (currentTeleopCommand != null) {
-      currentTeleopCommand.cancel();
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-    }  
-
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
-    }
-    if (selectedAutoCommand != null) {
-      selectedAutoCommand.cancel();
-      currentlyFollowingAPath = false;
-      selectedAutoCommand = null;
-    }
-  }
-
-  @Override
-  public void disabledPeriodic() {
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-
-    }
-    if (selectedAutoCommand != null) {
-      selectedAutoCommand.cancel();
-      currentlyFollowingAPath = false;
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-
-    }
-
   }
 
   @Override
@@ -197,63 +157,10 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    if (selectedAutoCommand != null) {
-      selectedAutoCommand.cancel();
-      currentlyFollowingAPath = false;
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-      
-    }
   }
 
   @Override
-  public void teleopPeriodic() {
-
-    // if (pathRecounter % 10 == 0) {
-      if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-        if ( selectedAutoCommand != null) {
-          selectedAutoCommand.cancel();
-        }
-        selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
-        currentTeleopCommand = selectedAutoCommand;
-        CommandScheduler.getInstance().schedule(selectedAutoCommand);
-        currentlyFollowingAPath = true;
-
-        
-        // if (currentTeleopCommand == null) {
-        // }
-        
-      //   if (!currentlyFollowingAPath && selectedAutoCommand != null) {
-      //       currentlyFollowingAPath = true;
-      //       currentTeleopCommand = selectedAutoCommand;
-      //       if (!selectedAutoCommand.getRequirements().isEmpty()) {
-      //       CommandScheduler.getInstance().schedule(selectedAutoCommand);
-      //       }
-      //   }
-      // } 
-      } else { // If the button is NOT pressed, cancel the path
-          if (currentlyFollowingAPath && currentTeleopCommand != null) {
-              currentTeleopCommand.cancel();
-              selectedAutoCommand = null;
-              currentTeleopCommand = null;
-              currentlyFollowingAPath = false;
-          }
-      }
-
-      // if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
-      //     currentlyFollowingAPath = false;
-      //     if (currentTeleopCommand != null) {
-      //       currentTeleopCommand.cancel();
-      //       selectedAutoCommand = null;
-      //       currentTeleopCommand = null;
-
-      //     }
-            
-      // }
-    // }
-
-
-}
+  public void teleopPeriodic() {}
 
   @Override
   public void teleopExit() {}
