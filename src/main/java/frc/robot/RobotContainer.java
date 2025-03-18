@@ -44,6 +44,7 @@ import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.ArmStateManager;
+import frc.robot.commands.DynamicAutoBuilder;
 import frc.robot.commands.DoClimb;
 import frc.robot.commands.EjectAlgae;
 import frc.robot.commands.IntakeAlgae;
@@ -73,6 +74,7 @@ public final Wrist wristSub;
 public final Climb climbSub ;
 public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
 public final ArmStateManager armState = new ArmStateManager();
+public final DynamicAutoBuilder dynAutoBuilder;
 
 /* COMMANDS */
 // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub,
@@ -190,6 +192,8 @@ public RobotContainer(Robot robot) {
         () -> testController.getPOV() == 270,  // pressing the POV to the left to unwind
         () -> testController.getPOV() == 90    // pressing the POV to the right to wind
         ) ;
+
+    dynAutoBuilder = new DynamicAutoBuilder(driveSub, visionSub);
 
 
     setArmPosTravellingCmd = new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub);
@@ -418,20 +422,17 @@ public RobotContainer(Robot robot) {
         scoreCoralButton.onTrue(scoreCoralCmd);
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
-        autoAlignAlgaeButton.onTrue(new InstantCommand(() -> changeToLeft(null)))
-                .onFalse(new InstantCommand(() -> disableCoralVision()));
+        autoAlignAlgaeButton.whileTrue(dynAutoBuilder.dynamicAuto(Constants.AutoConstants.AlgaeOffset));
 
+        // TODO: Why are there 2 of these/* */?
         autoAlignAlgaeButton_2 = new JoystickButton(driverController, LogitechExtreme3DConstants.Button6);
-        autoAlignAlgaeButton_2.onTrue(new InstantCommand(() -> changeToLeft(null)))
-                .onFalse(new InstantCommand(() -> disableCoralVision()));
+        autoAlignAlgaeButton_2.whileTrue(dynAutoBuilder.dynamicAuto(Constants.AutoConstants.AlgaeOffset));
 
         autoAlignRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button3);
-        autoAlignRightButton.onTrue(new InstantCommand(() -> changeToLeft(true)))
-                .onFalse(new InstantCommand(() -> disableCoralVision()));
-        
+        autoAlignRightButton.whileTrue(dynAutoBuilder.dynamicAuto(Constants.AutoConstants.RightOffset));
+
         autoAlignLeftButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
-        autoAlignLeftButton.onTrue(new InstantCommand(() -> changeToLeft(false)))
-                .onFalse(new InstantCommand(() -> disableCoralVision()));
+        autoAlignLeftButton.whileTrue(dynAutoBuilder.dynamicAuto(Constants.AutoConstants.LeftOffset));
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
         resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
@@ -691,10 +692,12 @@ public RobotContainer(Robot robot) {
                                     .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
                                     .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())),
                     new PPHolonomicDriveController(
+                            //TODO: These gains appears to have been massively under-tuned for
+                            // reasonable PP Tracking.
                             // PID constants for translation
-                            new PIDConstants(0.75, 0, 0.1),
+                            new PIDConstants(5, 0.5, 0),
                             // PID constants for rotation
-                            new PIDConstants(0.5, 0, 0)),
+                            new PIDConstants(5, 0.5, 0)),
                     config,
                     // Assume the path needs to be flipped for Red vs Blue, this is normally the
                     // case
