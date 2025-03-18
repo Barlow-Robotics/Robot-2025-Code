@@ -249,7 +249,7 @@ public RobotContainer(Robot robot) {
                     double yVelInput = -driverController.getX();
                     double twistInput = -driverController.getTwist();
                     double sliderInput = -driverController.getThrottle();
-                    
+
                     Logger.recordOutput("Drive/xVelInput", xVelInput);
                     Logger.recordOutput("Drive/yVelInput", yVelInput);
                     Logger.recordOutput("Drive/twistInput", twistInput);
@@ -570,11 +570,11 @@ public RobotContainer(Robot robot) {
         // SequentialCommandGroup commandGroup1 = new SequentialCommandGroup(new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub));
 
 
-        autoChooser.addOption("Straight Line Path", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
+        autoChooser.addOption("Leave Zone", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
         autoChooser.addOption("Score L1 Path", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L1 Path"), Set.of(driveSub)));
-        autoChooser.addOption("Score L3 Path", new DeferredCommand(() -> driveSub.ChoreoAuto("Right 1 Coral (Level3)"), Set.of(driveSub)));
-        autoChooser.addOption("2_Coral_Broke_OtherBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", true), Set.of(driveSub)));
-        autoChooser.addOption("2_Coral_AllainceBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("2CoralP", false), Set.of(driveSub)));
+        autoChooser.addOption("Score L3 Path", new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
+        // autoChooser.addOption("2-Coral_Broke_OtherBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true), Set.of(driveSub)));
+        autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(() -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false), Set.of(driveSub)));
 
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
