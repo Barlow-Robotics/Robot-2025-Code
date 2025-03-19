@@ -28,62 +28,55 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
 
-
 public class Robot extends LoggedRobot {
-    private Command autonomousCommand;
-    private Command currentTeleopCommand;
+  private Command autonomousCommand;
 
-    private final RobotContainer robotContainer;
-    boolean pathPlannerConfigured = false;
-    public boolean currentlyFollowingAPath = false;
-    Pose2d currentPose;
-    Command selectedAutoCommand;
-    private int pathRecounter = 0;
-    private boolean calibrationPerformed = false;
+  private final RobotContainer robotContainer;
+  boolean pathPlannerConfigured = false;
+  Pose2d currentPose;
 
-    /***** MECHANISM 2D FOR ADVANTAGE SCOPE *****/
+  /***** MECHANISM 2D FOR ADVANTAGE SCOPE *****/
 
-    // the main mechanism object
-    Mechanism2d mech = new Mechanism2d(8, 10);
+  // the main mechanism object
+  Mechanism2d mech = new Mechanism2d(8, 10);
 
-    // the mechanism root node
-    MechanismRoot2d root = mech.getRoot("manipulator", 2.5, 0);
+  // the mechanism root node
+  MechanismRoot2d root = mech.getRoot("manipulator", 2.5, 0);
 
-    // MechanismLigament2d objects represent each "section"/"stage" of the
-    // mechanism, and are based
-    // off the root node or another ligament object
-    MechanismLigament2d elevator = root.append(new MechanismLigament2d("elevator", ArmConstants.ArmMinimumHeight, 90));
-    MechanismLigament2d arm = elevator.append(
-            new MechanismLigament2d("arm", 2, 0, 6, new Color8Bit(Color.kPurple)));
-    MechanismLigament2d gripper = arm
-            .append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
+  // MechanismLigament2d objects represent each "section"/"stage" of the
+  // mechanism, and are based
+  // off the root node or another ligament object
+  MechanismLigament2d elevator = root.append(new MechanismLigament2d("elevator", ArmConstants.ArmMinimumHeight, 90));
+  MechanismLigament2d arm = elevator.append(
+      new MechanismLigament2d("arm", 2, 0, 6, new Color8Bit(Color.kPurple)));
+  MechanismLigament2d gripper = arm
+      .append(new MechanismLigament2d("gripper", .5, 10, 10, new Color8Bit(Color.kLimeGreen)));
 
-    /**********************************************/
+  /**********************************************/
 
   public Robot() {
     robotContainer = new RobotContainer(this);
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
 
     if (isReal()) {
-        Logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
-        Logger.addDataReceiver(new NT4Publisher());
-        // Publish data to NetworkTables
-        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging - ignore leak
+      Logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
+      Logger.addDataReceiver(new NT4Publisher());
+      // Publish data to NetworkTables
+      new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging - ignore leak
     } else {
-        Logger.addDataReceiver(new WPILOGWriter(""));
-        Logger.addDataReceiver(new NT4Publisher());
+      Logger.addDataReceiver(new WPILOGWriter(""));
+      Logger.addDataReceiver(new NT4Publisher());
     }
-    
+
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
                     // be added.
   }
 
   @Override
   public void robotInit() {
-        SignalLogger.start();
+    SignalLogger.start();
 
   }
-
 
   @Override
   public void robotPeriodic() {
@@ -91,22 +84,23 @@ public class Robot extends LoggedRobot {
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
     Logger.recordOutput("Controllers/Driver", currentDriverController);
     Logger.recordOutput("Controllers/Operator", currentOperatorController);
-    Logger.recordOutput("vision/differenceInPosition", Units.metersToFeet(Math.abs(robotContainer.driveSub.getPose().getX()- robotContainer.reefAutoTargetPose.getX())));
+    Logger.recordOutput("vision/differenceInPosition", Units
+        .metersToFeet(Math.abs(robotContainer.driveSub.getPose().getX() - robotContainer.reefAutoTargetPose.getX())));
     Logger.recordOutput("vision/reefAutoTargetPose", robotContainer.reefAutoTargetPose);
 
-    
     Logger.recordOutput("Arm/CurrentState", robotContainer.armState.getCurrentState());
     Logger.recordOutput("Arm/DesiredState", robotContainer.armState.getTargetState());
 
-
     Logger.recordOutput("Controllers/Driver/CurrentController", currentDriverController);
     Logger.recordOutput("Controllers/Operator/CurrentController", currentOperatorController);
-    elevator.setLength(/*ArmConstants.ArmMinimumHeight + */(robotContainer.elevatorSub.getElevatorHeightInches() + robotContainer.elevatorSub.getCarriageHeightInches())/12.0);
-    arm.setAngle(robotContainer.armSub.getArmTalonEncoderDegrees()-90); // might need to change this to getArmEncoderDegrees() instead, but (as of right now) that doesn't work 
+    elevator.setLength(/* ArmConstants.ArmMinimumHeight + */(robotContainer.elevatorSub.getElevatorHeightInches()
+        + robotContainer.elevatorSub.getCarriageHeightInches()) / 12.0);
+    arm.setAngle(robotContainer.armSub.getArmTalonEncoderDegrees() - 90); // might need to change this to
+                                                                          // getArmEncoderDegrees() instead, but (as of
+                                                                          // right now) that doesn't work
     gripper.setAngle(robotContainer.wristSub.getWristEncoderDegrees());
 
     SmartDashboard.putData("ArmMech2D", mech);
-
 
     CommandScheduler.getInstance().run();
   }
@@ -114,20 +108,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.disableSubsytems();
-    currentlyFollowingAPath = false;
-    if (currentTeleopCommand != null) {
-      currentTeleopCommand.cancel();
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-    }  
 
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
-    }
-    if (selectedAutoCommand != null) {
-      selectedAutoCommand.cancel();
-      currentlyFollowingAPath = false;
-      selectedAutoCommand = null;
     }
   }
 
@@ -135,22 +118,12 @@ public class Robot extends LoggedRobot {
   public void disabledPeriodic() {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-
     }
-    if (selectedAutoCommand != null) {
-      selectedAutoCommand.cancel();
-      currentlyFollowingAPath = false;
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-
-    }
-
   }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+  }
 
   @Override
   public void autonomousInit() {
@@ -158,10 +131,13 @@ public class Robot extends LoggedRobot {
     SequentialCommandGroup commandGroup = new SequentialCommandGroup();
 
     // if (!calibrationPerformed && Robot.isReal()) {
-    //   Command calibrateElevator = new CalibrateElevator(robotContainer.elevatorSub);
-    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.elevatorSub);
-      
-    //   commandGroup.addCommands(calibrateElevator, calibrateCarriage, new InstantCommand(() -> {this.calibrationPerformed = true;}));
+    // Command calibrateElevator = new
+    // CalibrateElevator(robotContainer.elevatorSub);
+    // Command calibrateCarriage = new
+    // CalibrateCarriage(robotContainer.elevatorSub);
+
+    // commandGroup.addCommands(calibrateElevator, calibrateCarriage, new
+    // InstantCommand(() -> {this.calibrationPerformed = true;}));
     // }
 
     autonomousCommand = robotContainer.getAutonomousCommand();
@@ -174,89 +150,43 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
-      robotContainer.armSub.applyAllConfigs();
+    robotContainer.armSub.applyAllConfigs();
 
-      SequentialCommandGroup calibrationSequence = new SequentialCommandGroup();
+    SequentialCommandGroup calibrationSequence = new SequentialCommandGroup();
 
     // if (!calibrationPerformed && Robot.isReal()) {
-    //   Command calibrateElevator = new CalibrateElevator(robotContainer.armSub);
-    //   Command calibrateCarriage = new CalibrateCarriage(robotContainer.armSub);
-    //   Command setState = new InstantCommand(() -> {robotContainer.armSub.setActualState(ArmState.Startup); robotContainer.armSub.setDesiredState(ArmState.Startup);});
-      
-    //   calibrationSequence.addCommands(calibrateElevator, calibrateCarriage, new InstantCommand(() -> {this.calibrationPerformed = true;}));
-    //   calibrationSequence.schedule();
+    // Command calibrateElevator = new CalibrateElevator(robotContainer.armSub);
+    // Command calibrateCarriage = new CalibrateCarriage(robotContainer.armSub);
+    // Command setState = new InstantCommand(() ->
+    // {robotContainer.armSub.setActualState(ArmState.Startup);
+    // robotContainer.armSub.setDesiredState(ArmState.Startup);});
+
+    // calibrationSequence.addCommands(calibrateElevator, calibrateCarriage, new
+    // InstantCommand(() -> {this.calibrationPerformed = true;}));
+    // calibrationSequence.schedule();
     // }
 
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    if (selectedAutoCommand != null) {
-      selectedAutoCommand.cancel();
-      currentlyFollowingAPath = false;
-      selectedAutoCommand = null;
-      currentTeleopCommand = null;
-      
-    }
   }
 
   @Override
   public void teleopPeriodic() {
-
-    // if (pathRecounter % 10 == 0) {
-      if (robotContainer.getCoralVision()) { // button is pressed and I want to look for april tag and move with auto
-        if ( selectedAutoCommand != null) {
-          selectedAutoCommand.cancel();
-        }
-        selectedAutoCommand = robotContainer.getVisionPathPlannerPathing(false, true);
-        currentTeleopCommand = selectedAutoCommand;
-        CommandScheduler.getInstance().schedule(selectedAutoCommand);
-        currentlyFollowingAPath = true;
-
-        
-        // if (currentTeleopCommand == null) {
-        // }
-        
-      //   if (!currentlyFollowingAPath && selectedAutoCommand != null) {
-      //       currentlyFollowingAPath = true;
-      //       currentTeleopCommand = selectedAutoCommand;
-      //       if (!selectedAutoCommand.getRequirements().isEmpty()) {
-      //       CommandScheduler.getInstance().schedule(selectedAutoCommand);
-      //       }
-      //   }
-      // } 
-      } else { // If the button is NOT pressed, cancel the path
-          if (currentlyFollowingAPath && currentTeleopCommand != null) {
-              currentTeleopCommand.cancel();
-              selectedAutoCommand = null;
-              currentTeleopCommand = null;
-              currentlyFollowingAPath = false;
-          }
-      }
-
-      // if (currentlyFollowingAPath == true && currentTeleopCommand != null && currentTeleopCommand.isFinished()) { // if finished tell currentlyFollowingAPath. 
-      //     currentlyFollowingAPath = false;
-      //     if (currentTeleopCommand != null) {
-      //       currentTeleopCommand.cancel();
-      //       selectedAutoCommand = null;
-      //       currentTeleopCommand = null;
-
-      //     }
-            
-      // }
-    // }
-
-
-}
+  }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+  }
 
   @Override
   public void testInit() {
@@ -264,8 +194,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+  }
 }
