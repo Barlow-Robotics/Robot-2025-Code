@@ -6,6 +6,7 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,24 +26,22 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.VisionConstants;
-import static frc.robot.Constants.VisionConstants.FallbackVisionStrategy;
-import static frc.robot.Constants.VisionConstants.FieldTagLayout;
 import static frc.robot.Constants.VisionConstants.ClimbCameraName;
 import static frc.robot.Constants.VisionConstants.ClimbCameraToRobot;
+import static frc.robot.Constants.VisionConstants.ElevatorCameraName;
+import static frc.robot.Constants.VisionConstants.FallbackVisionStrategy;
+import static frc.robot.Constants.VisionConstants.FieldTagLayout;
 import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
 import static frc.robot.Constants.VisionConstants.RightClimbCamName;
 import static frc.robot.Constants.VisionConstants.RobotToElevatorCam;
 import static frc.robot.Constants.VisionConstants.RobotToRightClimbCam;
-import static frc.robot.Constants.VisionConstants.ElevatorCameraName;
-
-// import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class Vision extends SubsystemBase {
@@ -150,7 +149,8 @@ public class Vision extends SubsystemBase {
         var visionEst = getEstimatedGlobalPose(drivePose, elevatorCamera, elevatorPhotonEstimator);
         visionEst.ifPresent(
                 est -> {
-                    driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
+                    // driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
+                    addVisionMeasure(est);
                     Logger.recordOutput("Vision/ElevatorCameraPoseEstimate", est.estimatedPose.toPose2d());
 
                     // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraOneStdDev);
@@ -161,6 +161,7 @@ public class Vision extends SubsystemBase {
         visionEst = getEstimatedGlobalPose(drivePose, rightClimbCam, rightClimbPhotonEstimator);
         visionEst.ifPresent(
                 est -> {
+                    addVisionMeasure(est);
                     // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraTwoStdDev);
                     driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
                     Logger.recordOutput("Vision/RightClimbPoseEstimate", est.estimatedPose.toPose2d());
@@ -301,4 +302,60 @@ public class Vision extends SubsystemBase {
     public List<PhotonTrackedTarget> getAllDetectedTargets() {
         return this.allDetectedTargets;
     }
+
+
+    public Matrix<N3, N1> addVisionMeasure(EstimatedRobotPose estimated_pose) {
+        Pose2d pose = estimated_pose.estimatedPose.toPose2d();
+        double visionTime = estimated_pose.timestampSeconds;
+        var tags = estimated_pose.targetsUsed;
+        int tagCount = tags.size();
+        
+        if (tagCount == 0) {
+            return null;
+        }
+    
+        ArrayList<Integer> tagIds = new ArrayList<>();
+        for (PhotonTrackedTarget tag : tags) {
+            tagIds.add(tag.fiducialId);
+        }
+    
+        int primaryId = tagIds.get(0);
+        double distanceToTarget = tags.get(0).bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0));
+        
+        double stdDev = 2;
+        SmartDashboard.putNumber("Distance to target", distanceToTarget);
+    
+        if (tagCount == 1) {
+            if (distanceToTarget > 2.5) {
+                return null;
+            }
+            if (((primaryId >= 6 && primaryId <= 11) || (primaryId >= 17 && primaryId <= 22)) && distanceToTarget <= 1.5) {
+                stdDev = 0.25;
+                if (distanceToTarget <= 0.75) {
+                    stdDev = 0.1;
+                    if (DriverStation.isTeleop()) {
+                        driveSub.addVisionMeasurement(pose, visionTime, VecBuilder.fill(stdDev, stdDev, stdDev));
+                        return null;
+                    }
+                }
+            }
+        } else if (tagCount >= 2) {
+            stdDev = 0.7;
+            if (((primaryId >= 6 && primaryId <= 11) || (primaryId >= 17 && primaryId <= 22)) && distanceToTarget <= 0.5) {
+                stdDev = 0.5;
+                if (distanceToTarget <= 0.25) {
+                    stdDev = 0.25;
+                }
+            }
+        }
+    
+        driveSub.addVisionMeasurement(
+            new Pose2d(pose.getX(), pose.getY(), driveSub.getPose().getRotation()), 
+            visionTime, 
+            VecBuilder.fill(stdDev, stdDev, 50)
+        );
+    
+        return null;
+    }
+
 }
