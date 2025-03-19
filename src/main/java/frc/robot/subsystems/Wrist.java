@@ -67,14 +67,16 @@ public class Wrist extends SubsystemBase {
 
         applyAllConfigs();
 
-        wristPIDController = new ProfiledPIDController(5.0, 0.001, 0.2, new TrapezoidProfile.Constraints(
+        // wristPIDController = new ProfiledPIDController(5.0, 0.001, 0.2, new TrapezoidProfile.Constraints(
+        //         ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
+        wristPIDController = new ProfiledPIDController(2.5, 0.000, 0.1, new TrapezoidProfile.Constraints(
                 ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
         wristPIDController.setIZone(Units.degreesToRotations(6.0));
         wristPIDController.setIntegratorRange(-0.5, 0.5) ;
         wristPIDController.setTolerance(Units.degreesToRotations(ArmConstants.WristAngleTolerance)) ;
         wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-        feedForwardController = new SimpleMotorFeedforward(0.0, 0.0) ;
+        feedForwardController = new SimpleMotorFeedforward(0.0, 1.15) ;
 
         this.robot = robot;
     }
@@ -103,7 +105,10 @@ public class Wrist extends SubsystemBase {
         final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();  
         var setPoint = wristPIDController.getSetpoint() ;
         final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
-        wristMotor.setVoltage(wristOutput + feedForwardController.calculate(setPoint.velocity));
+        final double feedForward = feedForwardController.calculate(setPoint.velocity) ;
+        wristMotor.setVoltage(wristOutput + feedForward);
+        Logger.recordOutput("Wrist/PIDOutput",wristOutput);        
+        Logger.recordOutput("Wrist/feedForward",feedForward);        
     }
 
 
