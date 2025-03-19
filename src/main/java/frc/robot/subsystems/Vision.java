@@ -78,7 +78,7 @@ public class Vision extends SubsystemBase {
     private HashSet<Integer> targetAlignSet;
     public OptionalInt activeAlignTargetId;
     private Alliance alliance;
-    private int pathRecounter = 0;
+    // private int pathRecounter = 0;
     boolean aprilTagDetected = false;
 
     // Hashtable<Integer, Integer> blueTrackableIDs = new Hashtable<>();
@@ -224,7 +224,7 @@ public class Vision extends SubsystemBase {
 
     public void periodic() {
 
-        if (!Robot.isSimulation() && !robot.isAutonomous() && (!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) && !this.disabledVision) {
+        if (!Robot.isSimulation() && !robot.isAutonomous() && /*(!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) &&*/ !this.disabledVision) {
             Pose2d currentPose = driveSub.getPose();
             updateVisionLocalization(currentPose);
             // var photonEstimate = getEstimatedGlobalPose(currentPose, "elevatorCam");
