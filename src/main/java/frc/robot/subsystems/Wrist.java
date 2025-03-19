@@ -23,6 +23,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -44,7 +45,10 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxSim wristMotorSim;
     private final CANcoder wristEncoder;
     private final CANcoderSimState wristEncoderSim;
-    public final ProfiledPIDController wristPIDController;
+    private final ProfiledPIDController wristPIDController;
+    private final SimpleMotorFeedforward feedForwardController ;
+
+
     private final DCMotorSim wristMotorModel = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getNEO(1), Constants.jKgMetersSquared, 1), DCMotor.getNEO(1));
 
@@ -70,6 +74,8 @@ public class Wrist extends SubsystemBase {
         wristPIDController.setTolerance(Units.degreesToRotations(ArmConstants.WristAngleTolerance)) ;
         wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
+        feedForwardController = new SimpleMotorFeedforward(0.0, 0.0) ;
+
         this.robot = robot;
     }
 
@@ -94,9 +100,10 @@ public class Wrist extends SubsystemBase {
     }
 
     public void setWristAngle(double desiredDegrees) {
-        final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();   
+        final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();  
+        var setPoint = wristPIDController.getSetpoint() ;
         final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
-        wristMotor.setVoltage(wristOutput);
+        wristMotor.setVoltage(wristOutput + feedForwardController.calculate(setPoint.velocity));
     }
 
 
@@ -141,7 +148,9 @@ public class Wrist extends SubsystemBase {
         Logger.recordOutput("Wrist/WristAngle/VelocityError", wristPIDController.getVelocityError());
         Logger.recordOutput("Wrist/WristAngle/AccumulatedError", wristPIDController.getAccumulatedError());
         Logger.recordOutput("Wrist/WristAngle/SetPointPosition", wristPIDController.getSetpoint().position);
-        Logger.recordOutput("Wrist/WristAngle/SetPointPosition", wristPIDController.getGoal().position);
+        Logger.recordOutput("Wrist/WristAngle/SetPointVelocity", wristPIDController.getSetpoint().velocity);
+        Logger.recordOutput("Wrist/WristAngle/GoalPosition", wristPIDController.getGoal().position);
+        Logger.recordOutput("Wrist/WristAngle/GoalVelocity", wristPIDController.getGoal().velocity);
 
         if (Robot.isSimulation()) {
             Logger.recordOutput("Wrist/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
