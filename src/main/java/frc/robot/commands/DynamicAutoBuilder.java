@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
@@ -98,15 +99,22 @@ public class DynamicAutoBuilder {
 
   Command applyDeltaRequest(Pose2d targetPose) {
     return Commands.run(() -> {
-      Translation2d translationDelta = (driveSub.getPose().getTranslation()).minus(targetPose.getTranslation());
+      // The translation delta is the amount we would need to add to our current
+      // drive pose to get the robot to end at the targetPose.
+      // targetPose = drivePose + (targetPose - drivePose)
+      // Commanding this as a veelocity moves us in the direction of the target.
+      Translation2d translationDelta = (targetPose.getTranslation()).minus(driveSub.getPose().getTranslation());
       double rotationDelta = targetPose.getRotation().minus(driveSub.getPose().getRotation()).getRadians();
 
+      // Always use BlueAlliance for the ForwardPerspective value. This is because
+      // all of our poses are always relative to blue-alliance.
       FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
+          .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
           .withVelocityX(translationDelta.getX())
           .withVelocityY(translationDelta.getY())
           .withRotationalRate(rotationDelta);
 
-      double sliderInput = -driverController.getThrottle();
+      double sliderInput = driverController.getThrottle();
       double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
 
       swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
