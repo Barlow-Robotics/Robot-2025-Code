@@ -17,6 +17,8 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -26,6 +28,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Vision;
 import frc.robot.Constants;
@@ -41,10 +44,31 @@ public class DynamicAutoBuilder {
   PathConstraints constraints = new PathConstraints(2, 6.0, 6 * Math.PI, 12 * Math.PI);
   Transform2d centeredOffset = new Transform2d(Constants.FieldConstants.reefOffsetMeters, 0.0, Rotation2d.k180deg);
 
+  private final ProfiledPIDController profiledPIDX ;
+  private final ProfiledPIDController profiledPIDY ;
+  private final ProfiledPIDController profiledPIDRot ;
+
+  private final SimpleMotorFeedforward feedForwardX ;
+  private final SimpleMotorFeedforward feedForwardY ;
+  private final SimpleMotorFeedforward feedForwardRot ;
+
+
   public DynamicAutoBuilder(Drive d, Vision v, Joystick j) {
     driveSub = d;
     visionSub = v;
     driverController = j;
+
+    Transform2d centeredOffset = new Transform2d(Constants.FieldConstants.reefOffsetMeters, 0.0, Rotation2d.k180deg);
+
+    profiledPIDX = new ProfiledPIDController(0, 0, 0, null) ;
+    profiledPIDY = new ProfiledPIDController(0, 0, 0, null) ;
+    profiledPIDRot = new ProfiledPIDController(0, 0, 0, null) ;
+
+    feedForwardX = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignVelocityConstant) ;
+    feedForwardY = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignVelocityConstant) ;
+    feedForwardRot = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignAngularVelocityConstant) ;
+
+
   }
 
   public Command pathPlannerAlign(Transform2d extraOffset) {
@@ -62,6 +86,16 @@ public class DynamicAutoBuilder {
         () -> runManualPathing(extraOffset),
         Set.of(driveSub));
   }
+
+  public Command trapazoidAlign(Transform2d extraOffset) {
+    // manualAlign uses a deferred so that it can compute the new path when the
+    // trigger is run.
+    return new DeferredCommand(
+        () -> runTrapazoidPathing(extraOffset),
+        Set.of(driveSub));
+  }
+
+
 
   // extraOffset specifies the additional offset for the target pose
   Command computeAutoPathPlanner(Transform2d extraOffset) {
@@ -114,12 +148,13 @@ public class DynamicAutoBuilder {
           .withVelocityY(translationDelta.getY())
           .withRotationalRate(rotationDelta);
 
-      double sliderInput = driverController.getThrottle();
-      double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+      swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant;
+      swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant ;
+      swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant ;
 
-      swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-      swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-      swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
+      Logger.recordOutput("AutoAlign/VelocityX", swerveRequest.VelocityX);
+      Logger.recordOutput("AutoAlign/VelocityY", swerveRequest.VelocityY);
+      Logger.recordOutput("AutoAlign/RotationalRate", swerveRequest.RotationalRate);
 
       driveSub.setControl(swerveRequest);
     });
@@ -139,6 +174,79 @@ public class DynamicAutoBuilder {
             Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()) < 0.01);
   }
 
+
+
+  Command runTrapazoidPathing(Transform2d extraOffset) {
+
+    var maybeTargetPose = findTargetFromOffset(extraOffset);
+    if (maybeTargetPose.isEmpty()) {
+      return Commands.none();
+    }
+
+    var targetPose = maybeTargetPose.get();
+
+    return applyDeltaRequest(targetPose)
+        .until(() -> driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.05 &&
+            Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()) < 0.01);
+  }
+
+
+
+
+
+
+
+  Command applyTrapazoidalRequest(Pose2d targetPose) {
+
+    FunctionalCommand fc = new FunctionalCommand(
+      ()->{
+        // set goals in profiled PIDs
+        profiledPIDX.setGoal(0);
+      }, 
+      () -> {
+        // set velocities based on PID calculations and feed forward values
+      }, 
+      null, 
+      null, 
+      driveSub
+      ) ;
+    return fc ;
+
+    // return Commands.run(() -> {
+    //   // The translation delta is the amount we would need to add to our current
+    //   // drive pose to get the robot to end at the targetPose.
+    //   // targetPose = drivePose + (targetPose - drivePose)
+    //   // Commanding this as a veelocity moves us in the direction of the target.
+    //   Translation2d translationDelta = (targetPose.getTranslation()).minus(driveSub.getPose().getTranslation());
+    //   double rotationDelta = targetPose.getRotation().minus(driveSub.getPose().getRotation()).getRadians();
+
+    //   // Always use BlueAlliance for the ForwardPerspective value. This is because
+    //   // all of our poses are always relative to blue-alliance.
+    //   FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
+    //       .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+    //       .withVelocityX(translationDelta.getX())
+    //       .withVelocityY(translationDelta.getY())
+    //       .withRotationalRate(rotationDelta);
+
+    //   double sliderInput = driverController.getThrottle();
+    //   double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+
+    //   swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
+    //   swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
+    //   swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
+
+    //   Logger.recordOutput("AutoAlign/VelocityX", swerveRequest.VelocityX);
+    //   Logger.recordOutput("AutoAlign/VelocityY", swerveRequest.VelocityY);
+    //   Logger.recordOutput("AutoAlign/RotationalRate", swerveRequest.RotationalRate);
+
+    //   driveSub.setControl(swerveRequest);
+    // });
+  }
+
+
+
+
+
   Optional<Pose2d> findTargetFromOffset(Transform2d extraOffset) {
     // Find the closet tag
     var currentPose = driveSub.getPose();
@@ -156,6 +264,9 @@ public class DynamicAutoBuilder {
     // Adjust by the offsets
     return Optional.of(targetPose);
   }
+
+
+
 
   Optional<Pose2d> findPoseOfTagClosestToRobot(Pose2d drivePose) {
 

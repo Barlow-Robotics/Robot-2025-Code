@@ -92,6 +92,7 @@ public class Constants {
         public static final double NoTargetDistance = -1;
 
         public static final double AutoAlignVelocityConstant = 3; 
+        public static final double AutoAlignAngularVelocityConstant = Units.degreesToRadians(180.0); // wpk is this a good amount?
 
         public static final int[] blueAprilTagListReef = {17, 18, 19, 20, 21, 22};
         public static final int[] redAprilTagListReef = {6, 7, 8, 9, 10, 11};
