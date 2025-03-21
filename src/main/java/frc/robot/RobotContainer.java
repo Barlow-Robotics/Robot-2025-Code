@@ -53,6 +53,7 @@ import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.Underglow;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Wrist;
 
@@ -65,6 +66,7 @@ public class RobotContainer {
     public final Arm armSub;
     public final Wrist wristSub;
     public final Climb climbSub;
+    public final Underglow underglowSub;
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
     public final ArmStateManager armState = new ArmStateManager();
     public final DynamicAutoBuilder dynAutoBuilder;
@@ -183,6 +185,7 @@ public class RobotContainer {
         elevatorSub = new Elevator(robot);
         armSub = new Arm(robot);
         wristSub = new Wrist(robot);
+        underglowSub = new Underglow();
 
         climbSub = new Climb(
                 robot,
