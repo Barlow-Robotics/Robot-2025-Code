@@ -42,6 +42,8 @@ import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
 import static frc.robot.Constants.VisionConstants.RightClimbCamName;
 import static frc.robot.Constants.VisionConstants.RobotToElevatorCam;
 import static frc.robot.Constants.VisionConstants.RobotToRightClimbCam;
+
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class Vision extends SubsystemBase {
@@ -292,6 +294,11 @@ public class Vision extends SubsystemBase {
 
 
     private void advantageKitLogging() {
+
+        var closestPose = findPoseOfTagClosestToRobot(driveSub.getPose()) ;
+        if ( closestPose.isPresent()) {
+            Logger.recordOutput("vision/ClosestAprilTag", closestPose.get() );
+        }
         if (robotToCamera != null) {
             Logger.recordOutput("vision/RobotToCamera", robotToCamera );
         }
@@ -356,6 +363,35 @@ public class Vision extends SubsystemBase {
         );
     
         return null;
+    }
+
+
+
+    Optional<Pose2d> findPoseOfTagClosestToRobot(Pose2d drivePose) {
+
+        int[] aprilTagList;
+        var alliance = DriverStation.getAlliance();
+
+        if (alliance.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (alliance.get() == DriverStation.Alliance.Blue) {
+            aprilTagList = Constants.VisionConstants.blueAprilTagListReef;
+        } else if (alliance.get() == DriverStation.Alliance.Red) {
+            aprilTagList = Constants.VisionConstants.redAprilTagListReef;
+        } else {
+            // Short circuit so we don't end up with an empty list
+            return Optional.empty();
+        }
+
+        List<Pose2d> possiblePoses = new ArrayList<>();
+
+        for (int id : aprilTagList) {
+            possiblePoses.add(getLayout().getTagPose(id).get().toPose2d());
+        }
+
+        return Optional.of(drivePose.nearest(possiblePoses));
     }
 
 }
