@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import static frc.robot.Constants.VisionConstants.ClimbCameraName;
 import static frc.robot.Constants.VisionConstants.ClimbCameraToRobot;
 import static frc.robot.Constants.VisionConstants.ElevatorCameraName;
@@ -42,8 +43,6 @@ import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
 import static frc.robot.Constants.VisionConstants.RightClimbCamName;
 import static frc.robot.Constants.VisionConstants.RobotToElevatorCam;
 import static frc.robot.Constants.VisionConstants.RobotToRightClimbCam;
-
-import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class Vision extends SubsystemBase {
@@ -165,7 +164,7 @@ public class Vision extends SubsystemBase {
                 est -> {
                     addVisionMeasure(est);
                     // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraTwoStdDev);
-                    driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
+                    // driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
                     Logger.recordOutput("Vision/RightClimbPoseEstimate", est.estimatedPose.toPose2d());
 
                 });
