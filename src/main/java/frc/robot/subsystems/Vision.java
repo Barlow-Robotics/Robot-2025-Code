@@ -31,7 +31,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import static frc.robot.Constants.VisionConstants.ClimbCameraName;
@@ -329,7 +328,7 @@ public class Vision extends SubsystemBase {
         double distanceToTarget = tags.get(0).bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0));
         
         double stdDev = 2;
-        SmartDashboard.putNumber("Distance to target", distanceToTarget);
+        Logger.recordOutput("Vision/DistanceToTarget", distanceToTarget);
     
         if (tagCount == 1) {
             if (distanceToTarget > 2.5) {
@@ -354,7 +353,8 @@ public class Vision extends SubsystemBase {
                 }
             }
         }
-    
+        Logger.recordOutput("Vision/stdDev", distanceToTarget);
+
         driveSub.addVisionMeasurement(
             new Pose2d(pose.getX(), pose.getY(), driveSub.getPose().getRotation()), 
             visionTime, 
