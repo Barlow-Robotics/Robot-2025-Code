@@ -614,10 +614,10 @@ public class RobotContainer {
                 new InstantCommand(() -> gripperSub.startAlgaeRemoval()),
                 // move the elevator up to strip the algae
                 new MoveElevator(elevatorSub,
-                        elevatorSub.getDesiredElevatorHeightInches() + 4,
+                        elevatorSub.getDesiredElevatorHeightInches(),
                         Constants.ArmConstants.ElevatorAlgaeRemovalVelocity,
-                        20.0,
-                        Constants.ArmConstants.CarriageAlgaeRemovalVelocity),
+                        16,
+                        12),
                 new InstantCommand(() -> gripperSub.stop()),
                 new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub));
 
