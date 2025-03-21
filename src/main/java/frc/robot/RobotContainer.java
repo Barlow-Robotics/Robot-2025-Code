@@ -627,11 +627,11 @@ public class RobotContainer {
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L1 Path"), Set.of(driveSub)));
         autoChooser.addOption("Score L3 Path",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
-        // autoChooser.addOption("2-Coral_Broke_OtherBarge", new DeferredCommand(() ->
-        // driveSub.CustomChoreoAuto("[USED] 2CoralP", true), Set.of(driveSub)));
+        autoChooser.addOption("2-Coral_OtherBarge", new DeferredCommand(() ->
+            driveSub.CustomChoreoAuto("[USED] 2CoralP", true, commandGroup1), Set.of(driveSub)));
         autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(
                 () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, commandGroup1), Set.of(driveSub)));
-
+    
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);
