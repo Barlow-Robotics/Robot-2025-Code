@@ -118,8 +118,14 @@ public class DynamicAutoBuilder {
       double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
 
       swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
+      if (swerveRequest.VelocityX > 3) {
+        swerveRequest.VelocityX = 3;
+      }
       swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-      swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
+      if (swerveRequest.VelocityY > 3) {
+        swerveRequest.VelocityY = 3;
+      }
+      swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier * 2;
 
       driveSub.setControl(swerveRequest);
     });

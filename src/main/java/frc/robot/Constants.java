@@ -48,7 +48,7 @@ public class Constants {
         public static final int CameraLightID = 0; // NEED TO FIX/CHANGE
         public static final String ClimbCameraName = "Climb_Camera";
         public static final String ElevatorCameraName = "Reef_Camera";
-        public static final String RightClimbCamName = "";
+        public static final String RightClimbCamName = "Side_Climb_Camera";
 
         public static final PoseStrategy PrimaryVisionStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
         public static final PoseStrategy FallbackVisionStrategy = PoseStrategy.LOWEST_AMBIGUITY;
@@ -57,7 +57,7 @@ public class Constants {
         // from center.
         // NEED TO FIX: wpk need to update these to be more exact.
         public static final Transform3d ClimbCameraToRobot = new Transform3d(
-                new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-12.625), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+2.5), Units.inchesToMeters(13.125)),
+                new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-12.625), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+2.5), Units.inchesToMeters(12)),
                 new Rotation3d(0, Units.degreesToRadians(0), 0));
         public static final Transform3d RobotToClimbCamera = ClimbCameraToRobot.inverse();
 
@@ -69,7 +69,7 @@ public class Constants {
 
         public static final Transform3d RightClimbCamToRobot = 
                 new Transform3d(
-                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-2.5), Units.inchesToMeters(DriveConstants.TotalWidth/2-9.25), Units.inchesToMeters(12.625)), 
+                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-10.25), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2) +1.875), Units.inchesToMeters(12.625)), 
                     new Rotation3d(0, Units.degreesToRadians(0), 0)); //  NEED TO FIX. 
         public static final Transform3d RobotToRightClimbCam = RightClimbCamToRobot.inverse();
 
@@ -603,8 +603,8 @@ public class Constants {
 
         // TODO: Base these on reef / arm geometry
         public static final Transform2d AlgaeOffset = new Transform2d(0, 0, Rotation2d.kZero);
-        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(6), Rotation2d.kZero);
-        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-6), Rotation2d.kZero);
+        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(-0.5), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
+        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-12), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
 
     }
 
@@ -699,7 +699,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = 7.5; // goes to the middle of the Side
+        public static final double reefOffsetInches = /*7.5*/14; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
 }
