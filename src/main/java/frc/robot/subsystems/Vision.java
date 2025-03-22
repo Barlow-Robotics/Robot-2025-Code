@@ -163,7 +163,7 @@ public class Vision extends SubsystemBase {
                 est -> {
                     addVisionMeasure(est);
                     // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraTwoStdDev);
-                    driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
+                    // driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
                     Logger.recordOutput("Vision/RightClimbPoseEstimate", est.estimatedPose.toPose2d());
 
                 });

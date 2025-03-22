@@ -605,7 +605,7 @@ public class Constants {
 
         // TODO: Base these on reef / arm geometry
         public static final Transform2d AlgaeOffset = new Transform2d(0, 0, Rotation2d.kZero);
-        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(-0.5), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
+        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(-1.5), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
         public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-12), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
 
     }
@@ -701,7 +701,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = /*7.5*/14; // goes to the middle of the Side
+        public static final double reefOffsetInches = /*7.5*/19; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
     public static final class UnderGlowConstants {
