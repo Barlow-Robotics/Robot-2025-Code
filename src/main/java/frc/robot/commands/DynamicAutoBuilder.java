@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,17 +59,13 @@ public class DynamicAutoBuilder {
     visionSub = v;
     driverController = j;
 
-    Transform2d centeredOffset = new Transform2d(Constants.FieldConstants.reefOffsetMeters, 0.0, Rotation2d.k180deg);
-
-    profiledPIDX = new ProfiledPIDController(0, 0, 0, null) ;
-    profiledPIDY = new ProfiledPIDController(0, 0, 0, null) ;
-    profiledPIDRot = new ProfiledPIDController(0, 0, 0, null) ;
+    profiledPIDX = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(3.0, 12.0)) ;
+    profiledPIDY = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(3.0, 12.0)) ;
+    profiledPIDRot = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(Math.PI, Math.PI*4.0)) ;
 
     feedForwardX = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignVelocityConstant) ;
     feedForwardY = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignVelocityConstant) ;
     feedForwardRot = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignAngularVelocityConstant) ;
-
-
   }
 
   public Command pathPlannerAlign(Transform2d extraOffset) {
@@ -190,62 +187,14 @@ public class DynamicAutoBuilder {
 
     var targetPose = maybeTargetPose.get();
 
-    return applyDeltaRequest(targetPose)
-        .until(() -> driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.05 &&
-            Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()) < 0.01);
+    return  applyTrapazoidalRequest(targetPose) ;
   }
 
 
 
 
-
-
-
   Command applyTrapazoidalRequest(Pose2d targetPose) {
-
-    FunctionalCommand fc = new FunctionalCommand(
-      ()->{
-        // set goals in profiled PIDs
-        profiledPIDX.setGoal(0);
-      }, 
-      () -> {
-        // set velocities based on PID calculations and feed forward values
-      }, 
-      null, 
-      null, 
-      driveSub
-      ) ;
-    return fc ;
-
-    // return Commands.run(() -> {
-    //   // The translation delta is the amount we would need to add to our current
-    //   // drive pose to get the robot to end at the targetPose.
-    //   // targetPose = drivePose + (targetPose - drivePose)
-    //   // Commanding this as a veelocity moves us in the direction of the target.
-    //   Translation2d translationDelta = (targetPose.getTranslation()).minus(driveSub.getPose().getTranslation());
-    //   double rotationDelta = targetPose.getRotation().minus(driveSub.getPose().getRotation()).getRadians();
-
-    //   // Always use BlueAlliance for the ForwardPerspective value. This is because
-    //   // all of our poses are always relative to blue-alliance.
-    //   FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
-    //       .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-    //       .withVelocityX(translationDelta.getX())
-    //       .withVelocityY(translationDelta.getY())
-    //       .withRotationalRate(rotationDelta);
-
-    //   double sliderInput = driverController.getThrottle();
-    //   double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
-
-    //   swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-    //   swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-    //   swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-
-    //   Logger.recordOutput("AutoAlign/VelocityX", swerveRequest.VelocityX);
-    //   Logger.recordOutput("AutoAlign/VelocityY", swerveRequest.VelocityY);
-    //   Logger.recordOutput("AutoAlign/RotationalRate", swerveRequest.RotationalRate);
-
-    //   driveSub.setControl(swerveRequest);
-    // });
+    return new TrapazoidalRequest(driveSub, targetPose) ;
   }
 
 
