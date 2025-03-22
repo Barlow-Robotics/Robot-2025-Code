@@ -14,12 +14,12 @@ public class Chute extends SubsystemBase {
   DigitalInput breakBeam ;
   /** Creates a new Chute. */
   public Chute() {
-    breakBeam = new DigitalInput(5) ;
+    breakBeam = new DigitalInput(1) ;
   }
 
 
   public boolean hasCoral() {
-    return breakBeam.get() ;
+    return !breakBeam.get() ;
   }
 
   @Override
