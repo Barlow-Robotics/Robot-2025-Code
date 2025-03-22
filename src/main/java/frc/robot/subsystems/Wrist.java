@@ -69,14 +69,15 @@ public class Wrist extends SubsystemBase {
 
         // wristPIDController = new ProfiledPIDController(5.0, 0.001, 0.2, new TrapezoidProfile.Constraints(
         //         ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
-        wristPIDController = new ProfiledPIDController(2.5, 0.000, 0.1, new TrapezoidProfile.Constraints(
+        wristPIDController = new ProfiledPIDController(9.0, 0.000, 0.1, new TrapezoidProfile.Constraints(
                 ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
         wristPIDController.setIZone(Units.degreesToRotations(6.0));
         wristPIDController.setIntegratorRange(-0.5, 0.5) ;
         wristPIDController.setTolerance(Units.degreesToRotations(ArmConstants.WristAngleTolerance)) ;
         wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
-        feedForwardController = new SimpleMotorFeedforward(0.0, 1.15) ;
+//        feedForwardController = new SimpleMotorFeedforward(0.0, 1.15) ;
+        feedForwardController = new SimpleMotorFeedforward(0.5, 2.0) ;
 
         this.robot = robot;
     }

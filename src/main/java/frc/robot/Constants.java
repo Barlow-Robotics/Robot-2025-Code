@@ -395,7 +395,8 @@ public class Constants {
 
 
         public static final double WristMaxAngularVelocity = 0.5 * Math.PI;
-        public static final double WristMaxAngularAcceleration = 4 * WristMaxAngularVelocity;
+        public static final double WristMaxAngularAcceleration = 3
+         * WristMaxAngularVelocity;
 
 
 
