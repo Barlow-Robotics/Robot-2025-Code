@@ -171,8 +171,8 @@ public class RobotContainer {
     // 0.02);
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(DriveConstants.MaxDriveableVelocity * 0.1)
-            .withRotationalDeadband(Units.radiansToRotations(DriveConstants.MaxAngularRadiansPerSecond) * 0.1) // Add a
+            .withDeadband(0.1)
+            .withRotationalDeadband( 0.1) // Add a
                                                                                                                // 10%
                                                                                                                // deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
