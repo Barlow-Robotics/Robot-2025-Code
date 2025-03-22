@@ -14,7 +14,7 @@ public class Underglow extends SubsystemBase {
     /** Creates a new UnderGlow. */
     SerialPort port = null;
 
-    int currentMode = 1;
+    // int currentMode = 1;
 
     Chute chute ;
 
@@ -47,7 +47,7 @@ public class Underglow extends SubsystemBase {
 
             port.write(new byte[] { (byte) desiredMode }, 1);
             Logger.recordOutput("Underglow/byte", ((byte) desiredMode));
-            currentMode = desiredMode;
+            // currentMode = desiredMode;
             
             Logger.recordOutput("Underglow/desiredMode", desiredMode);
         }

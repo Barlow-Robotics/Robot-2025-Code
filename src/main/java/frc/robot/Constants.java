@@ -460,7 +460,7 @@ public class Constants {
 
     public static final class ClimbConstants {
 //        public static final double WinchMotorGearRatio = 45; // CHANGE
-        public static final double WinchMotorGearRatio = 45; // Correct per Mr. K 022725
+        public static final double WinchMotorGearRatio = 125; // Correct per Mr. K 022725
         public static final double WinchSprocketDiameter = 0.75;    // Correct per Mr. K 022725
         public static final double WinchSprocketCircumference = WinchSprocketDiameter * Math.PI;
         public static final double RotationsPerWinchInch = 1 / WinchSprocketCircumference * WinchMotorGearRatio;
