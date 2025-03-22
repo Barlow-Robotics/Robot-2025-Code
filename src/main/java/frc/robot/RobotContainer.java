@@ -615,8 +615,12 @@ public class RobotContainer {
         // driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         // autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() ->
         // driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
+
+
         Command commandGroup1 = Commands.sequence(
                 // wpk need to fix magic numbers
+                new ScoreCoralWithoutTravel(armState, elevatorSub, armSub, wristSub,
+                gripperSub),
                 new InstantCommand(() -> gripperSub.startAlgaeRemoval()),
                 // move the elevator up to strip the algae
                 new MoveElevator(elevatorSub,
@@ -634,9 +638,9 @@ public class RobotContainer {
         autoChooser.addOption("Score L3 Path",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
         autoChooser.addOption("2-Coral_OtherBarge", new DeferredCommand(() ->
-            driveSub.CustomChoreoAuto("[USED] 2CoralP", true, commandGroup1), Set.of(driveSub)));
+            driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1), Set.of(driveSub)));
         autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(
-                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, commandGroup1), Set.of(driveSub)));
+                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1), Set.of(driveSub)));
     
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 

@@ -35,13 +35,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import static frc.robot.Constants.VisionConstants.ClimbCameraName;
 import static frc.robot.Constants.VisionConstants.ClimbCameraToRobot;
+import static frc.robot.Constants.VisionConstants.ElevatorCamToRobot;
 import static frc.robot.Constants.VisionConstants.ElevatorCameraName;
 import static frc.robot.Constants.VisionConstants.FallbackVisionStrategy;
 import static frc.robot.Constants.VisionConstants.FieldTagLayout;
 import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
 import static frc.robot.Constants.VisionConstants.RightClimbCamName;
-import static frc.robot.Constants.VisionConstants.RobotToElevatorCam;
-import static frc.robot.Constants.VisionConstants.RobotToRightClimbCam;
+import static frc.robot.Constants.VisionConstants.RightClimbCamToRobot;
+// import static frc.robot.Constants.VisionConstants.RobotToElevatorCam;
+// import static frc.robot.Constants.VisionConstants.RobotToRightClimbCam;
 import frc.robot.Robot;
 
 public class Vision extends SubsystemBase {
@@ -89,10 +91,10 @@ public class Vision extends SubsystemBase {
         climbCamera = new PhotonCamera(ClimbCameraName); // right camera
 
         // elevatorPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, poseCamera, PoseCameraToRobot);
-        elevatorPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RobotToElevatorCam);
+        elevatorPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, ElevatorCamToRobot);
         elevatorPhotonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
 
-        rightClimbPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RobotToRightClimbCam);
+        rightClimbPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RightClimbCamToRobot);
         rightClimbPhotonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
 
         AprilTagFieldLayout layout;
@@ -129,7 +131,7 @@ public class Vision extends SubsystemBase {
             // Add the simulated camera to view the targets on this simulated field.
 
             visionSim.addCamera(climbCameraSim, ClimbCameraToRobot);
-            visionSim.addCamera(elevatorCameraSim, RobotToElevatorCam);
+            visionSim.addCamera(elevatorCameraSim, ElevatorCamToRobot);
 
             climbCameraSim.enableDrawWireframe(true);
         }
@@ -174,7 +176,7 @@ public class Vision extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (!Robot.isSimulation() && /*!robot.isAutonomous() &&*/ /*(!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) &&*/ !this.disabledVision) {
+        if (!Robot.isSimulation() && !robot.isAutonomous() && /*(!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) &&*/ !this.disabledVision) {
             Pose2d currentPose = driveSub.getPose();
             updateVisionLocalization(currentPose);
         }

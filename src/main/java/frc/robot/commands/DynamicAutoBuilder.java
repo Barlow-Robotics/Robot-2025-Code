@@ -19,8 +19,10 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -44,6 +46,11 @@ public class DynamicAutoBuilder {
 
   PathConstraints constraints = new PathConstraints(2, 6.0, 6 * Math.PI, 12 * Math.PI);
   Transform2d centeredOffset = new Transform2d(Constants.FieldConstants.reefOffsetMeters, 0.0, Rotation2d.k180deg);
+
+
+  private SlewRateLimiter filterX = new SlewRateLimiter(2);
+  private SlewRateLimiter filterY = new SlewRateLimiter(2);
+  private SlewRateLimiter filterRot = new SlewRateLimiter(2);
 
   private final ProfiledPIDController profiledPIDX ;
   private final ProfiledPIDController profiledPIDY ;
@@ -79,6 +86,7 @@ public class DynamicAutoBuilder {
   public Command manualAlign(Transform2d extraOffset) {
     // manualAlign uses a deferred so that it can compute the new path when the
     // trigger is run.
+
     return new DeferredCommand(
         () -> runManualPathing(extraOffset),
         Set.of(driveSub));
@@ -148,22 +156,31 @@ public class DynamicAutoBuilder {
       double sliderInput = -driverController.getThrottle();
       double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
 
-      swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-      if (swerveRequest.VelocityX > 3) {
-        swerveRequest.VelocityX = 3;
-      }
-      swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier;
-      if (swerveRequest.VelocityY > 3) {
-        swerveRequest.VelocityY = 3;
-      }
-      swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * maxVelocityMultiplier * 2;
+      swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant;
+      swerveRequest.VelocityX = MathUtil.clamp(swerveRequest.VelocityX, -1, 1);
+      
+      swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant;
+      swerveRequest.VelocityY = MathUtil.clamp(swerveRequest.VelocityY, -1, 1);
 
+      swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * 2;
+
+      swerveRequest.VelocityX = filterX.calculate(swerveRequest.VelocityX);
+      swerveRequest.VelocityY = filterY.calculate(swerveRequest.VelocityY);
+      swerveRequest.RotationalRate = filterRot.calculate(swerveRequest.RotationalRate);
+      Logger.recordOutput("Auto/VelocityX", swerveRequest.VelocityX);
+      Logger.recordOutput("Auto/VelocityY", swerveRequest.VelocityY);
+      Logger.recordOutput("Auto/RotationalRate", swerveRequest.RotationalRate);
+
+      
       driveSub.setControl(swerveRequest);
     });
   }
 
   Command runManualPathing(Transform2d extraOffset) {
 
+    filterX.reset(0);
+    filterY.reset(0);
+    filterRot.reset(0);
     var maybeTargetPose = findTargetFromOffset(extraOffset);
     if (maybeTargetPose.isEmpty()) {
       return Commands.none();
