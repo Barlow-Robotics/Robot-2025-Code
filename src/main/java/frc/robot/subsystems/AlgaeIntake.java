@@ -385,29 +385,57 @@ public class AlgaeIntake extends SubsystemBase {
 
         talonConfigs.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST ;
 
+        // // Deploy gains
+        // talonConfigs.Slot0.kP = 1.0;
+        // talonConfigs.Slot0.kI = 0;
+        // talonConfigs.Slot0.kD = 0.05;
+        // talonConfigs.Slot0.kV = 4.0;
+        // talonConfigs.Slot0.kG = 0.0;
+        // talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+        // //retract gains
+        // talonConfigs.Slot1.kP = 1.0;
+        // talonConfigs.Slot1.kI = 0.0;
+        // talonConfigs.Slot1.kD = 0.1;
+        // talonConfigs.Slot1.kV = 6.0;
+        // talonConfigs.Slot1.kG = 1.0;
+        // talonConfigs.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
+
+        // // hold gains
+        // talonConfigs.Slot2.kP = 6.0;
+        // talonConfigs.Slot2.kI = 0.0;
+        // talonConfigs.Slot2.kD = 0.0;
+        // talonConfigs.Slot2.kV = 0;
+        // talonConfigs.Slot2.kG = 0;
+        // talonConfigs.Slot2.GravityType = GravityTypeValue.Arm_Cosine;
+
+
         // Deploy gains
-        talonConfigs.Slot0.kP = 2.0;
+        talonConfigs.Slot0.kP = 1.0;
         talonConfigs.Slot0.kI = 0;
-        talonConfigs.Slot0.kD = 0.1;
-        talonConfigs.Slot0.kV = 11.0;
+        talonConfigs.Slot0.kD = 0.05;
+        talonConfigs.Slot0.kV = 4.0;
+        
         talonConfigs.Slot0.kG = 0.0;
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         //retract gains
-        talonConfigs.Slot1.kP = 3.0;
+        talonConfigs.Slot1.kP = 2.0;
         talonConfigs.Slot1.kI = 0.0;
-        talonConfigs.Slot1.kD = 0.5;
-        talonConfigs.Slot1.kV = 15.0;
+        talonConfigs.Slot1.kD = 0.1;
+        talonConfigs.Slot1.kV = 8.0;
         talonConfigs.Slot1.kG = 1.0;
         talonConfigs.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
 
         // hold gains
-        talonConfigs.Slot2.kP = 15.0;
+        talonConfigs.Slot2.kP = 6.0;
         talonConfigs.Slot2.kI = 0.0;
         talonConfigs.Slot2.kD = 0.0;
         talonConfigs.Slot2.kV = 0;
         talonConfigs.Slot2.kG = 0;
         talonConfigs.Slot2.GravityType = GravityTypeValue.Arm_Cosine;
+
+
 
 
 

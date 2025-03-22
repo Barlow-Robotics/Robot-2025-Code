@@ -584,7 +584,7 @@ public class Constants {
         public static final double retractedAngle2 = -8 ; 
         public static final double deployedAngle2 = 56 + retractedAngle2; 
 
-        public static final double LiftGearRatio = 60.0/ 14.0 ;
+        public static final double LiftGearRatio = 80.0/ 8.0 ;
 
         public static TuneableParameter deployedAngle = new TuneableParameter(deployedAngle2, 0, 180, true, "TuneableParameter/AlgaeIntake/DeployedAngle"); //CHANGE
         public static TuneableParameter retractedAngle = new TuneableParameter(retractedAngle2,  -180,180, true, "TuneableParameter/AlgaeIntake/RestedAngle");
