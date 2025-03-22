@@ -49,6 +49,7 @@ import frc.robot.commands.StopAlgaeIntake;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ArmState;
+import frc.robot.subsystems.Chute;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
@@ -67,6 +68,7 @@ public class RobotContainer {
     public final Wrist wristSub;
     public final Climb climbSub;
     public final Underglow underglowSub;
+    public final Chute chuteSub ;
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
     public final ArmStateManager armState = new ArmStateManager();
     public final DynamicAutoBuilder dynAutoBuilder;
@@ -185,7 +187,8 @@ public class RobotContainer {
         elevatorSub = new Elevator(robot);
         armSub = new Arm(robot);
         wristSub = new Wrist(robot);
-        underglowSub = new Underglow();
+        chuteSub = new Chute() ;
+        underglowSub = new Underglow(chuteSub);
 
         climbSub = new Climb(
                 robot,

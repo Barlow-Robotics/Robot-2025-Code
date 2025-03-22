@@ -16,7 +16,10 @@ public class Underglow extends SubsystemBase {
 
     int currentMode = 1;
 
-    public Underglow() {
+    Chute chute ;
+
+    public Underglow(Chute c) {
+        chute = c ;
         try {
             port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
         } catch (Exception e) {
@@ -36,15 +39,14 @@ public class Underglow extends SubsystemBase {
         else {
             // BCW: Do an if statement here depending on if the coralIsLoaded or not. 
             int desiredMode;
-            desiredMode = Constants.UnderGlowConstants.NeonGreen;
-            desiredMode = Constants.UnderGlowConstants.CoralLoaded;
-
+            if ( chute.hasCoral()) {
+                desiredMode = Constants.UnderGlowConstants.CoralLoaded;
+            } else {
+                desiredMode = Constants.UnderGlowConstants.NeonGreen;
+            }
 
             port.write(new byte[] { (byte) desiredMode }, 1);
             Logger.recordOutput("Underglow/byte", ((byte) desiredMode));
-                // } catch (Exception ex) {
-                // Logger.recordOutput("Underglow/problem", ex.toString());
-                // }
             currentMode = desiredMode;
             
             Logger.recordOutput("Underglow/desiredMode", desiredMode);
