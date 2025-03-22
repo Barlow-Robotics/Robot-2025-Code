@@ -607,9 +607,10 @@ public class Constants {
         public static final double MaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4; // default: 720 deg
 
         // TODO: Base these on reef / arm geometry
+        public static final double misAlignmentTuning = 3;
         public static final Transform2d AlgaeOffset = new Transform2d(0, 0, Rotation2d.kZero);
-        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(5.5), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
-        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-7.5), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
+        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(5.5+misAlignmentTuning), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
+        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-7.5+misAlignmentTuning), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
 
     }
 
@@ -704,7 +705,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = /*7.5*/19; // goes to the middle of the Side
+        public static final double reefOffsetInches = /*7.5*/17.5; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
     public static final class UnderGlowConstants {

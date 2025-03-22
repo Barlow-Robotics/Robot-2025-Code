@@ -48,9 +48,9 @@ public class DynamicAutoBuilder {
   Transform2d centeredOffset = new Transform2d(Constants.FieldConstants.reefOffsetMeters, 0.0, Rotation2d.k180deg);
 
 
-  private SlewRateLimiter filterX = new SlewRateLimiter(2);
-  private SlewRateLimiter filterY = new SlewRateLimiter(2);
-  private SlewRateLimiter filterRot = new SlewRateLimiter(2);
+  private SlewRateLimiter filterX = new SlewRateLimiter(5);
+  private SlewRateLimiter filterY = new SlewRateLimiter(5);
+  private SlewRateLimiter filterRot = new SlewRateLimiter(5);
 
   private final ProfiledPIDController profiledPIDX ;
   private final ProfiledPIDController profiledPIDY ;
@@ -153,23 +153,33 @@ public class DynamicAutoBuilder {
           .withVelocityY(translationDelta.getY())
           .withRotationalRate(rotationDelta);
 
-      double sliderInput = -driverController.getThrottle();
-      double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+      // double sliderInput = -driverController.getThrottle();
+      // double maxVelocityMultiplier = (((sliderInput + 1) * (1 - 0.4)) / 2) + 0.4;
+      var heading  = translationDelta.getAngle();
+      var velocity = translationDelta.getNorm();
+      velocity *= Constants.VisionConstants.AutoAlignVelocityConstant;
+      velocity = MathUtil.clamp(velocity, -1, 1);
+      velocity = filterX.calculate(velocity);
 
-      swerveRequest.VelocityX *= Constants.VisionConstants.AutoAlignVelocityConstant;
-      swerveRequest.VelocityX = MathUtil.clamp(swerveRequest.VelocityX, -1, 1);
+      var filteredTranslation = new Translation2d(velocity, heading);
       
-      swerveRequest.VelocityY *= Constants.VisionConstants.AutoAlignVelocityConstant;
-      swerveRequest.VelocityY = MathUtil.clamp(swerveRequest.VelocityY, -1, 1);
+
+
+      swerveRequest.VelocityX = filteredTranslation.getX();
+      
+      swerveRequest.VelocityY = filteredTranslation.getY();
 
       swerveRequest.RotationalRate *= Constants.VisionConstants.AutoAlignVelocityConstant * 2;
 
-      swerveRequest.VelocityX = filterX.calculate(swerveRequest.VelocityX);
-      swerveRequest.VelocityY = filterY.calculate(swerveRequest.VelocityY);
-      swerveRequest.RotationalRate = filterRot.calculate(swerveRequest.RotationalRate);
+      // swerveRequest.VelocityX = filterX.calculate(swerveRequest.VelocityX);
+      // swerveRequest.VelocityY = filterY.calculate(swerveRequest.VelocityY);
+      // swerveRequest.RotationalRate = filterRot.calculate(swerveRequest.RotationalRate);
       Logger.recordOutput("Auto/VelocityX", swerveRequest.VelocityX);
       Logger.recordOutput("Auto/VelocityY", swerveRequest.VelocityY);
       Logger.recordOutput("Auto/RotationalRate", swerveRequest.RotationalRate);
+      Logger.recordOutput("Auto/TranslationError", driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()));
+      Logger.recordOutput("Auto/RotationError", Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()));
+
 
       
       driveSub.setControl(swerveRequest);
@@ -189,7 +199,7 @@ public class DynamicAutoBuilder {
     var targetPose = maybeTargetPose.get();
 
     return applyDeltaRequest(targetPose)
-        .until(() -> driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.05 &&
+        .until(() -> driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.01 &&
             Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()) < 0.01);
   }
 
