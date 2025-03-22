@@ -25,6 +25,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.commands.TuneableParameter;
 
 public class Constants {
@@ -703,4 +704,12 @@ public class Constants {
         public static final double reefOffsetInches = /*7.5*/14; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
+    public static final class UnderGlowConstants {
+        public static final SerialPort.Port Port = SerialPort.Port.kUSB1;
+        public static final int BlueAlliance = 1;
+        public static final int RedAlliance = 2;
+        public static final int NeonGreen = 3;
+        public static final int CoralLoaded = 4;
+    }
+
 }

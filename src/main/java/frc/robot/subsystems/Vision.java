@@ -355,6 +355,10 @@ public class Vision extends SubsystemBase {
         }
         Logger.recordOutput("Vision/stdDev", distanceToTarget);
 
+
+
+        // size of the angles. 
+
         driveSub.addVisionMeasurement(
             new Pose2d(pose.getX(), pose.getY(), driveSub.getPose().getRotation()), 
             visionTime, 

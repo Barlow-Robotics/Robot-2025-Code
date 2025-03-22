@@ -53,6 +53,7 @@ import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
+import frc.robot.subsystems.Underglow;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Wrist;
 
@@ -65,6 +66,7 @@ public class RobotContainer {
     public final Arm armSub;
     public final Wrist wristSub;
     public final Climb climbSub;
+    public final Underglow underglowSub;
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
     public final ArmStateManager armState = new ArmStateManager();
     public final DynamicAutoBuilder dynAutoBuilder;
@@ -183,6 +185,7 @@ public class RobotContainer {
         elevatorSub = new Elevator(robot);
         armSub = new Arm(robot);
         wristSub = new Wrist(robot);
+        underglowSub = new Underglow();
 
         climbSub = new Climb(
                 robot,
@@ -614,10 +617,10 @@ public class RobotContainer {
                 new InstantCommand(() -> gripperSub.startAlgaeRemoval()),
                 // move the elevator up to strip the algae
                 new MoveElevator(elevatorSub,
-                        elevatorSub.getDesiredElevatorHeightInches() + 4,
+                        elevatorSub.getDesiredElevatorHeightInches(),
                         Constants.ArmConstants.ElevatorAlgaeRemovalVelocity,
-                        20.0,
-                        Constants.ArmConstants.CarriageAlgaeRemovalVelocity),
+                        16,
+                        12),
                 new InstantCommand(() -> gripperSub.stop()),
                 new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub));
 
@@ -627,11 +630,11 @@ public class RobotContainer {
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L1 Path"), Set.of(driveSub)));
         autoChooser.addOption("Score L3 Path",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
-        // autoChooser.addOption("2-Coral_Broke_OtherBarge", new DeferredCommand(() ->
-        // driveSub.CustomChoreoAuto("[USED] 2CoralP", true), Set.of(driveSub)));
+        autoChooser.addOption("2-Coral_OtherBarge", new DeferredCommand(() ->
+            driveSub.CustomChoreoAuto("[USED] 2CoralP", true, commandGroup1), Set.of(driveSub)));
         autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(
                 () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, commandGroup1), Set.of(driveSub)));
-
+    
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);
