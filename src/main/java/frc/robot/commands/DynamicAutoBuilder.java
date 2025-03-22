@@ -195,6 +195,71 @@ public class DynamicAutoBuilder {
 
   Command applyTrapazoidalRequest(Pose2d targetPose) {
     return new TrapazoidalRequest(driveSub, targetPose) ;
+
+    // FunctionalCommand fc = new FunctionalCommand(
+    //     // onInit
+    //     () -> {
+    //       // set goals in profiled PIDs
+    //       profiledPIDX.setGoal(0);
+    //       profiledPIDX.setGoal(0);
+    //       profiledPIDRot.setGoal(0);
+    //     },
+    //     // onExecute
+    //     () -> {
+    //       // set velocities based on PID calculations and feed forward values
+    //       Translation2d translationDelta = (targetPose.getTranslation()).minus(driveSub.getPose().getTranslation());
+    //       double rotationDelta = targetPose.getRotation().minus(driveSub.getPose().getRotation()).getRadians();
+
+    //       var xPIDInput = profiledPIDX.calculate(translationDelta.getX());
+    //       var xFeedForward = feedForwardX.calculate(profiledPIDX.getSetpoint().velocity);
+
+    //       var yPIDInput = profiledPIDY.calculate(translationDelta.getY());
+    //       var yFeedForward = feedForwardY.calculate(profiledPIDY.getSetpoint().velocity);
+
+    //       var rotPIDInput = profiledPIDRot.calculate(rotationDelta);
+    //       var rotFeedForward = feedForwardRot.calculate(profiledPIDRot.getSetpoint().velocity);
+
+    //       // Always use BlueAlliance for the ForwardPerspective value. This is because
+    //       // all of our poses are always relative to blue-alliance.
+    //       FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
+    //           .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
+    //           .withVelocityX(xPIDInput + profiledPIDX.getSetpoint().velocity)
+    //           .withVelocityY(yPIDInput + profiledPIDY.getSetpoint().velocity)
+    //           .withRotationalRate(rotPIDInput + profiledPIDRot.getSetpoint().velocity);
+
+    //       Logger.recordOutput("AutoAlign/translationDeltaX", translationDelta.getX());
+    //       Logger.recordOutput("AutoAlign/translationDeltaY", translationDelta.getY());
+    //       Logger.recordOutput("AutoAlign/rotationDelta", rotationDelta);
+    
+
+    //       Logger.recordOutput("AutoAlign/pidX", xPIDInput);
+    //       Logger.recordOutput("AutoAlign/pidY", yPIDInput);
+    //       Logger.recordOutput("AutoAlign/pidRot", rotPIDInput);
+
+    //       Logger.recordOutput("AutoAlign/pidXVelocity", profiledPIDX.getSetpoint().velocity);
+    //       Logger.recordOutput("AutoAlign/pidYVelocity", profiledPIDY.getSetpoint().velocity);
+    //       Logger.recordOutput("AutoAlign/pidRotVelocity", profiledPIDRot.getSetpoint().velocity);
+
+    //       Logger.recordOutput("AutoAlign/feedForwardX", xFeedForward);
+    //       Logger.recordOutput("AutoAlign/feedForwardY", yFeedForward);
+    //       Logger.recordOutput("AutoAlign/feedForwardRot", rotFeedForward);
+
+    //       Logger.recordOutput("AutoAlign/VelocityX", swerveRequest.VelocityX);
+    //       Logger.recordOutput("AutoAlign/VelocityY", swerveRequest.VelocityY);
+    //       Logger.recordOutput("AutoAlign/RotationalRate", swerveRequest.RotationalRate);
+
+    //       driveSub.setControl(swerveRequest);
+
+    //     },
+    //     // onEnd
+    //     interrupted -> {} ,
+    //     // isFinished
+    //     // () -> profiledPIDX.atGoal() && profiledPIDY.atGoal() && profiledPIDRot.atGoal(),
+    //     () -> false ,
+    //     // requieres
+    //     driveSub);
+    // return fc;
+
   }
 
 
