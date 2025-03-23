@@ -4,8 +4,10 @@
 
 package frc.robot.commands;
 
+import java.util.Set;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climb;
@@ -14,7 +16,7 @@ import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.ArmState;
 import frc.robot.subsystems.Climb.ClimbState;
 
-public class DoClimb extends Command {
+public class DoClimb {
     /** Creates a new StartClimbing. */
 
     private Command comm;
@@ -34,52 +36,30 @@ public class DoClimb extends Command {
 
         // comm = new SequentialCommandGroup();
 
-        addRequirements(climbSub, armSub);
         // Use addRequirements() here to declare subsystem dependencies.
     }
 
-    // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {
-        //comm = new SequentialCommandGroup();
-        if (climbSub.getCurrentState() == ClimbState.Idle) {
-            // comm = new InstantCommand(() -> climbSub.goToUnwind()) ;
-            comm =         new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub);
-            // comm = Commands.sequence(
-            //         new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub),
-            //         new InstantCommand(() -> climbSub.goToUnwind())
-            //         );
+    public Command command() {
+        // comm = new SequentialCommandGroup();
+        return Commands.defer(
+                () -> {
+                    if (climbSub.getCurrentState() == ClimbState.Idle) {
+                        // comm = new InstantCommand(() -> climbSub.goToUnwind()) ;
+                        return new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub)
+                                .command();
+                        // comm = Commands.sequence(
+                        // new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub,
+                        // wristSub),
+                        // new InstantCommand(() -> climbSub.goToUnwind())
+                        // );
 
-        } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
-            comm =  new InstantCommand(() -> climbSub.goToWind());
-        } else {
-            comm = null ;
-        }
-        if ( comm != null) {
-            comm.schedule();
-        }
-    }
-    public void execute() {
-        
-        // if (climbSub.getCurrentState() == ClimbState.Idle) {
-        //     comm = Commands.sequence(new InstantCommand(() -> climbSub.goToUnwind()));
-        // } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
-        //     comm = Commands.sequence(new InstantCommand(() -> climbSub.goToWind()));
-        // }
-
-        // comm.schedule();
+                    } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
+                        return new InstantCommand(() -> climbSub.goToWind());
+                    } else {
+                        return Commands.none();
+                    }
+                },
+                Set.of(climbSub, armSub));
     }
 
-    @Override
-    public boolean isFinished() {
-        if ( comm != null) {
-            return (comm.isFinished());
-        }
-        return true ;
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-
-    }
 }

@@ -68,7 +68,7 @@ public class RobotContainer {
     public final Wrist wristSub;
     public final Climb climbSub;
     public final Underglow underglowSub;
-    public final Chute chuteSub ;
+    public final Chute chuteSub;
     public final AlgaeIntake algaeIntakeSub = new AlgaeIntake();
     public final ArmStateManager armState = new ArmStateManager();
     public final DynamicAutoBuilder dynAutoBuilder;
@@ -174,9 +174,9 @@ public class RobotContainer {
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(0.1)
-            .withRotationalDeadband( 0.1) // Add a
-                                                                                                               // 10%
-                                                                                                               // deadband
+            .withRotationalDeadband(0.1) // Add a
+                                         // 10%
+                                         // deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.ApplyRobotSpeeds nudge = new SwerveRequest.ApplyRobotSpeeds();
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -187,7 +187,7 @@ public class RobotContainer {
         elevatorSub = new Elevator(robot);
         armSub = new Arm(robot);
         wristSub = new Wrist(robot);
-        chuteSub = new Chute() ;
+        chuteSub = new Chute();
         underglowSub = new Underglow(chuteSub);
 
         climbSub = new Climb(
@@ -380,35 +380,35 @@ public class RobotContainer {
         /***************** ARM POSITION *****************/
 
         moveToTravellingButton = new JoystickButton(operatorController, XboxControllerConstants.RightStick);
-        moveToTravellingButton.onTrue(setArmPosTravellingCmd);
+        moveToTravellingButton.onTrue(setArmPosTravellingCmd.command());
 
         moveToLoadCoralButton = new JoystickButton(operatorController, XboxControllerConstants.RightBumper);
-        moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd);
+        moveToLoadCoralButton.onTrue(setArmPosLoadCoralCmd.command());
 
         // moveToAlgaeButton = new JoystickButton(operatorController,
         // XboxControllerConstants.LeftTrigger);
         // moveToAlgaeButton.onTrue(setArmPosAlgaeCmd);
 
         removeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper);
-        removeAlgaeButton.onTrue(removeAlgaeCmd);
+        removeAlgaeButton.onTrue(removeAlgaeCmd.command());
 
         moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonY);
-        moveToLevel1Button.onTrue(setArmPosLevel1Cmd);
+        moveToLevel1Button.onTrue(setArmPosLevel1Cmd.command());
 
         moveToLevel2Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonX);
-        moveToLevel2Button.onTrue(setArmPosLevel2Cmd);
+        moveToLevel2Button.onTrue(setArmPosLevel2Cmd.command());
 
         moveToLevel3Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonB);
-        moveToLevel3Button.onTrue(setArmPosLevel3Cmd);
+        moveToLevel3Button.onTrue(setArmPosLevel3Cmd.command());
 
         moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonA);
-        moveToLevel4Button.onTrue(setArmPosLevel4Cmd);
+        moveToLevel4Button.onTrue(setArmPosLevel4Cmd.command());
 
         // Joystick testingController = new Joystick(0) ;
         startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
         // startClimbButton = new JoystickButton(testingController,
         // LogitechDAConstants.ButtonY); // just for testing
-        startClimbButton.onTrue(startClimbingCmd);
+        startClimbButton.onTrue(startClimbingCmd.command());
 
         /***************** ALGAE INTAKE *****************/
 
@@ -441,7 +441,7 @@ public class RobotContainer {
 
         scoreCoralButton = new JoystickButton(operatorController, XboxControllerConstants.WindowButton);
         // scoreCoralButton.onTrue(scoreCoralCmd);
-        scoreCoralButton.onTrue(scoreCoralCmd);
+        scoreCoralButton.onTrue(scoreCoralCmd.command());
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
         autoAlignAlgaeButton.whileTrue(
@@ -560,6 +560,15 @@ public class RobotContainer {
         }));
     }
 
+    public enum Group1State {
+        Scoring,
+        Removing,
+        MovingElevator,
+        Stopping,
+        Running,
+        Done,
+    }
+
     public void configurePathPlanner() {
 
         RobotConfig config;
@@ -573,17 +582,17 @@ public class RobotContainer {
         }
 
         /* PATHPLANNER INIT */
-        NamedCommands.registerCommand("setPositionCoralL1", setArmPosLevel1Cmd);
-        NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd);
-        NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd);
-        NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd);
+        NamedCommands.registerCommand("setPositionCoralL1", setArmPosLevel1Cmd.command());
+        NamedCommands.registerCommand("setPositionCoralL2", setArmPosLevel2Cmd.command());
+        NamedCommands.registerCommand("setPositionCoralL3", setArmPosLevel3Cmd.command());
+        NamedCommands.registerCommand("setPositionCoralL4", setArmPosLevel4Cmd.command());
         // NamedCommands.registerCommand("", setArmPosLevel4Cmd);
 
-        NamedCommands.registerCommand("setPositionTraveling", setArmPosTravellingCmd);
+        NamedCommands.registerCommand("setPositionTraveling", setArmPosTravellingCmd.command());
 
-        NamedCommands.registerCommand("setPositionLoadCoral", setArmPosLoadCoralCmd);
-        NamedCommands.registerCommand("startOuttake", scoreCoralCmd);
-        NamedCommands.registerCommand("startOuttakeWithoutTravelling", scoreCoralCmdWithoutTravelling);
+        NamedCommands.registerCommand("setPositionLoadCoral", setArmPosLoadCoralCmd.command());
+        NamedCommands.registerCommand("startOuttake", scoreCoralCmd.command());
+        NamedCommands.registerCommand("startOuttakeWithoutTravelling", scoreCoralCmdWithoutTravelling.command());
 
         // NamedCommands.registerCommand("StartAlgaeOuttake", setArmPosAlgaeCmd);
 
@@ -616,20 +625,25 @@ public class RobotContainer {
         // autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() ->
         // driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
 
-
         Command commandGroup1 = Commands.sequence(
+                new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Scoring)),
                 // wpk need to fix magic numbers
                 new ScoreCoralWithoutTravel(armState, elevatorSub, armSub, wristSub,
-                gripperSub),
+                        gripperSub).command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Removing)),
                 new InstantCommand(() -> gripperSub.startAlgaeRemoval()),
                 // move the elevator up to strip the algae
+                new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.MovingElevator)),
                 new MoveElevator(elevatorSub,
                         elevatorSub.getDesiredElevatorHeightInches(),
                         Constants.ArmConstants.ElevatorAlgaeRemovalVelocity,
                         16,
                         12),
+                new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Stopping)),
                 new InstantCommand(() -> gripperSub.stop()),
-                new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub));
+                new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Running)),
+                new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub).command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done)));
 
         autoChooser.addOption("Leave Zone",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
@@ -637,11 +651,14 @@ public class RobotContainer {
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L1 Path"), Set.of(driveSub)));
         autoChooser.addOption("Score L3 Path",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
-        autoChooser.addOption("2-Coral_OtherBarge", new DeferredCommand(() ->
-            driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1), Set.of(driveSub)));
+        autoChooser.addOption("2-Coral_OtherBarge",
+                new DeferredCommand(
+                        () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1),
+                        Set.of(driveSub)));
         autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(
-                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1), Set.of(driveSub)));
-    
+                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1),
+                Set.of(driveSub)));
+
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);

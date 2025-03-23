@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -360,7 +361,20 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         return Commands.none();
     }
 
-    public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd, Command sequentalCommand1) {
+    public enum AutoState {
+        Waiting,
+        Path1,
+        Path2,
+        Path3,
+        Path4,
+        Action1,
+        Action2,
+        Action3,
+        Done,
+    }
+
+    public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd,
+            Command sequentalCommand1) {
         try {
             PathPlannerPath originalPath;
             PathPlannerPath originalPath_2;
@@ -369,8 +383,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                 originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1").mirrorPath();
                 originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2").mirrorPath();
                 originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3").mirrorPath();
-            }
-            else {
+            } else {
                 originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1");
                 originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2");
                 originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3");
@@ -380,55 +393,65 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             PathPlannerPath finalPath_2;
             PathPlannerPath finalPath_3;
 
-
-            
             if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                 finalPath = originalPath.flipPath();
                 finalPath_2 = originalPath_2.flipPath();
                 finalPath_3 = originalPath_3.flipPath();
-            }
-            else {
+            } else {
                 finalPath = originalPath;
                 finalPath_2 = originalPath_2;
                 finalPath_3 = originalPath_3;
             }
-            
 
-            // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2), getFullCommand(finalPath_2));
-        // 
-            return Commands.sequence(new ParallelCommandGroup(getFullCommandWithReset(finalPath), setArmPosLevel1Cmd.asProxy()), new WaitCommand(0), sequentalCommand1.asProxy(), new WaitCommand(0), getFullCommand(finalPath_2), new WaitCommand(2), getFullCommand(finalPath_3));
+            // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2),
+            // getFullCommand(finalPath_2));
+            //
+            return Commands.sequence(
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
+                    new ParallelCommandGroup(getFullCommandWithReset(finalPath), setArmPosLevel1Cmd.command()),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
+                    sequentalCommand1.asProxy(),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path2)),
+                    getFullCommand(finalPath_2),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Waiting)),
+                    new WaitCommand(2),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path3)),
+                    getFullCommand(finalPath_3),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
 
-            // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new WaitCommand(1), /*sequentalCommand1.asProxy(), sequentalCommand1.asProxy(),*/ new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
+            // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new
+            // WaitCommand(1), /*sequentalCommand1.asProxy(), sequentalCommand1.asProxy(),*/
+            // new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1),
+            // getFullCommand(finalPath_3));
 
         } catch (IOException e) {
-                e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+            e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
         } catch (ParseException e) {
-                e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+            e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
         }
         return Commands.none();
     }
 
-
     private Command getFullCommandWithReset(PathPlannerPath finalPath) {
-        return AutoBuilder.followPath(finalPath).alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
+        return AutoBuilder.followPath(finalPath)
+                .alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
     }
+
     private Command getFullCommand(PathPlannerPath finalPath) {
         return AutoBuilder.followPath(finalPath);
     }
 
-
-    
     public Command ChoreoAutoWithoutReset(String name) {
         PathPlannerPath path /* may need to get rid of that -> */ = null;
         try {
-                path = PathPlannerPath.fromChoreoTrajectory(name);
-                // Do something with the path
+            path = PathPlannerPath.fromChoreoTrajectory(name);
+            // Do something with the path
         } catch (IOException e) {
-                e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
-                path = null;
+            e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+            path = null;
         } catch (ParseException e) {
-                e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
-                path = null;
+            e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+            path = null;
         } catch (FileVersionException e) {
             e.printStackTrace();
         }
