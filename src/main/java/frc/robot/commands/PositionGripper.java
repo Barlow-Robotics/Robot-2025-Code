@@ -247,7 +247,7 @@ public class PositionGripper {
 
         // transitions from Level 1
         transitionCommands.put(ArmState.Level1, new HashMap<ArmState, Command>() )  ;
-        transitionCommands.get(ArmState.Level1).put(ArmState.Level1, new NoOpCommand()) ;
+        transitionCommands.get(ArmState.Level1).put(ArmState.Level1, Commands.none()) ;
         transitionCommands.get(ArmState.Level1).put(ArmState.Level2, createStraightenArmFirstCommand(ArmState.Level2)) ;
         transitionCommands.get(ArmState.Level1).put(ArmState.Level3, createStraightenArmFirstCommand(ArmState.Level3)) ;
         transitionCommands.get(ArmState.Level1).put(ArmState.Level4, createStraightenArmFirstCommand(ArmState.Level4)) ;
@@ -259,7 +259,7 @@ public class PositionGripper {
         // transitions from Level 2
         transitionCommands.put(ArmState.Level2, new HashMap<ArmState, Command>() )  ;
         transitionCommands.get(ArmState.Level2).put(ArmState.Level1, createStraightenArmFirstCommand(ArmState.Level1)) ;
-        transitionCommands.get(ArmState.Level2).put(ArmState.Level2, new NoOpCommand()) ;
+        transitionCommands.get(ArmState.Level2).put(ArmState.Level2, Commands.none()) ;
         transitionCommands.get(ArmState.Level2).put(ArmState.Level3, createStraightenArmFirstCommand(ArmState.Level3)) ;
         transitionCommands.get(ArmState.Level2).put(ArmState.Level4, createStraightenArmFirstCommand(ArmState.Level4)) ;
         transitionCommands.get(ArmState.Level2).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
@@ -271,7 +271,7 @@ public class PositionGripper {
         transitionCommands.put(ArmState.Level3, new HashMap<ArmState, Command>() )  ;
         transitionCommands.get(ArmState.Level3).put(ArmState.Level1, createStraightenArmFirstCommand(ArmState.Level1)) ;
         transitionCommands.get(ArmState.Level3).put(ArmState.Level2, createStraightenArmFirstCommand(ArmState.Level2)) ;
-        transitionCommands.get(ArmState.Level3).put(ArmState.Level3, new NoOpCommand()) ;
+        transitionCommands.get(ArmState.Level3).put(ArmState.Level3, Commands.none()) ;
         transitionCommands.get(ArmState.Level3).put(ArmState.Level4, createStraightenArmFirstCommand(ArmState.Level4)) ;
         transitionCommands.get(ArmState.Level3).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
         transitionCommands.get(ArmState.Level3).put(ArmState.StartAlgaePosition, createStraightenArmFirstCommand(ArmState.StartAlgaePosition)) ;
@@ -283,7 +283,7 @@ public class PositionGripper {
         transitionCommands.get(ArmState.Level4).put(ArmState.Level1, createStraightenArmFirstCommand(ArmState.Level1)) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.Level2, createStraightenArmFirstCommand(ArmState.Level2)) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.Level3, createStraightenArmFirstCommand(ArmState.Level3)) ;
-        transitionCommands.get(ArmState.Level4).put(ArmState.Level4, new NoOpCommand()) ;
+        transitionCommands.get(ArmState.Level4).put(ArmState.Level4, Commands.none()) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.StartAlgaePosition, createStraightenArmFirstCommand(ArmState.StartAlgaePosition)) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
@@ -307,7 +307,7 @@ public class PositionGripper {
         transitionCommands.get(ArmState.StartAlgaePosition).put(ArmState.Level3, createStraightenArmFirstCommand(ArmState.Level3)) ;
         transitionCommands.get(ArmState.StartAlgaePosition).put(ArmState.Level4, createStraightenArmFirstCommand(ArmState.Level4)) ;
         transitionCommands.get(ArmState.StartAlgaePosition).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
-        transitionCommands.get(ArmState.StartAlgaePosition).put(ArmState.StartAlgaePosition, new NoOpCommand()) ;
+        transitionCommands.get(ArmState.StartAlgaePosition).put(ArmState.StartAlgaePosition, Commands.none()) ;
         transitionCommands.get(ArmState.StartAlgaePosition).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
         transitionCommands.get(ArmState.StartAlgaePosition).put(ArmState.Climb, createStraightenArmFirstCommand(ArmState.Climb)) ;
 
@@ -320,7 +320,7 @@ public class PositionGripper {
         transitionCommands.get(ArmState.Climb).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
         transitionCommands.get(ArmState.Climb).put(ArmState.StartAlgaePosition, createStraightenArmFirstCommand(ArmState.StartAlgaePosition)) ;
         transitionCommands.get(ArmState.Climb).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
-        transitionCommands.get(ArmState.Climb).put(ArmState.Climb, new NoOpCommand()) ;
+        transitionCommands.get(ArmState.Climb).put(ArmState.Climb, Commands.none()) ;
 
 
     }

@@ -58,7 +58,7 @@ public class ScoreCoral {
                 return createL234ScoreCommand(0, -4.0, -30);
             } else {
                 // can't score coral if your not at one of the levels
-                return new NoOpCommand();
+                return Commands.none();
             }
         },
                 Set.of(theElevator, theArm, theWrist, theGripper));

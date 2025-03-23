@@ -54,7 +54,7 @@ public class ScoreCoralWithoutTravel {
             } else if (currentState == ArmState.Level4) {
                 return createL234ScoreCommand(0, -4.0, -30);
             } else {
-                return new NoOpCommand();
+                return Commands.none();
             }
         },
                 Set.of(theElevator, theArm, theWrist, theGripper));
