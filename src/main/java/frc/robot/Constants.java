@@ -58,21 +58,21 @@ public class Constants {
         // from center.
         // NEED TO FIX: wpk need to update these to be more exact.
         public static final Transform3d ClimbCameraToRobot = new Transform3d(
-                new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-12.625), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2)+2.5), Units.inchesToMeters(12)),
+                new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidthInches/2-12.625), Units.inchesToMeters((-1.0*(DriveConstants.TotalWidthInches / 2)+2.5)), Units.inchesToMeters(12)),
                 new Rotation3d(0, Units.degreesToRadians(0), 0));
-        public static final Transform3d RobotToClimbCamera = ClimbCameraToRobot.inverse();
+        // public static final Transform3d RobotToClimbCamera = ClimbCameraToRobot.inverse();
 
         public static final Transform3d ElevatorCamToRobot = 
                 new Transform3d(
-                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-2.5), Units.inchesToMeters(DriveConstants.TotalWidth/2-9.25), Units.inchesToMeters(12.625)), 
+                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidthInches/2-2.5), Units.inchesToMeters((DriveConstants.TotalWidthInches/2-9.25)), Units.inchesToMeters(12.625)), 
                     new Rotation3d(0, Units.degreesToRadians(0), 0));
-        public static final Transform3d RobotToElevatorCam = ElevatorCamToRobot.inverse();
+        // public static final Transform3d RobotToElevatorCam = ElevatorCamToRobot.inverse();
 
         public static final Transform3d RightClimbCamToRobot = 
                 new Transform3d(
-                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidth/2-10.25), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidth / 2) +1.875), Units.inchesToMeters(12.625)), 
+                    new Translation3d(Units.inchesToMeters(DriveConstants.TotalWidthInches/2-10.25), Units.inchesToMeters(-1.0*(DriveConstants.TotalWidthInches / 2) +1.875), Units.inchesToMeters(12.625)), 
                     new Rotation3d(0, Units.degreesToRadians(0), 0)); //  NEED TO FIX. 
-        public static final Transform3d RobotToRightClimbCam = RightClimbCamToRobot.inverse();
+        // public static final Transform3d RobotToRightClimbCam = RightClimbCamToRobot.inverse();
 
 
         
@@ -169,7 +169,9 @@ public class Constants {
         public static final double distanceToFrontOfRobot = Units.inchesToMeters(32/2-10); 
         public static final double TrackWidth = Units.inchesToMeters(22); // Distance between left and right wheels
         public static final double WheelBase = Units.inchesToMeters(20); // Distance between front and back wheels
-        public static final double TotalWidth = Units.inchesToMeters(29);
+        public static final double TotalWidthInches = 29;
+        // public static final double TotalWidth = Units.inchesToMeters(29);
+
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
                 new Translation2d(WheelBase / 2, TrackWidth / 2), // front left
                 new Translation2d(WheelBase / 2, -TrackWidth / 2), // front right
@@ -605,9 +607,10 @@ public class Constants {
         public static final double MaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4; // default: 720 deg
 
         // TODO: Base these on reef / arm geometry
+        public static final double misAlignmentTuning = 3;
         public static final Transform2d AlgaeOffset = new Transform2d(0, 0, Rotation2d.kZero);
-        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(-1.5), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
-        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-12), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
+        public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(5.5+misAlignmentTuning), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
+        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-7.5+misAlignmentTuning), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
 
     }
 
@@ -702,7 +705,7 @@ public class Constants {
 
     public final class FieldConstants {
         public static final double reefSideLengthInches = 37; 
-        public static final double reefOffsetInches = /*7.5*/19; // goes to the middle of the Side
+        public static final double reefOffsetInches = /*7.5*/17.5; // goes to the middle of the Side
         public static final double reefOffsetMeters = 0.025406 * reefOffsetInches;
     }
     public static final class UnderGlowConstants {

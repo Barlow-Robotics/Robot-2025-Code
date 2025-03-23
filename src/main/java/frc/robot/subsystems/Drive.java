@@ -28,10 +28,12 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.commands.PositionGripper;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -358,7 +360,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         return Commands.none();
     }
 
-    public Command CustomChoreoAuto(String name, boolean mirror, Command sequentalCommand1) {
+    public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd, Command sequentalCommand1) {
         try {
             PathPlannerPath originalPath;
             PathPlannerPath originalPath_2;
@@ -394,7 +396,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
 
             // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2), getFullCommand(finalPath_2));
         // 
-            return Commands.sequence(getFullCommandWithReset(finalPath), new WaitCommand(0), sequentalCommand1.asProxy(), new WaitCommand(0), getFullCommand(finalPath_2), new WaitCommand(2), getFullCommand(finalPath_3));
+            return Commands.sequence(new ParallelCommandGroup(getFullCommandWithReset(finalPath), setArmPosLevel1Cmd.asProxy()), new WaitCommand(0), sequentalCommand1.asProxy(), new WaitCommand(0), getFullCommand(finalPath_2), new WaitCommand(2), getFullCommand(finalPath_3));
 
             // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new WaitCommand(1), /*sequentalCommand1.asProxy(), sequentalCommand1.asProxy(),*/ new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1), getFullCommand(finalPath_3));
 
