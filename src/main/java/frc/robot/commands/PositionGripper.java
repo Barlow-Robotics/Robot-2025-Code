@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -16,71 +17,50 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PositionGripper extends Command {
+public class PositionGripper {
 
     private static final HashMap<ArmState, ArmStateParameters> positionDictionary = new HashMap<ArmState, ArmStateParameters>();
     private static final HashMap<ArmState, HashMap<ArmState, Command>> transitionCommands = new HashMap<ArmState, HashMap<ArmState, Command>>();
 
+    ArmStateManager armStateManager;
+    ArmState targetState;
 
-    ArmStateManager armStateManager ;
-    ArmState targetState ;
+    Command commandToRun;
 
-    Command commandToRun ;
-
-    Elevator theElevator ;
-    Arm theArm ;
-    Wrist theWrist ;
+    Elevator theElevator;
+    Arm theArm;
+    Wrist theWrist;
 
     /** Creates a new MoveArm. */
-    public PositionGripper(ArmStateManager asm, ArmState s, Elevator e, Arm a, Wrist w ) { 
-        this.armStateManager = asm ;
-        this.targetState = s ;
-        theElevator = e ;
-        theArm = a ;
-        theWrist = w ;
+    public PositionGripper(ArmStateManager asm, ArmState s, Elevator e, Arm a, Wrist w) {
+        this.armStateManager = asm;
+        this.targetState = s;
+        theElevator = e;
+        theArm = a;
+        theWrist = w;
 
-        addRequirements(theElevator, theArm, theWrist);
+        if (positionDictionary.isEmpty()) {
+            initializePositionDictionary();
+        }
+        if (transitionCommands.isEmpty()) {
+            buildTransitionCommands();
+        }
 
-        if ( positionDictionary.isEmpty() ) {
-            initializePositionDictionary() ;
-        }
-        if ( transitionCommands.isEmpty()) {
-            buildTransitionCommands() ;
-        }
-    
         // Use addRequirements() here to declare subsystem dependencies.
     }
 
-    // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {
-        commandToRun = transitionCommands.get(armStateManager.getCurrentState()).get(targetState) ;
-        commandToRun.schedule();
+    public Command command() {
+        return Commands.defer(() -> {
+            return transitionCommands.get(armStateManager.getCurrentState()).get(targetState);
+        },
+        Set.of(theElevator, theArm, theWrist));
     }
-
-    // Called every time the scheduler runs while the command is scheduled.
-    @Override
-    public void execute() {
-    }
-
-    // Called once the command ends or is interrupted.
-    @Override
-    public void end(boolean interrupted) {
-    }
-
-    // Returns true when the command should end.
-    @Override
-    public boolean isFinished() {
-        return commandToRun.isFinished();
-    }
-
-
 
     /** CHANGE: this version is just for testing */
     private void initializePositionDictionary() {
         positionDictionary.put(ArmState.Level1, new ArmStateParameters(0, 0, 45, 90, 0.0));
         positionDictionary.put(ArmState.Level2, new ArmStateParameters(0, 8.0, 55, 0, 0));
-        positionDictionary.put(ArmState.Level3, new ArmStateParameters(9.0, 15, 55, 0,0));
+        positionDictionary.put(ArmState.Level3, new ArmStateParameters(9.0, 15, 55, 0, 0));
         positionDictionary.put(ArmState.Level4, new ArmStateParameters(27.65, 21.137, 48.34, 0, 0));
         positionDictionary.put(ArmState.WaitingForCoral, new ArmStateParameters(0, 16, -75, 0, 0));
         positionDictionary.put(ArmState.Running, new ArmStateParameters(0, 0, 90, 0, 0));
@@ -213,52 +193,44 @@ public class PositionGripper extends Command {
 
     // }
 
-
-    private Command createElevatorFirstCommand( ArmState targetState) {
+    private Command createElevatorFirstCommand(ArmState targetState) {
         Command c = Commands.sequence(
-            new InstantCommand( () -> armStateManager.setTargetState(targetState)) ,
-            new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(), positionDictionary.get(targetState).getCarriageHeight()),
-            new ParallelCommandGroup(
-                new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()) ,
-                new RotateWrist( theWrist, positionDictionary.get(targetState).getWristAngle() )
-            ),
-            new InstantCommand( () -> armStateManager.setCurrentState(targetState))
-        ) ;
-        return c ;
+                new InstantCommand(() -> armStateManager.setTargetState(targetState)),
+                new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(),
+                        positionDictionary.get(targetState).getCarriageHeight()),
+                new ParallelCommandGroup(
+                        new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()),
+                        new RotateWrist(theWrist, positionDictionary.get(targetState).getWristAngle())),
+                new InstantCommand(() -> armStateManager.setCurrentState(targetState)));
+        return c;
     }
 
-    private Command createStraightenArmFirstCommand( ArmState targetState) {
+    private Command createStraightenArmFirstCommand(ArmState targetState) {
         Command c = Commands.sequence(
-            new InstantCommand( () -> armStateManager.setTargetState(targetState)) ,
-            new ParallelCommandGroup(
-                new MoveArm(theArm, positionDictionary.get(ArmState.Running).getArmAngle()) ,
-                new RotateWrist( theWrist, positionDictionary.get(ArmState.Running).getWristAngle() )
-            ),
-            new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(), positionDictionary.get(targetState).getCarriageHeight()),
-            new ParallelCommandGroup(
-                new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()) ,
-                new RotateWrist( theWrist, positionDictionary.get(targetState).getWristAngle() )
-            ),
-            new InstantCommand( () -> armStateManager.setCurrentState(targetState))
-        ) ;
-        return c ;
+                new InstantCommand(() -> armStateManager.setTargetState(targetState)),
+                new ParallelCommandGroup(
+                        new MoveArm(theArm, positionDictionary.get(ArmState.Running).getArmAngle()),
+                        new RotateWrist(theWrist, positionDictionary.get(ArmState.Running).getWristAngle())),
+                new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(),
+                        positionDictionary.get(targetState).getCarriageHeight()),
+                new ParallelCommandGroup(
+                        new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()),
+                        new RotateWrist(theWrist, positionDictionary.get(targetState).getWristAngle())),
+                new InstantCommand(() -> armStateManager.setCurrentState(targetState)));
+        return c;
     }
 
-
-    private Command createParallelMovementCommand( ArmState targetState) {
+    private Command createParallelMovementCommand(ArmState targetState) {
         Command c = Commands.sequence(
-            new InstantCommand( () -> armStateManager.setTargetState(targetState)) ,
-            new ParallelCommandGroup(
-                new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(), positionDictionary.get(targetState).getCarriageHeight()),
-                new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()) ,
-                new RotateWrist( theWrist, positionDictionary.get(targetState).getWristAngle() )
-            ),
-            new InstantCommand( () -> armStateManager.setCurrentState(targetState))
-        ) ;
-        return c ;
+                new InstantCommand(() -> armStateManager.setTargetState(targetState)),
+                new ParallelCommandGroup(
+                        new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(),
+                                positionDictionary.get(targetState).getCarriageHeight()),
+                        new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()),
+                        new RotateWrist(theWrist, positionDictionary.get(targetState).getWristAngle())),
+                new InstantCommand(() -> armStateManager.setCurrentState(targetState)));
+        return c;
     }
-
-
 
     private void buildTransitionCommands() {
 
@@ -352,6 +324,5 @@ public class PositionGripper extends Command {
 
 
     }
-
 
 }
