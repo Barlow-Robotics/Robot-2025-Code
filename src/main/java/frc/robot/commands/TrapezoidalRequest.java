@@ -10,15 +10,14 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.Drive;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -27,17 +26,9 @@ public class TrapezoidalRequest extends Command {
     Drive driveSub;
     Pose2d targetPose;
 
-    private final ProfiledPIDController profiledPIDX;
-    private final ProfiledPIDController profiledPIDY;
-    private final ProfiledPIDController profiledPIDRot;
 
-    private final SimpleMotorFeedforward feedForwardX;
-    private final SimpleMotorFeedforward feedForwardY;
-    private final SimpleMotorFeedforward feedForwardRot;
-
-    ProfiledPIDController testPID 
-    = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(3.0, 12.0));
-
+    private final ProfiledPIDController displacementPID ;
+    private final ProfiledPIDController rotationPID;
 
     /** Creates a new TrapazoidalRequest. */
     public TrapezoidalRequest(Drive driveSub, Pose2d targetPose) {
@@ -45,29 +36,25 @@ public class TrapezoidalRequest extends Command {
         this.driveSub = driveSub;
         this.targetPose = targetPose;
 
-        profiledPIDX = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(3.0, 12.0));
-        profiledPIDY = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(3.0, 12.0));
-        profiledPIDRot = new ProfiledPIDController(1.0, 0, 0, new TrapezoidProfile.Constraints(2.0*Math.PI, 8.0* Math.PI));
-        profiledPIDRot.setTolerance(Units.degreesToRadians(2.0)) ;
-        profiledPIDRot.enableContinuousInput(-Math.PI, Math.PI);
+        displacementPID = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(2.0, 4.0));
 
-        feedForwardX = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignVelocityConstant);
-        feedForwardY = new SimpleMotorFeedforward(0, 1.0 / Constants.VisionConstants.AutoAlignVelocityConstant);
-        feedForwardRot = new SimpleMotorFeedforward(0,
-                1.0 / Constants.VisionConstants.AutoAlignAngularVelocityConstant);
+        rotationPID = new ProfiledPIDController(1.0, 0, 0, new TrapezoidProfile.Constraints(2.0*Math.PI, 8.0* Math.PI));
+        rotationPID.setTolerance(Units.degreesToRadians(2.0)) ;
+        rotationPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         // set goals in profiled PIDs
-        // profiledPIDX.setGoal(targetPose.getX());
-        // profiledPIDY.setGoal(targetPose.getY());
-        // profiledPIDRot.setGoal(targetPose.getRotation().getRadians());
+        Translation2d translationDelta = driveSub.getPose().getTranslation().minus(targetPose.getTranslation());
+        double displacement = translationDelta.getNorm() ;
+        double rotationDelta = driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians();
+
+        displacementPID.reset( displacement) ;
+        rotationPID.reset(  rotationDelta );
     }
 
-
-    double measurement = 10.0 ;
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
@@ -75,75 +62,39 @@ public class TrapezoidalRequest extends Command {
 
         // set velocities based on PID calculations and feed forward values
         Translation2d translationDelta = driveSub.getPose().getTranslation().minus(targetPose.getTranslation());
+        double displacement = translationDelta.getNorm() ;
         double rotationDelta = driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians();
 
-        // double xPIDInput = profiledPIDX.calculate(translationDelta.getX(), 0);
-        double xPIDInput = profiledPIDX.calculate(-10.0, 0);
-        double yPIDInput = profiledPIDY.calculate(translationDelta.getY(), 0);
-        double rotPIDInput = profiledPIDRot.calculate(  rotationDelta, 0);
+        double displacementPIDValue = displacementPID.calculate(displacement) ;
+        
+        //Get the unit vector of the translation delta and multply by the desired velocity and PID correction values
+        Translation2d velocityVector = translationDelta.div(displacement).times(displacementPID.getSetpoint().velocity) ;
+        Translation2d displacementPIDCorrection = translationDelta.div(displacement).times(displacementPIDValue) ;
 
-//        System.out.println("X setpoint is " + profiledPIDX.getSetpoint().velocity) ;
-
-        // var testPID = profiledPIDTest.calculate( driveSub.getPose().getTranslation().getX(), targetPose.getTranslation().getX()) ;
-
-
-        // // Always use BlueAlliance for the ForwardPerspective value. This is because
-        // // all of our poses are always relative to blue-alliance.
-        // FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
-        //         .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-        //         .withVelocityX(xPIDInput + profiledPIDX.getSetpoint().velocity)
-        //         .withVelocityY(yPIDInput + profiledPIDY.getSetpoint().velocity)
-        //         .withRotationalRate(rotPIDInput + profiledPIDRot.getSetpoint().velocity);
+        double rotPIDInput = rotationPID.calculate(  rotationDelta, 0);
 
         // Always use BlueAlliance for the ForwardPerspective value. This is because
         // all of our poses are always relative to blue-alliance.
         FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
                 .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-                .withVelocityX(profiledPIDX.getSetpoint().velocity)
-//                .withVelocityX(xPIDInput + profiledPIDX.getSetpoint().velocity)
-                .withVelocityY(yPIDInput + profiledPIDY.getSetpoint().velocity )
-                .withRotationalRate(rotPIDInput + profiledPIDRot.getSetpoint().velocity );
+                .withVelocityX(displacementPIDCorrection.getX()+velocityVector.getX())
+                .withVelocityY(displacementPIDCorrection.getY()+velocityVector.getY() )
+                .withRotationalRate(rotPIDInput + rotationPID.getSetpoint().velocity );
 
-        // FieldCentric swerveRequest = new SwerveRequest.FieldCentric()
-        //         .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
-        //         .withVelocityX(profiledPIDX.getSetpoint().velocity)
-        //         .withVelocityY(profiledPIDY.getSetpoint().velocity)
-        //         .withRotationalRate(profiledPIDRot.getSetpoint().velocity);
-
+        driveSub.setControl(swerveRequest);
 
         Logger.recordOutput("AutoAlign/poseX", driveSub.getPose().getTranslation().getX());
         Logger.recordOutput("AutoAlign/targetX", targetPose.getTranslation().getX());
 
         Logger.recordOutput("AutoAlign/translationDeltaX", translationDelta.getX());
         Logger.recordOutput("AutoAlign/translationDeltaY", translationDelta.getY());
+        Logger.recordOutput("AutoAlign/displacement", displacement);
         Logger.recordOutput("AutoAlign/rotationDelta", rotationDelta);
 
-        Logger.recordOutput("AutoAlign/pidX", xPIDInput);
-        Logger.recordOutput("AutoAlign/pidY", yPIDInput);
-        Logger.recordOutput("AutoAlign/pidRot", rotPIDInput);
+        Logger.recordOutput("AutoAlign/pidRotVelocity", rotationPID.getSetpoint().velocity);
+        Logger.recordOutput("AutoAlign/requestXVelocity", swerveRequest.VelocityX);
+        Logger.recordOutput("AutoAlign/requestYVelocity", swerveRequest.VelocityY);
 
-        Logger.recordOutput("AutoAlign/pidXVelocitySetPoint", profiledPIDX.getSetpoint().velocity);
-        Logger.recordOutput("AutoAlign/pidXVelocityGoal", profiledPIDX.getGoal().velocity);
-        Logger.recordOutput("AutoAlign/pidYVelocity", profiledPIDY.getSetpoint().velocity);
-        Logger.recordOutput("AutoAlign/pidRotVelocity", profiledPIDRot.getSetpoint().velocity);
-
-        // Logger.recordOutput("AutoAlign/feedForwardX", xFeedForward);
-        // Logger.recordOutput("AutoAlign/feedForwardY", yFeedForward);
-        // Logger.recordOutput("AutoAlign/feedForwardRot", rotFeedForward);
-
-        // Logger.recordOutput("AutoAlign/VelocityX", swerveRequest.VelocityX);
-        // Logger.recordOutput("AutoAlign/VelocityY", swerveRequest.VelocityY);
-        // Logger.recordOutput("AutoAlign/RotationalRate", swerveRequest.RotationalRate);
-
-        driveSub.setControl(swerveRequest);
-
-        double value = testPID.calculate( measurement, 10) ;
-        // System.out.println("Measurement is " + measurement + ", test setpoint velocity is " + testPID.getSetpoint().velocity) ;
-        measurement+= (testPID.getSetpoint().velocity/50.0) ;
-
-        Logger.recordOutput("AutoAlign/testMeasurement", measurement);
-        Logger.recordOutput("AutoAlign/testGoalVelocity", testPID.getGoal().velocity);
-        Logger.recordOutput("AutoAlign/testSetpointVelocity", testPID.getSetpoint().velocity);
 
     }
 
