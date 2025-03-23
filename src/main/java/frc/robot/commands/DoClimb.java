@@ -19,8 +19,6 @@ import frc.robot.subsystems.Climb.ClimbState;
 public class DoClimb {
     /** Creates a new StartClimbing. */
 
-    private Command comm;
-
     private final Climb climbSub;
     private final Arm armSub;
     private final ArmStateManager armStateManager;
@@ -33,14 +31,9 @@ public class DoClimb {
         this.armStateManager = armStateManager;
         this.elevatorSub = elevatorSub;
         this.wristSub = wristSub;
-
-        // comm = new SequentialCommandGroup();
-
-        // Use addRequirements() here to declare subsystem dependencies.
     }
 
     public Command command() {
-        // comm = new SequentialCommandGroup();
         return Commands.defer(
                 () -> {
                     if (climbSub.getCurrentState() == ClimbState.Idle) {
@@ -59,7 +52,7 @@ public class DoClimb {
                         return Commands.none();
                     }
                 },
-                Set.of(climbSub, armSub));
+                Set.of(climbSub, armSub, elevatorSub, wristSub));
     }
 
 }

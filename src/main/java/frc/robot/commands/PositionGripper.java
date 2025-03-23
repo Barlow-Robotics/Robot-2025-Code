@@ -53,7 +53,7 @@ public class PositionGripper {
         return Commands.defer(() -> {
             return transitionCommands.get(armStateManager.getCurrentState()).get(targetState);
         },
-                Set.of(theElevator, theArm, theWrist));
+        Set.of(theElevator, theArm, theWrist));
     }
 
     /** CHANGE: this version is just for testing */
