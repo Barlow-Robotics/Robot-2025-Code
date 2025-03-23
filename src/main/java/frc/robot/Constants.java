@@ -284,13 +284,13 @@ public class Constants {
         public static final double ArmAngleGearRatio = 86.4;
         public static final double ArmAngleDegreesPerMotorRotation = 360.0 / ArmAngleGearRatio;
 
-        public static final double ArmAngleKP2 =/*testing*/ 12.0; // 32; // CHANGE
+        public static final double ArmAngleKP2 =/*testing*/ 14.0; // 32; // CHANGE
         public static TuneableParameter ArmAngleKP = new TuneableParameter(ArmAngleKP2, 0, 50, true, "TuneableParameter/Arm/PID/ArmAngleKP");
         public static final double ArmAngleKI2 =/*testing*/0; // 0.1; // CHANGE
         public static TuneableParameter ArmAngleKI = new TuneableParameter(ArmAngleKI2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKI");
         public static final double ArmAngleKD2 =/*testing*/0; // 0.05; // CHANGE
         public static TuneableParameter ArmAngleKD = new TuneableParameter(ArmAngleKD2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleKD");
-        public static final double ArmAngleKV2 = 9.0; // CHANGE
+        public static final double ArmAngleKV2 = 9.5; // CHANGE
         public static TuneableParameter ArmAngleKV = new TuneableParameter(ArmAngleKV2, 0, 1, true, "TuneableParameter/Arm/PID/ArmAngleFF");
         public static final double ArmAngleKG2 = 0.25;
         public static TuneableParameter ArmAngleKG = new TuneableParameter(ArmAngleKG2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");

@@ -455,7 +455,7 @@ public class RobotContainer {
 
         autoAlignLeftButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button3);
         // autoAlignLeftButton.whileTrue(
-        //         dynAutoBuilder.trapazoidAlign(Constants.AutoConstants.LeftOffset)
+        //         dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset)
         //                 .andThen(Commands.waitUntil(() -> false)));
         autoAlignLeftButton.whileTrue(
                 dynAutoBuilder.manualAlign(Constants.AutoConstants.LeftOffset)

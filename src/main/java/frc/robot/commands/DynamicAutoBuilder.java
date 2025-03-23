@@ -35,6 +35,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Vision;
+import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class DynamicAutoBuilder {
 
@@ -84,11 +87,11 @@ public class DynamicAutoBuilder {
         Set.of(driveSub));
   }
 
-  public Command trapazoidAlign(Transform2d extraOffset) {
+  public Command trapezoidAlign(Transform2d extraOffset) {
     // manualAlign uses a deferred so that it can compute the new path when the
     // trigger is run.
     return new DeferredCommand(
-        () -> runTrapazoidPathing(extraOffset),
+        () -> runTrapezoidPathing(extraOffset),
         Set.of(driveSub));
   }
 
@@ -178,7 +181,7 @@ public class DynamicAutoBuilder {
 
 
 
-  Command runTrapazoidPathing(Transform2d extraOffset) {
+  Command runTrapezoidPathing(Transform2d extraOffset) {
 
     var maybeTargetPose = findTargetFromOffset(extraOffset);
     if (maybeTargetPose.isEmpty()) {
@@ -187,14 +190,14 @@ public class DynamicAutoBuilder {
 
     var targetPose = maybeTargetPose.get();
 
-    return  applyTrapazoidalRequest(targetPose) ;
+    return  applyTrapezoidalRequest(targetPose) ;
   }
 
 
 
 
-  Command applyTrapazoidalRequest(Pose2d targetPose) {
-    return new TrapazoidalRequest(driveSub, targetPose) ;
+  Command applyTrapezoidalRequest(Pose2d targetPose) {
+    return new TrapezoidalRequest(driveSub, targetPose) ;
 
     // FunctionalCommand fc = new FunctionalCommand(
     //     // onInit
