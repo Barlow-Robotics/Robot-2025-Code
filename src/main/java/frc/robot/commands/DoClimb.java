@@ -37,14 +37,10 @@ public class DoClimb {
         return Commands.defer(
                 () -> {
                     if (climbSub.getCurrentState() == ClimbState.Idle) {
-                        // comm = new InstantCommand(() -> climbSub.goToUnwind()) ;
-                        return new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub)
-                                .command();
-                        // comm = Commands.sequence(
-                        // new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub,
-                        // wristSub),
-                        // new InstantCommand(() -> climbSub.goToUnwind())
-                        // );
+                        return Commands.sequence(
+                        new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub).command(),
+                        new InstantCommand(() -> climbSub.goToUnwind())
+                        );
 
                     } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
                         return new InstantCommand(() -> climbSub.goToWind());

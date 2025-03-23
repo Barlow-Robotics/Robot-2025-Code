@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,7 +29,7 @@ public class ScoreCoral {
     private final Wrist theWrist;
     private final Gripper theGripper;
 
-    // private final Gripper gripperSub;
+    private boolean goToTravel = true ;
 
     public ScoreCoral(ArmStateManager asm, Elevator e, Arm a, Wrist w, Gripper g) {
         armStateManager = asm;
@@ -38,16 +39,17 @@ public class ScoreCoral {
         theGripper = g;
     }
 
+    public ScoreCoral withGoToTravel( boolean value) {
+        goToTravel = value ;
+        return this ;
+    }
+
     public Command command() {
         return Commands.defer(() -> {
             currentState = armStateManager.getCurrentState();
 
             if (currentState == ArmState.Level1) {
-                return Commands.sequence(
-                        new EjectCoral(theGripper).withTimeout(1.0),
-                        new StopGripper(theGripper),
-                        new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
-                                .command());
+                return createL1ScoreCommand();
             } else if (currentState == ArmState.Level2) {
                 return createL234ScoreCommand(0, -7.0, -30);
             } else if (currentState == ArmState.Level3) {
@@ -63,21 +65,38 @@ public class ScoreCoral {
 
     }
 
+
+    private Command createL1ScoreCommand() {
+        ArrayList<Command> commands = new ArrayList<Command>() ;
+        commands.add(new EjectCoral(theGripper).withTimeout(1.0) ) ;
+        commands.add(new StopGripper(theGripper) ) ;
+        if ( goToTravel ) {
+            commands.add(new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist).command() ) ;
+        }
+        return Commands.sequence( commands.toArray(new Command[0])) ;
+    }
+
+
+
     private Command createL234ScoreCommand(double deltaElevatorHeight, double deltaCarriageHeight,
             double deltaArmAngle) {
 
-        return Commands.sequence(
-                // new InstantCommand(() -> theGripper.setReleaseMode() ),
-                new ParallelCommandGroup(
-                        new InstantCommand(() -> theGripper.releaseCoral()),
-                        // new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
-                        new MoveElevator(theElevator,
-                                theElevator.getDesiredElevatorHeightInches() + deltaElevatorHeight,
-                                theElevator.getDesiredCarriageHeightInches() + deltaCarriageHeight)),
-                // new MoveElevator(theElevator,
-                // theElevator.getDesiredElevatorHeightInches()+deltaArmAngle,
-                // theElevator.getDesiredCarriageHeightInches()+deltaArmAngle-1.0),
-                new InstantCommand(() -> theGripper.stop()),
-                new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist).command());
+        ArrayList<Command> commands = new ArrayList<Command>();
+
+        // commands.add(new InstantCommand(() -> theGripper.setReleaseMode() ) ) ;
+        commands.add(new ParallelCommandGroup(
+                new InstantCommand(() -> theGripper.releaseCoral()),
+                // new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
+                new MoveElevator(theElevator,
+                        theElevator.getDesiredElevatorHeightInches() + deltaElevatorHeight,
+                        theElevator.getDesiredCarriageHeightInches() + deltaCarriageHeight)));
+        commands.add(new InstantCommand(() -> theGripper.stop()));
+
+        if (goToTravel) {
+            commands.add(
+                    new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist).command());
+        }
+
+        return Commands.sequence(commands.toArray(new Command[0]));
     }
 }
