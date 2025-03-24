@@ -133,7 +133,7 @@ public class Climb extends SubsystemBase {
                 // set motor voltage to unwind
                 final VoltageOut request = new VoltageOut( -6.0 ) ;
                 winchMotor.setControl(request.withEnableFOC(true));
-            } else if (windWinchInTest.getAsBoolean() ) {
+            } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
                 // set motor voltage to wind
                 final VoltageOut request = new VoltageOut( 6.0 ) ;
                 winchMotor.setControl(request.withEnableFOC(true));
@@ -173,7 +173,7 @@ public class Climb extends SubsystemBase {
         // wpk we should probably put that magic number in constants so we give it more meaning
 
         boolean wound = withinWinchTolerance(winchMotor.getPosition().getValueAsDouble(), 0)
-         || hallSensor.get() ;
+         || !hallSensor.get() ;
 
         return wound ;
     }
@@ -317,6 +317,7 @@ public class Climb extends SubsystemBase {
         Logger.recordOutput("Climb/Winch/AccelerationActual", winchMotor.getAcceleration().getValue());
         Logger.recordOutput("Climb/Winch/StatorCurrent", winchMotor.getStatorCurrent().getValue());
         Logger.recordOutput("Climb/Winch/hallSensor", hallSensor.get());
+        Logger.recordOutput("Climb/Winch/isWound", isWound());
 
     }
 
