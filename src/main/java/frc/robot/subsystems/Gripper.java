@@ -32,12 +32,6 @@ public class Gripper extends SubsystemBase {
     DCMotorSim gripperMotorModel;
 
     private boolean simulationInitialized = false;
-    private boolean intaking = false ;
-
-    private boolean coralLoaded = false ;
-    // private boolean isEjecting;
-    // private boolean firstRelease = false;
-    // private int timerCount = 0;
 
     private enum GripperState {
         // CarryingCoral, PlacingCoral, ReleasingL1, TakingInCoral, FinishedReleasingL1

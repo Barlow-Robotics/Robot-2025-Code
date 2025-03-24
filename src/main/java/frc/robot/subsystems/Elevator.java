@@ -131,9 +131,6 @@ public class Elevator extends SubsystemBase {
 
         double rotations = ((desiredInches /*- ArmConstants.StartingElevatorHeight*/))
                 * ArmConstants.RotationsPerElevatorInch;
-        if ( (rotations / ArmConstants.RotationsPerElevatorInch) > 19 ) {
-            int wpk = 1 ;
-        }
         MotionMagicVoltage request = new MotionMagicVoltage(rotations);
         request.EnableFOC = Constants.IsFocEnabled;
         elevatorMotor.setControl(request.withSlot(0));
@@ -155,6 +152,11 @@ public class Elevator extends SubsystemBase {
         double elevatorHeight = ((elevatorMotor.getPosition().getValue().in(Rotations)
                 / ArmConstants.RotationsPerElevatorInch));
         return elevatorHeight;
+    }
+
+
+    public double getTotalHeightInches() {
+        return getCarriageHeightInches() + getElevatorHeightInches() ;
     }
 
 

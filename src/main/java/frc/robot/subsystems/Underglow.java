@@ -31,7 +31,7 @@ public class Underglow extends SubsystemBase {
     public void periodic() {
         if (port == null) {
             try {
-                port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
+                // port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
             } catch (Exception e) {
                 port = null;
             }

@@ -91,10 +91,6 @@ public class RobotContainer {
     private final EjectAlgae ejectAlgaeCmd;
     private final IntakeAlgae intakeAlgaeCmd;
     private final StopAlgaeIntake stopAlgaeIntakeCmd;
-
-    // private final StartIntakingWithGripper runGripperCmd;
-    // private final StopGripper stopGripperCmd;
-
     private final ScoreCoral scoreCoralCmd;
     private final ScoreCoralWithoutTravel scoreCoralCmdWithoutTravelling;
     private final RemoveAlgae removeAlgaeCmd;
@@ -214,7 +210,6 @@ public class RobotContainer {
         ejectAlgaeCmd = new EjectAlgae(algaeIntakeSub);
         intakeAlgaeCmd = new IntakeAlgae(algaeIntakeSub);
         stopAlgaeIntakeCmd = new StopAlgaeIntake(algaeIntakeSub);
-        // runGripperCmd = new StartIntakingWithGripper(gripperSub, armSub);
         // stopGripperCmd = new StopGripper(gripperSub);
         scoreCoralCmd = new ScoreCoral(armState, elevatorSub, armSub, wristSub, gripperSub);
         scoreCoralCmdWithoutTravelling = new ScoreCoralWithoutTravel(armState, elevatorSub, armSub, wristSub,
@@ -254,6 +249,7 @@ public class RobotContainer {
         driveSub.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 driveSub.applyRequest(() -> {
+
                     double xVelInput = -driverController.getY();
                     double yVelInput = -driverController.getX();
                     double twistInput = -driverController.getTwist();
@@ -317,26 +313,6 @@ public class RobotContainer {
                                                                                                                    // (left)
                             .withRotationalRate(twistConditioned * DriveConstants.MaxAngularRadiansPerSecond
                                     * maxVelocityMultiplier); // Drive counterclockwise with negative X (left)
-                    // }) .andThen(driveSub.applyRequest(() -> {
-
-                    // double povInput = driverController.getPOV();
-
-                    // Logger.recordOutput("Drive/povInput", povInput);
-
-                    // double nudgeVelX = 0;
-                    // double nudgeVelY = 0;
-                    // if (Math.abs(povInput-90.0) > 10) { // within tolerance of right pov
-                    // nudgeVelX = DriveConstants.NudgeSpeed;
-                    // } else if (Math.abs(povInput-270.0) >= 10) { // within tolerance of left pov
-                    // nudgeVelX = -DriveConstants.NudgeSpeed;
-                    // } else if (Math.abs(povInput-180.0) >= 10) { // within tolerance of down pov
-                    // nudgeVelY = DriveConstants.NudgeSpeed;
-                    // } else if (Math.abs(povInput-0.0) >= 10 || Math.abs(povInput-360.0) >= 10) {
-                    // nudgeVelY = -DriveConstants.NudgeSpeed;
-                    // }
-
-                    // ChassisSpeeds nudgeSpeeds = new ChassisSpeeds(nudgeVelX, nudgeVelY, 0.0);
-                    // return nudge.withSpeeds(nudgeSpeeds);
                 }));
 
         configureAutoBuilder();
@@ -404,10 +380,7 @@ public class RobotContainer {
         moveToLevel4Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonA);
         moveToLevel4Button.onTrue(setArmPosLevel4Cmd.command());
 
-        // Joystick testingController = new Joystick(0) ;
         startClimbButton = new JoystickButton(operatorController, XboxControllerConstants.HamburgerButton);
-        // startClimbButton = new JoystickButton(testingController,
-        // LogitechDAConstants.ButtonY); // just for testing
         startClimbButton.onTrue(startClimbingCmd.command());
 
         /***************** ALGAE INTAKE *****************/
@@ -423,24 +396,7 @@ public class RobotContainer {
 
         /***************** GRIPPER *****************/
 
-        // runGripperButton = new JoystickButton(operatorController,
-        // LogitechDAConstants.RightStick);
-        // runGripperButton.onTrue(Commands.parallel(
-        // runGripperCmd.andThen(new StopGripper(gripperSub)), // Use a fresh instance
-        // directly
-        // setArmPosLoadCoralCmd // Runs independently
-        // )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
-
-        // runGripperButton = new JoystickButton(operatorController,
-        // LogitechDAConstants.RightStick);
-        // runGripperButton.onTrue(Commands.parallel(
-        // runGripperCmd.andThen(new StopGripper(gripperSub)), // Use a fresh instance
-        // directly
-        // setArmPosLoadCoralCmd // Runs independently
-        // )).onFalse(stopGripperCmd); // Stop the gripper immediately when released
-
         scoreCoralButton = new JoystickButton(operatorController, XboxControllerConstants.WindowButton);
-        // scoreCoralButton.onTrue(scoreCoralCmd);
         scoreCoralButton.onTrue(scoreCoralCmd.command());
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
