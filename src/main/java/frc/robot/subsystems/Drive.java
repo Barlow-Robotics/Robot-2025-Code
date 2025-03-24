@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.commands.PositionGripper;
+import frc.robot.commands.ScoreCoral;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -359,7 +360,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd,
-            Command sequentalCommand1) {
+            Command sequentalCommand1, ScoreCoral scoreCoralCmd) {
         try {
             PathPlannerPath originalPath;
             PathPlannerPath originalPath_2;
@@ -402,6 +403,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new WaitCommand(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path3)),
                     getFullCommand(finalPath_3),
+                    scoreCoralCmd.command(),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
 
             // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new
