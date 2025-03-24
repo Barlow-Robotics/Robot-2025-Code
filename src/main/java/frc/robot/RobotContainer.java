@@ -17,7 +17,6 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -653,10 +652,10 @@ public class RobotContainer {
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
         autoChooser.addOption("2-Coral_OtherBarge",
                 new DeferredCommand(
-                        () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1),
+                        () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd),
                         Set.of(driveSub)));
         autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(
-                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1),
+                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd),
                 Set.of(driveSub)));
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
