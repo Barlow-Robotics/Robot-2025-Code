@@ -381,7 +381,7 @@ public class Constants {
         /* WRIST */
 
         public static final double WristAngleCANcoderMagnetOffset = -0.219971;// old (not sure where this came from): 0.48583;
-        public static final double WristAngleGearRatio = 20;
+        public static final double WristAngleGearRatio = 15;
         public static final double WristAngleDegreesPerMotorRotation = 360.0 / WristAngleGearRatio;
 
         public static final double WristKP2 =/*testing*/0; // 2; // CHANGE

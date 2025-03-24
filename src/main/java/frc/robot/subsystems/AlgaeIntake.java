@@ -70,7 +70,8 @@ public class AlgaeIntake extends SubsystemBase {
 
     private static final int DeploySlot = 0 ;
     private static final int RetractSlot = 1 ;
-    private static final int HoldSlot = 2 ;
+    private static final int RetractedSlot = 2 ;
+    private static final int DeployedSlot = 3 ;
 
 
     public AlgaeIntake() {
@@ -197,7 +198,7 @@ public class AlgaeIntake extends SubsystemBase {
                 // set motor control for lift to hold it in place
                 double desiredPosition = Units.degreesToRotations(AlgaeConstants.retractedAngle.get())
                         * Constants.AlgaeConstants.LiftGearRatio;
-                final PositionVoltage liftRequest = new PositionVoltage(desiredPosition).withSlot(HoldSlot);
+                final PositionVoltage liftRequest = new PositionVoltage(desiredPosition).withSlot(RetractedSlot);
                 liftMotor.setControl(liftRequest);
 
                 // stop roller motor
@@ -253,7 +254,7 @@ public class AlgaeIntake extends SubsystemBase {
                 // set motor control for lift to hold it in place
                 double desiredPosition = Units.degreesToRotations(AlgaeConstants.deployedAngle.get())
                         * Constants.AlgaeConstants.LiftGearRatio;
-                final PositionVoltage liftRequest = new PositionVoltage(desiredPosition).withSlot(HoldSlot);
+                final PositionVoltage liftRequest = new PositionVoltage(desiredPosition).withSlot(DeployedSlot);
                 liftMotor.setControl(liftRequest);
 
                 // set roller motors to capture speed
@@ -300,7 +301,7 @@ public class AlgaeIntake extends SubsystemBase {
                 // set motor control to let the intake rollers complete retracting the lift
                 double desiredPosition = Units.degreesToRotations(AlgaeConstants.retractedAngle.get())
                         * Constants.AlgaeConstants.LiftGearRatio;
-                final PositionVoltage liftRequest = new PositionVoltage(desiredPosition).withSlot(HoldSlot);
+                final PositionVoltage liftRequest = new PositionVoltage(desiredPosition).withSlot(RetractedSlot);
                 liftMotor.setControl(liftRequest);
 
                 // // set roller motors to capture speed
@@ -414,7 +415,7 @@ public class AlgaeIntake extends SubsystemBase {
         talonConfigs.Slot0.kP = 1.0;
         talonConfigs.Slot0.kI = 0;
         talonConfigs.Slot0.kD = 0.05;
-        talonConfigs.Slot0.kV = 4.0;
+        talonConfigs.Slot0.kV = 5.0;
         
         talonConfigs.Slot0.kG = 0.0;
         talonConfigs.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
@@ -422,19 +423,27 @@ public class AlgaeIntake extends SubsystemBase {
         //retract gains
         talonConfigs.Slot1.kP = 2.0;
         talonConfigs.Slot1.kI = 0.0;
-        talonConfigs.Slot1.kD = 0.1;
-        talonConfigs.Slot1.kV = 8.0;
-        talonConfigs.Slot1.kG = 1.0;
+        talonConfigs.Slot1.kD = 0.0;
+        talonConfigs.Slot1.kV = 12.0;
+        // talonConfigs.Slot1.kG = 1.0;
+        talonConfigs.Slot1.kG = 0.0;
         talonConfigs.Slot1.GravityType = GravityTypeValue.Arm_Cosine;
 
-        // hold gains
-        talonConfigs.Slot2.kP = 6.0;
+        // Retracted Gains
+        talonConfigs.Slot2.kP = 7.0;
         talonConfigs.Slot2.kI = 0.0;
         talonConfigs.Slot2.kD = 0.0;
         talonConfigs.Slot2.kV = 0;
         talonConfigs.Slot2.kG = 0;
         talonConfigs.Slot2.GravityType = GravityTypeValue.Arm_Cosine;
 
+        // Deploed Gains
+        talonConfigs.Slot2.kP = 3.0;
+        talonConfigs.Slot2.kI = 0.0;
+        talonConfigs.Slot2.kD = 0.0;
+        talonConfigs.Slot2.kV = 0;
+        talonConfigs.Slot2.kG = 0;
+        talonConfigs.Slot2.GravityType = GravityTypeValue.Arm_Cosine;
 
 
 

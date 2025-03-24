@@ -258,21 +258,6 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
-
-        // SwerveModuleState[] moduleStates = getState().ModuleStates;
-        // SwerveModulePosition[] modulePositions = new SwerveModulePosition[moduleStates.length];
-        // for (int i = 0; i < moduleStates.length; i++) {
-        //     modulePositions[i] = new SwerveModulePosition(
-        //         moduleStates[i].speedMetersPerSecond,
-        //         moduleStates[i].angle
-        //     );
-        // }
-        // drive.addVisionMeasurement()
-        // poseEstimator.update(
-        //     new Rotation2d(Math.toDegrees(getPose().getRotation().getRadians())),
-        //     new SwerveModulePosition[] {
-        //         frontleft.getState()
-        // });
         logData();
     }
 
@@ -468,6 +453,9 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         Logger.recordOutput("Drive/Odometry/X", getPose().getX());
         Logger.recordOutput("Drive/Odometry/Y", getPose().getY());
         Logger.recordOutput("Drive/Speeds", getState().Speeds);
+        Logger.recordOutput("Drive/Pitch", getPigeon2().getPitch().getValueAsDouble());
+        Logger.recordOutput("Drive/Roll", getPigeon2().getRoll().getValueAsDouble());
+        Logger.recordOutput("Drive/Yaw", getPigeon2().getYaw().getValueAsDouble());
         // Logger.recordOutput("Drive/CurrentSupply/FrontLeftDrive", frontLeft.getDriveCurrent());
         // Logger.recordOutput("Drive/CurrentSupply/FrontLeftTurn", frontLeft.getTurnCurrent());
         // Logger.recordOutput("Drive/CurrentSupply/FrontRightDrive", frontRight.getDriveCurrent());

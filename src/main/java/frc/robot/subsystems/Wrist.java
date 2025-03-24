@@ -16,11 +16,15 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -36,7 +40,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
 import frc.robot.Robot;
-// import frc.robot.subsystems.Gripper.GripperState;
+
 
 public class Wrist extends SubsystemBase {
 
@@ -58,9 +62,11 @@ public class Wrist extends SubsystemBase {
 
     private boolean simulationInitialized = false;
 
+
     public Wrist(Robot robot) {
 
         wristMotor = new SparkMax(ElectronicsIDs.WristMotorID, MotorType.kBrushless);
+
         wristMotorSim = new SparkMaxSim(wristMotor, DCMotor.getNeo550((1)));
         wristEncoder = new CANcoder(ElectronicsIDs.WristEncoderID, "rio");
         wristEncoderSim = wristEncoder.getSimState();
@@ -69,15 +75,17 @@ public class Wrist extends SubsystemBase {
 
         // wristPIDController = new ProfiledPIDController(5.0, 0.001, 0.2, new TrapezoidProfile.Constraints(
         //         ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
-        wristPIDController = new ProfiledPIDController(12.0, 0.000, 0.1, new TrapezoidProfile.Constraints(
-                ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
+        wristPIDController = new ProfiledPIDController(9.0, 0.000, 0.5, 
+            new TrapezoidProfile.Constraints(
+                ArmConstants.WristMaxAngularVelocity, 
+                ArmConstants.WristMaxAngularAcceleration*4.0));
         wristPIDController.setIZone(Units.degreesToRotations(6.0));
         wristPIDController.setIntegratorRange(-0.5, 0.5) ;
         wristPIDController.setTolerance(Units.degreesToRotations(ArmConstants.WristAngleTolerance)) ;
         wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
 //        feedForwardController = new SimpleMotorFeedforward(0.0, 1.15) ;
-        feedForwardController = new SimpleMotorFeedforward(0.25, 1.5) ;
+        feedForwardController = new SimpleMotorFeedforward(0.1, 0.5) ;
 
         this.robot = robot;
     }
@@ -104,12 +112,19 @@ public class Wrist extends SubsystemBase {
 
     public void setWristAngle(double desiredDegrees) {
         final double currentRotations = wristEncoder.getAbsolutePosition().getValueAsDouble();  
+
         var setPoint = wristPIDController.getSetpoint() ;
         final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
         final double feedForward = feedForwardController.calculate(setPoint.velocity) ;
-        wristMotor.setVoltage(wristOutput + feedForward);
+       wristMotor.setVoltage(wristOutput + feedForward);
+        // wristMotor.setVoltage(wristOutput);
+
+        // wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees)*Constants.ArmConstants.WristAngleGearRatio, ControlType.kMAXMotionPositionControl);
+
+        Logger.recordOutput("Wrist/MAXMotionReference",Units.degreesToRotations(desiredDegrees)*Constants.ArmConstants.WristAngleGearRatio);        
         Logger.recordOutput("Wrist/PIDOutput",wristOutput);        
         Logger.recordOutput("Wrist/feedForward",feedForward);        
+        Logger.recordOutput("Wrist/setPointVelocity",setPoint.velocity);        
     }
 
 
@@ -122,6 +137,11 @@ public class Wrist extends SubsystemBase {
 
     public double getWristEncoderDegrees() {
         return wristEncoder.getAbsolutePosition().getValue().in(Degrees);
+    }
+
+
+    private double degreesToNeoRotations(double degrees) {
+        return Units.degreesToRotations(degrees)*Constants.ArmConstants.WristAngleGearRatio ;
     }
 
 
@@ -157,6 +177,10 @@ public class Wrist extends SubsystemBase {
         Logger.recordOutput("Wrist/WristAngle/SetPointVelocity", wristPIDController.getSetpoint().velocity);
         Logger.recordOutput("Wrist/WristAngle/GoalPosition", wristPIDController.getGoal().position);
         Logger.recordOutput("Wrist/WristAngle/GoalVelocity", wristPIDController.getGoal().velocity);
+        Logger.recordOutput("Wrist/WristAngle/neoEncoder", wristMotor.getEncoder().getPosition());
+        Logger.recordOutput("Wrist/WristAngle/neoEncoderDegrees", 360.0*wristMotor.getEncoder().getPosition()/Constants.ArmConstants.WristAngleGearRatio);
+
+        Logger.recordOutput("Wrist/WristAngle/wristMotorOutput", wristMotor.getAppliedOutput());
 
         if (Robot.isSimulation()) {
             Logger.recordOutput("Wrist/WristAngle/SimulatedPosition", wristMotorSim.getPosition());
@@ -167,8 +191,21 @@ public class Wrist extends SubsystemBase {
 
     public void applyAllConfigs() {
         applyWristEncoderConfigs();
-        wristMotorConfig.inverted(true);
-        wristMotor.configure(wristMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        wristMotorConfig.inverted(true);      
+        wristMotorConfig.idleMode(IdleMode.kBrake) ;
+        wristMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder) ;
+        wristMotorConfig.closedLoop.maxMotion
+            .maxVelocity((15.0/4.0)*60) 
+            .maxAcceleration((15.0/4.0)*60)
+            .allowedClosedLoopError(0.5) ;
+        wristMotorConfig.closedLoop
+            .p(3.0)
+            .i(0.0)
+            .d(0.0)
+            .velocityFF(0.2) ;  
+        wristMotor.configure(wristMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        //wristMotorConfig.encoder.positionConversionFactor(360.0/Constants.ArmConstants.WristAngleGearRatio);
+        wristMotor.getEncoder().setPosition(degreesToNeoRotations(getWristEncoderDegrees())) ;
     }
 
 
