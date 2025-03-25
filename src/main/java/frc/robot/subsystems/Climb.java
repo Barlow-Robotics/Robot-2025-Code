@@ -24,6 +24,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimbConstants;
@@ -50,6 +51,7 @@ public class Climb extends SubsystemBase {
     ClimbState currentState = ClimbState.Idle;
 
     private final DigitalInput hallSensor ;
+    private final DIOSim hallSim ;
 
     // ClimbState desiredState = ClimbState.Idle;
     private double desiredWinchPosition = 0;
@@ -71,6 +73,7 @@ public class Climb extends SubsystemBase {
 
         // Hall sensor conflig
         hallSensor = new DigitalInput(2) ;
+        hallSim = new DIOSim(hallSensor) ;
 
         this.unwindWinchInTest = unwindWinchInTest;
         this.windWinchInTest   = windWinchInTest;
@@ -193,33 +196,6 @@ public class Climb extends SubsystemBase {
 
     private void applyWinchMotorConfigs(InvertedValue inversion) {
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
-
-        // gains for when we unwind the winch with the full weight of the robot
-        // talonConfigs.Slot0.kP = ClimbConstants.WinchKP.get();
-        // talonConfigs.Slot0.kI = ClimbConstants.WinchKI.get();
-        // talonConfigs.Slot0.kD = ClimbConstants.WinchKD.get();
-        // talonConfigs.Slot0.kV = ClimbConstants.WinchFF.get();
-        // talonConfigs.Slot0.kG = ClimbConstants.WinchKG.get();
-        talonConfigs.Slot0.kP = 0.3;
-        talonConfigs.Slot0.kI = 0.0;
-        talonConfigs.Slot0.kD = 0.0;
-        talonConfigs.Slot0.kV = 0.15;
-        talonConfigs.Slot0.kG = 0.0;
-        talonConfigs.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-
-        // gains for when we unwind the winch with no load attached
-        talonConfigs.Slot1.kP = 0.1;
-        talonConfigs.Slot1.kI = 0.0;
-        talonConfigs.Slot1.kD = 0.0;
-        talonConfigs.Slot1.kV = 0.15;
-        talonConfigs.Slot1.kG = 0.0;
-        talonConfigs.Slot1.GravityType = GravityTypeValue.Elevator_Static;
-
-        var motionMagicConfigs = talonConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = ClimbConstants.WinchCruiseRotationsPerSec;
-        motionMagicConfigs.MotionMagicAcceleration = ClimbConstants.WinchAcceleration;
-        motionMagicConfigs.MotionMagicJerk = ClimbConstants.WinchJerk;
-
         applyMotorConfigs(winchMotor, "winchMotor", talonConfigs, inversion);
     }
 
@@ -267,11 +243,6 @@ public class Climb extends SubsystemBase {
 
     public void simulationInit() {
         PhysicsSim.getInstance().addTalonFX(winchMotor, 0.001);
-
-        /*
-         * elevatorHallEffectSim = new DIOSim(elevatorHallEffect);
-         * carriageHallEffectSim = new DIOSim(carriageHallEffect);
-         */
     }
 
     @Override
@@ -294,31 +265,24 @@ public class Climb extends SubsystemBase {
         winchMotorModel.update(0.02);
         winchMotorSim.setRotorVelocity(winchMotorModel.getAngularVelocity());
         winchMotorSim.setRawRotorPosition(winchMotorModel.getAngularPositionRotations());
+
+        // position will be less then zero if arm is unwound at all. Hall returns true if
+        // no magnet is present.
+        hallSim.setValue( winchMotor.getPosition().getValueAsDouble() < 0);
+
     }
 
     private void logData() {
         Logger.recordOutput("Climb/StateActual", currentState);
-
         Logger.recordOutput("Climb/Winch/RotationsTalon", winchMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Climb/Winch/RotationsDesired", desiredWinchPosition);
         Logger.recordOutput("Climb/Winch/VoltageActual", winchMotor.getMotorVoltage().getValue());
-        Logger.recordOutput("Climb/Winch/ClosedLoopReference", winchMotor.getClosedLoopReference().getValueAsDouble());
-        Logger.recordOutput("Climb/Winch/ClosedLoopFeedForward", winchMotor.getClosedLoopFeedForward().getValueAsDouble());
-        Logger.recordOutput("Climb/Winch/ClosedLoopError", winchMotor.getClosedLoopError().getValue());
-        Logger.recordOutput("Climb/Winch/ProportionalOutput", winchMotor.getClosedLoopProportionalOutput().getValue());
-        Logger.recordOutput("Climb/Winch/DerivativeOutput", winchMotor.getClosedLoopDerivativeOutput().getValue());
-        Logger.recordOutput("Climb/Winch/IntegratedOutput", winchMotor.getClosedLoopIntegratedOutput().getValue());
-        Logger.recordOutput("Climb/Winch/ProportionalOutput", winchMotor.getClosedLoopProportionalOutput().getValue());
-        Logger.recordOutput("Climb/Winch/DerivativeOutput", winchMotor.getClosedLoopDerivativeOutput().getValue());
-        Logger.recordOutput("Climb/Winch/IntegratedOutput", winchMotor.getClosedLoopIntegratedOutput().getValue());
         Logger.recordOutput("Climb/Winch/SupplyCurrent", winchMotor.getSupplyCurrent().getValue());
         Logger.recordOutput("Climb/Winch/StatorCurrent", winchMotor.getStatorCurrent().getValue());
         Logger.recordOutput("Climb/Winch/RPSActual", winchMotor.getVelocity().getValue());
         Logger.recordOutput("Climb/Winch/AccelerationActual", winchMotor.getAcceleration().getValue());
-        Logger.recordOutput("Climb/Winch/StatorCurrent", winchMotor.getStatorCurrent().getValue());
         Logger.recordOutput("Climb/Winch/hallSensor", hallSensor.get());
         Logger.recordOutput("Climb/Winch/isWound", isWound());
-
     }
 
 }

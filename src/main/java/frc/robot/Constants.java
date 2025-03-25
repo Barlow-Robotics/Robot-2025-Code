@@ -474,7 +474,8 @@ public class Constants {
         public static final double WinchCableLenAtRest = WinchCableLenAfterClimb; // Length in inches, fully unwound with harpoon fwd & down
         //  Below measures the winch rotations required to move from the starting point, i.e. climbed, to horizontal harpoon
         //      As is, this is a negative value, i.e. we are unwinding the cable.
-        public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)*RotationsPerWinchInch; 
+        // public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)*RotationsPerWinchInch; 
+        public static final double WinchAttachRotations = -275.0; 
         //  Below measures the winch rotations required to move from horizontal harpoon to fully back, i.e. climbed.
         public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)*RotationsPerWinchInch;
 
