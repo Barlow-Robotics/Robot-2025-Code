@@ -125,19 +125,18 @@ public class Climb extends SubsystemBase {
                 }
                     break;
                 case Wind: {
-                    // we want to get back to the position where we started before unwind which is zero because that's
+                    // we want to get back to the position where we started before unwind which is
+                    // zero because that's
                     // where it was when we started.
-                                    // set motor voltage to wind
-                final VoltageOut request = new VoltageOut( 6.0 ) ;
-                winchMotor.setControl(request.withEnableFOC(true));
+                    // set motor voltage to wind
 
-                    // final MotionMagicVoltage request = new MotionMagicVoltage( 0 ) ;
-                    // request.EnableFOC = Constants.IsFocEnabled;
-                    // winchMotor.setControl(request.withSlot(WindGainSlot));
                     desiredWinchPosition = 0 ; // Just for logging
                     if (isWound()) {
                         winchMotor.set(0);
-                        currentState = ClimbState.Idle;
+                        //currentState = ClimbState.Idle;
+                    } else {
+                        final VoltageOut request = new VoltageOut(6.0);
+                        winchMotor.setControl(request.withEnableFOC(true));   
                     }
                 }
                     break;
@@ -188,9 +187,10 @@ public class Climb extends SubsystemBase {
 
     public boolean isWound() {
         // wpk we should probably put that magic number in constants so we give it more meaning
+        boolean wound = !hallSensor.get() ;
 
-        boolean wound = withinWinchTolerance(winchMotor.getPosition().getValueAsDouble(), 0)
-         || !hallSensor.get() ;
+        //  boolean wound = withinWinchTolerance(winchMotor.getPosition().getValueAsDouble(), 0)
+        //  || !hallSensor.get() ;
 
         return wound ;
     }
