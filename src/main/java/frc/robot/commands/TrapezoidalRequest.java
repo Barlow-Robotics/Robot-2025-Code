@@ -85,6 +85,7 @@ public class TrapezoidalRequest extends Command {
 
         Logger.recordOutput("AutoAlign/poseX", driveSub.getPose().getTranslation().getX());
         Logger.recordOutput("AutoAlign/targetX", targetPose.getTranslation().getX());
+        Logger.recordOutput("AutoAlign/poseX", driveSub.getPose().getTranslation().getX());
 
         Logger.recordOutput("AutoAlign/translationDeltaX", translationDelta.getX());
         Logger.recordOutput("AutoAlign/translationDeltaY", translationDelta.getY());

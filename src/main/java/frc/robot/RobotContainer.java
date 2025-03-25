@@ -400,26 +400,35 @@ public class RobotContainer {
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
         autoAlignAlgaeButton.whileTrue(
-                dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset)
                         .andThen(Commands.waitUntil(() -> false)));
+        // autoAlignAlgaeButton.whileTrue(
+        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
+        //                 .andThen(Commands.waitUntil(() -> false)));
 
         autoAlignAlgaeButton_2 = new JoystickButton(driverController, LogitechExtreme3DConstants.Button6);
         autoAlignAlgaeButton_2.whileTrue(
-                dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset)
                         .andThen(Commands.waitUntil(() -> false)));
+        // autoAlignAlgaeButton_2.whileTrue(
+        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
+        //                 .andThen(Commands.waitUntil(() -> false)));
 
         autoAlignLeftButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button3);
-        // autoAlignLeftButton.whileTrue(
-        //         dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset)
-        //                 .andThen(Commands.waitUntil(() -> false)));
         autoAlignLeftButton.whileTrue(
-                dynAutoBuilder.manualAlign(Constants.AutoConstants.LeftOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset)
                         .andThen(Commands.waitUntil(() -> false)));
+        // autoAlignLeftButton.whileTrue(
+        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.LeftOffset)
+        //                 .andThen(Commands.waitUntil(() -> false)));
 
         autoAlignRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
         autoAlignRightButton.whileTrue(
-                dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset)
                         .andThen(Commands.waitUntil(() -> false)));
+        // autoAlignRightButton.whileTrue(
+        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset)
+        //                 .andThen(Commands.waitUntil(() -> false)));
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
         resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
