@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.ArmStateManager;
@@ -601,6 +600,11 @@ public class RobotContainer {
                 new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub).command(),
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done)));
 
+        Command autoAlignCommandRight = dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset, 1)
+                        .andThen(Commands.waitUntil(() -> false));
+        Command autoAlignCommandCenter = dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset, 1)
+                        .andThen(Commands.waitUntil(() -> false));
+
         autoChooser.addOption("Leave Zone",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
         autoChooser.addOption("Score L1 Path",
@@ -609,10 +613,10 @@ public class RobotContainer {
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
         autoChooser.addOption("2-Coral_OtherBarge",
                 new DeferredCommand(
-                        () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd),
+                        () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter),
                         Set.of(driveSub)));
         autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(
-                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd),
+                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter),
                 Set.of(driveSub)));
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));

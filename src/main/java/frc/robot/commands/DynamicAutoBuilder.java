@@ -33,13 +33,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Vision;
-import frc.robot.Constants;
-import frc.robot.Constants.ArmConstants;
-import org.littletonrobotics.junction.Logger;
 
 public class DynamicAutoBuilder {
 
@@ -85,15 +81,35 @@ public class DynamicAutoBuilder {
         () -> computeAutoPathPlanner(extraOffset),
         Set.of(driveSub));
   }
-
   public Command manualAlign(Transform2d extraOffset) {
+    // manualAlign uses a deferred so that it can compute the new path when the
+    // trigger is run.
+    double maxVelocity = 1;
+
+    return new DeferredCommand(
+        () -> runManualPathing(extraOffset, maxVelocity),
+        Set.of(driveSub));
+  }
+
+  public Command manualAlign(Transform2d extraOffset, double maxVelocity) {
     // manualAlign uses a deferred so that it can compute the new path when the
     // trigger is run.
 
     return new DeferredCommand(
-        () -> runManualPathing(extraOffset),
+        () -> runManualPathing(extraOffset, maxVelocity),
         Set.of(driveSub));
   }
+
+
+  public Command command(Transform2d extraOffset, double maxVelocity) {
+      return Commands.defer(() -> {
+        return runManualPathing(extraOffset, maxVelocity);
+      },
+              Set.of(driveSub));
+
+  }
+
+
 
   public Command trapezoidAlign(Transform2d extraOffset) {
     // manualAlign uses a deferred so that it can compute the new path when the
@@ -139,7 +155,7 @@ public class DynamicAutoBuilder {
     return AutoBuilder.followPath(path);
   }
 
-  Command applyDeltaRequest(Pose2d targetPose) {
+  Command applyDeltaRequest(Pose2d targetPose , double maxVelocity) {
     return Commands.run(() -> {
       // The translation delta is the amount we would need to add to our current
       // drive pose to get the robot to end at the targetPose.
@@ -161,7 +177,7 @@ public class DynamicAutoBuilder {
       var heading  = translationDelta.getAngle();
       var velocity = translationDelta.getNorm();
       velocity *= Constants.VisionConstants.AutoAlignVelocityConstant;
-      velocity = MathUtil.clamp(velocity, -1, 1);
+      velocity = MathUtil.clamp(velocity, -maxVelocity, maxVelocity);
       velocity = filterX.calculate(velocity);
 
       var filteredTranslation = new Translation2d(velocity, heading);
@@ -189,7 +205,7 @@ public class DynamicAutoBuilder {
     });
   }
 
-  Command runManualPathing(Transform2d extraOffset) {
+  Command runManualPathing(Transform2d extraOffset, double maxVelocity) {
 
     filterX.reset(0);
     filterY.reset(0);
@@ -201,7 +217,7 @@ public class DynamicAutoBuilder {
 
     var targetPose = maybeTargetPose.get();
 
-    return applyDeltaRequest(targetPose)
+    return applyDeltaRequest(targetPose, maxVelocity)
         .until(() -> driveSub.getPose().getTranslation().getDistance(targetPose.getTranslation()) < 0.01 &&
             Math.abs(driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians()) < 0.01);
   }
@@ -231,7 +247,7 @@ public class DynamicAutoBuilder {
     //     () -> {
     //       // set goals in profiled PIDs
     //       profiledPIDX.setGoal(0);
-    //       profiledPIDX.setGoal(0);
+    //       profiledPIDX.setGoal(0);w
     //       profiledPIDRot.setGoal(0);
     //     },
     //     // onExecute

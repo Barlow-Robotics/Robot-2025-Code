@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -356,11 +357,12 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         Action1,
         Action2,
         Action3,
+        Action4,
         Done,
     }
 
     public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd,
-            Command sequentalCommand1, ScoreCoral scoreCoralCmd) {
+            Command sequentalCommand1, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand, Command autoAlignCenterCommand) {
         try {
             PathPlannerPath originalPath;
             PathPlannerPath originalPath_2;
@@ -396,6 +398,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
                     new ParallelCommandGroup(getFullCommandWithReset(finalPath), setArmPosLevel1Cmd.command()),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
+                    new ParallelRaceGroup(autoAlignCenterCommand, new WaitCommand(2.5)),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
                     sequentalCommand1.asProxy(),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path2)),
                     getFullCommand(finalPath_2),
@@ -403,6 +407,9 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new WaitCommand(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path3)),
                     getFullCommand(finalPath_3),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
+                    new ParallelRaceGroup(autoAlignRightCommand, new WaitCommand(2.5)),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
                     scoreCoralCmd.command(),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
 
