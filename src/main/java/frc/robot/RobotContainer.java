@@ -609,10 +609,9 @@ public class RobotContainer {
                 new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub).command(),
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done)));
 
-        Command autoAlignCommandRight = dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset, 1)
-                        .andThen(Commands.waitUntil(() -> false));
-        Command autoAlignCommandCenter = dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset, 1)
-                        .andThen(Commands.waitUntil(() -> false));
+        Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset);
+        Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset);
+
 
         autoChooser.addOption("Leave Zone",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
