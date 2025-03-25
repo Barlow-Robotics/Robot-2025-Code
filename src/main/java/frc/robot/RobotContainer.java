@@ -184,14 +184,14 @@ public class RobotContainer {
         armSub = new Arm(robot);
         wristSub = new Wrist(robot);
         chuteSub = new Chute();
-        underglowSub = new Underglow(robot, chuteSub);
-
         climbSub = new Climb(
                 robot,
                 () -> testController.getRawButton(Constants.LogitechDAConstants.ButtonY),
                 () -> testController.getPOV() == 270, // pressing the POV to the left to unwind
                 () -> testController.getPOV() == 90 // pressing the POV to the right to wind
         );
+
+        underglowSub = new Underglow(robot, chuteSub, climbSub);
 
         dynAutoBuilder = new DynamicAutoBuilder(driveSub, visionSub, driverController);
 

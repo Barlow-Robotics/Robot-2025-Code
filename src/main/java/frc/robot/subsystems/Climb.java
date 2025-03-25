@@ -86,11 +86,25 @@ public class Climb extends SubsystemBase {
             switch (currentState) {
                 case Idle: {
                     // don't do anything here
+                    if (unwindWinchInTest.getAsBoolean() ) {
+                        // set motor voltage to unwind
+                        final VoltageOut request = new VoltageOut( -6.0 ) ;
+                        winchMotor.setControl(request.withEnableFOC(true));
+                    } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
+                        // set motor voltage to wind
+                        final VoltageOut request = new VoltageOut( 6.0 ) ;
+                        winchMotor.setControl(request.withEnableFOC(true));
+                    } else {
+                        // set motor voltage to zero
+                        final VoltageOut request = new VoltageOut( 0.0 ) ;
+                        winchMotor.setControl(request.withEnableFOC(true));
+                    }
+        
                 }
                     break;
     
                 case Unwind: {
-                    final VoltageOut request = new VoltageOut( -6.0 ) ;
+                    final VoltageOut request = new VoltageOut( -12.0 ) ;
                     winchMotor.setControl(request.withEnableFOC(true));
     
                     // MotionMagicVoltage request = new MotionMagicVoltage( ClimbConstants.WinchAttachRotations ) ;
@@ -132,19 +146,19 @@ public class Climb extends SubsystemBase {
         } else if (robot.isTestEnabled()) {
             // logic to allow moving of winch during testing
 
-            if (unwindWinchInTest.getAsBoolean() ) {
-                // set motor voltage to unwind
-                final VoltageOut request = new VoltageOut( -6.0 ) ;
-                winchMotor.setControl(request.withEnableFOC(true));
-            } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
-                // set motor voltage to wind
-                final VoltageOut request = new VoltageOut( 6.0 ) ;
-                winchMotor.setControl(request.withEnableFOC(true));
-            } else {
-                // set motor voltage to zero
-                final VoltageOut request = new VoltageOut( 0.0 ) ;
-                winchMotor.setControl(request.withEnableFOC(true));
-            }
+            // if (unwindWinchInTest.getAsBoolean() ) {
+            //     // set motor voltage to unwind
+            //     final VoltageOut request = new VoltageOut( -6.0 ) ;
+            //     winchMotor.setControl(request.withEnableFOC(true));
+            // } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
+            //     // set motor voltage to wind
+            //     final VoltageOut request = new VoltageOut( 6.0 ) ;
+            //     winchMotor.setControl(request.withEnableFOC(true));
+            // } else {
+            //     // set motor voltage to zero
+            //     final VoltageOut request = new VoltageOut( 0.0 ) ;
+            //     winchMotor.setControl(request.withEnableFOC(true));
+            // }
         }
 
         logData();

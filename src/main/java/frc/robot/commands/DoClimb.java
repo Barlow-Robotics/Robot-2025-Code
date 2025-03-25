@@ -37,9 +37,9 @@ public class DoClimb {
         return Commands.defer(
                 () -> {
                     if (climbSub.getCurrentState() == ClimbState.Idle) {
-                        return Commands.sequence(
-                        new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub).command(),
-                        new InstantCommand(() -> climbSub.goToUnwind())
+                        return Commands.sequence(                      
+                        new InstantCommand(() -> climbSub.goToUnwind()),
+                        new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub).command(),                       Commands.none()  // wpk this is a hack to work around command not finishing
                         );
 
                     } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
