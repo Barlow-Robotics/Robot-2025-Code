@@ -184,7 +184,7 @@ public class RobotContainer {
         armSub = new Arm(robot);
         wristSub = new Wrist(robot);
         chuteSub = new Chute();
-        underglowSub = new Underglow(chuteSub);
+        underglowSub = new Underglow(robot, chuteSub);
 
         climbSub = new Climb(
                 robot,
