@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
-import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.ArmStateManager;
@@ -184,7 +183,6 @@ public class RobotContainer {
         armSub = new Arm(robot);
         wristSub = new Wrist(robot);
         chuteSub = new Chute();
-        underglowSub = new Underglow(robot, chuteSub);
 
         climbSub = new Climb(
                 robot,
@@ -192,6 +190,8 @@ public class RobotContainer {
                 () -> testController.getPOV() == 270, // pressing the POV to the left to unwind
                 () -> testController.getPOV() == 90 // pressing the POV to the right to wind
         );
+        
+        underglowSub = new Underglow(robot, chuteSub, climbSub);
 
         dynAutoBuilder = new DynamicAutoBuilder(driveSub, visionSub, driverController);
 
