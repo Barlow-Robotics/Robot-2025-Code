@@ -617,7 +617,7 @@ public class RobotContainer {
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done)));
 
         Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset);
-        Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset);
+        Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AutoOffset);
 
         autoChooser.addOption("Leave Zone",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));

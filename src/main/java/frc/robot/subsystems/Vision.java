@@ -176,7 +176,7 @@ public class Vision extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (!Robot.isSimulation() && !robot.isAutonomous() && /*(!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) &&*/ !this.disabledVision) {
+        if (!Robot.isSimulation() && /*!robot.isAutonomous() && *//*(!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) &&*/ !this.disabledVision) {
             Pose2d currentPose = driveSub.getPose();
             updateVisionLocalization(currentPose);
         }
