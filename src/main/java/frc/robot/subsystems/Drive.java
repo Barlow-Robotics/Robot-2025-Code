@@ -366,12 +366,13 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         Action2,
         Action3,
         Action4,
+        Action5,
         Done,
     }
 
     public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd,
             Command sequentalCommand1, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand,
-            Command autoAlignCenterCommand, BooleanSupplier chuteHasCoral) {
+            Command autoAlignCenterCommand, BooleanSupplier chuteHasCoral, PositionGripper goToL3) {
         try {
             PathPlannerPath originalPath;
             PathPlannerPath originalPath_2;
@@ -421,6 +422,9 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
                     autoAlignRightCommand.withTimeout(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+                    goToL3.command(),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+
                     scoreCoralCmd.command(),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
 

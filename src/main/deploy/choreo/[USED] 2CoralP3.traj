@@ -123,6 +123,5 @@
  "events":[
    {"name":"Marker", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
        {"type":"named", "data":{"name":"setPositionLoadCoral"}}]}}},
-   {"name":"Marker", "from":{"target":1, "targetTimestamp":2.05846, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[
-       {"type":"named", "data":{"name":"setPositionCoralL3"}}]}}}]
+   {"name":"Marker", "from":{"target":1, "targetTimestamp":2.05846, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"sequential", "data":{"commands":[]}}}]
 }
