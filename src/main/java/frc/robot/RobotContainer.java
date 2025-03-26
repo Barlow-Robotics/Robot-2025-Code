@@ -430,14 +430,14 @@ public class RobotContainer {
         //         dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset)
         //                 .andThen(Commands.waitUntil(() -> false)));
 
-        resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button10);
+        resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
         resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
 
-        disableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
-        disableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(true))).onFalse(Commands.none());
+        // disableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
+        // disableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(true))).onFalse(Commands.none());
 
-        enableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
-        enableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(false))).onFalse(Commands.none());
+        // enableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
+        // enableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(false))).onFalse(Commands.none());
 
     }
 
@@ -619,11 +619,11 @@ public class RobotContainer {
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L1 Path"), Set.of(driveSub)));
         autoChooser.addOption("Score L3 Path",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
-        autoChooser.addOption("2-Coral_OtherBarge",
+        autoChooser.addOption("2-Coral-Current-Alliance",
                 new DeferredCommand(
                         () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter),
                         Set.of(driveSub)));
-        autoChooser.addOption("2-Coral-OppositeAllianceBarge", new DeferredCommand(
+        autoChooser.addOption("2-Coral-Opposite-Alliance", new DeferredCommand(
                 () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter),
                 Set.of(driveSub)));
 
