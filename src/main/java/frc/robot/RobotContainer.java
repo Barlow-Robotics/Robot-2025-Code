@@ -2,6 +2,7 @@
 package frc.robot;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -72,6 +73,7 @@ public class RobotContainer {
     public final ArmStateManager armState = new ArmStateManager();
     public final DynamicAutoBuilder dynAutoBuilder;
 
+    private BooleanSupplier chuteHasCoral;
     /* COMMANDS */
     // private final SetArmPosition setArmPosHomeCmd = new SetArmPosition(armSub,
     // ArmState.Home);
@@ -189,6 +191,7 @@ public class RobotContainer {
                 () -> testController.getPOV() == 270, // pressing the POV to the left to unwind
                 () -> testController.getPOV() == 90 // pressing the POV to the right to wind
         );
+        chuteHasCoral = () -> chuteSub.hasCoral();
 
         underglowSub = new Underglow(robot, chuteSub, climbSub);
 
@@ -403,41 +406,45 @@ public class RobotContainer {
                 dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset)
                         .andThen(Commands.waitUntil(() -> false)));
         // autoAlignAlgaeButton.whileTrue(
-        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
-        //                 .andThen(Commands.waitUntil(() -> false)));
+        // dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
+        // .andThen(Commands.waitUntil(() -> false)));
 
         autoAlignAlgaeButton_2 = new JoystickButton(driverController, LogitechExtreme3DConstants.Button6);
         autoAlignAlgaeButton_2.whileTrue(
                 dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset)
                         .andThen(Commands.waitUntil(() -> false)));
         // autoAlignAlgaeButton_2.whileTrue(
-        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
-        //                 .andThen(Commands.waitUntil(() -> false)));
+        // dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
+        // .andThen(Commands.waitUntil(() -> false)));
 
         autoAlignLeftButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button3);
         autoAlignLeftButton.whileTrue(
                 dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset)
                         .andThen(Commands.waitUntil(() -> false)));
         // autoAlignLeftButton.whileTrue(
-        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.LeftOffset)
-        //                 .andThen(Commands.waitUntil(() -> false)));
+        // dynAutoBuilder.manualAlign(Constants.AutoConstants.LeftOffset)
+        // .andThen(Commands.waitUntil(() -> false)));
 
         autoAlignRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
         autoAlignRightButton.whileTrue(
                 dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset)
                         .andThen(Commands.waitUntil(() -> false)));
         // autoAlignRightButton.whileTrue(
-        //         dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset)
-        //                 .andThen(Commands.waitUntil(() -> false)));
+        // dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset)
+        // .andThen(Commands.waitUntil(() -> false)));
 
         resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
         resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
 
-        // disableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
-        // disableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(true))).onFalse(Commands.none());
+        // disableVisionButton = new JoystickButton(driverController,
+        // LogitechExtreme3DConstants.Button12);
+        // disableVisionButton.onTrue(new InstantCommand(() ->
+        // visionSub.disableTheVision(true))).onFalse(Commands.none());
 
-        // enableVisionButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button11);
-        // enableVisionButton.onTrue(new InstantCommand(() -> visionSub.disableTheVision(false))).onFalse(Commands.none());
+        // enableVisionButton = new JoystickButton(driverController,
+        // LogitechExtreme3DConstants.Button11);
+        // enableVisionButton.onTrue(new InstantCommand(() ->
+        // visionSub.disableTheVision(false))).onFalse(Commands.none());
 
     }
 
@@ -612,7 +619,6 @@ public class RobotContainer {
         Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset);
         Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset);
 
-
         autoChooser.addOption("Leave Zone",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
         autoChooser.addOption("Score L1 Path",
@@ -621,10 +627,12 @@ public class RobotContainer {
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Score L3 Path"), Set.of(driveSub)));
         autoChooser.addOption("2-Coral-Current-Alliance",
                 new DeferredCommand(
-                        () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter),
+                        () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", true, setArmPosLevel1Cmd, commandGroup1,
+                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter, chuteHasCoral),
                         Set.of(driveSub)));
         autoChooser.addOption("2-Coral-Opposite-Alliance", new DeferredCommand(
-                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1, scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter),
+                () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1,
+                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter, chuteHasCoral),
                 Set.of(driveSub)));
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
