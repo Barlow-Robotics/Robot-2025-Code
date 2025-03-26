@@ -85,20 +85,6 @@ public class Climb extends SubsystemBase {
         if ( robot.isTeleopEnabled()) {
             switch (currentState) {
                 case Idle: {
-                    // don't do anything here
-                    if (unwindWinchInTest.getAsBoolean() ) {
-                        // set motor voltage to unwind
-                        final VoltageOut request = new VoltageOut( -6.0 ) ;
-                        winchMotor.setControl(request.withEnableFOC(true));
-                    } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
-                        // set motor voltage to wind
-                        final VoltageOut request = new VoltageOut( 6.0 ) ;
-                        winchMotor.setControl(request.withEnableFOC(true));
-                    } else {
-                        // set motor voltage to zero
-                        final VoltageOut request = new VoltageOut( 0.0 ) ;
-                        winchMotor.setControl(request.withEnableFOC(true));
-                    }
         
                 }
                     break;
@@ -140,6 +126,24 @@ public class Climb extends SubsystemBase {
                     }
                 }
                     break;
+            }
+
+            // support for manual adjustment of climb arm height.
+            if ( currentState == ClimbState.Idle || currentState == ClimbState.ReadyToLatch ) {
+                // don't do anything here
+                if (unwindWinchInTest.getAsBoolean() ) {
+                    // set motor voltage to unwind
+                    final VoltageOut request = new VoltageOut( -6.0 ) ;
+                    winchMotor.setControl(request.withEnableFOC(true));
+                } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
+                    // set motor voltage to wind
+                    final VoltageOut request = new VoltageOut( 6.0 ) ;
+                    winchMotor.setControl(request.withEnableFOC(true));
+                } else {
+                    // set motor voltage to zero
+                    final VoltageOut request = new VoltageOut( 0.0 ) ;
+                    winchMotor.setControl(request.withEnableFOC(true));
+                }
             }
     
         } else if (robot.isTestEnabled()) {

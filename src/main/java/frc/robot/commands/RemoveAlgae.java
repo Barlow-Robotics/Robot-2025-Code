@@ -49,10 +49,15 @@ public class RemoveAlgae {
                                 new InstantCommand(() -> theGripper.startAlgaeRemoval()),
                                 // move the elevator up to strip the algae
                                 new MoveElevator(theElevator,
-                                        theElevator.getDesiredElevatorHeightInches() + 7.5,
+                                        theElevator.getDesiredElevatorHeightInches() + 8.0,
                                         ArmConstants.ElevatorAlgaeRemovalVelocity,
-                                        20.0,
+                                        theElevator.getDesiredCarriageHeightInches() + 0.0,
                                         ArmConstants.CarriageAlgaeRemovalVelocity),
+                                // new MoveElevator(theElevator,
+                                //         theElevator.getDesiredElevatorHeightInches() + 7.5,
+                                //         ArmConstants.ElevatorAlgaeRemovalVelocity,
+                                //         20.0,
+                                //         ArmConstants.CarriageAlgaeRemovalVelocity),
                                 new InstantCommand(() -> theGripper.stop()),
                                 new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
                                         .command());
