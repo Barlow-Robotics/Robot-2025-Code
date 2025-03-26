@@ -186,7 +186,7 @@ public class Constants {
         public static final double VelocityConversionFactor = WheelCircumference / Constants.SecondsPerMinute
                 / GearRatio;
 
-        public static final double MaxAngularRadiansPerSecond = Math.PI; // 1/2 rotation per second
+        public static final double MaxAngularRadiansPerSecond = Math.PI * 1.15; // 1/2 rotation per second
         public static final double PhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI; // CHANGE
 
         public static final double MaxAcceleration = Units.feetToMeters(36.24); // m/sec^2 from Mr. K's spreadsheet
@@ -475,7 +475,7 @@ public class Constants {
         //  Below measures the winch rotations required to move from the starting point, i.e. climbed, to horizontal harpoon
         //      As is, this is a negative value, i.e. we are unwinding the cable.
         // public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)*RotationsPerWinchInch; 
-        public static final double WinchAttachRotations = -300.0; 
+        public static final double WinchAttachRotations = -400.0; 
         //  Below measures the winch rotations required to move from horizontal harpoon to fully back, i.e. climbed.
         public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)*RotationsPerWinchInch;
 
