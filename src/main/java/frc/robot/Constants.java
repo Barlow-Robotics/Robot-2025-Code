@@ -186,7 +186,7 @@ public class Constants {
         public static final double VelocityConversionFactor = WheelCircumference / Constants.SecondsPerMinute
                 / GearRatio;
 
-        public static final double MaxAngularRadiansPerSecond = Math.PI; // 1/2 rotation per second
+        public static final double MaxAngularRadiansPerSecond = Math.PI * 1.15; // 1/2 rotation per second
         public static final double PhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI; // CHANGE
 
         public static final double MaxAcceleration = Units.feetToMeters(36.24); // m/sec^2 from Mr. K's spreadsheet

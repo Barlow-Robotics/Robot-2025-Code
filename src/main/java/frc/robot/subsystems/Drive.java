@@ -398,7 +398,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
                     new ParallelCommandGroup(getFullCommandWithReset(finalPath), setArmPosLevel1Cmd.command()),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
-                    autoAlignCenterCommand.asProxy(),
+                    autoAlignCenterCommand.withTimeout(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
                     sequentalCommand1.asProxy(),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path2)),
@@ -408,7 +408,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path3)),
                     getFullCommand(finalPath_3),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
-                    autoAlignRightCommand,
+                    autoAlignRightCommand.withTimeout(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
                     scoreCoralCmd.command(),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
