@@ -82,7 +82,7 @@ public class Wrist extends SubsystemBase {
         wristPIDController.setIZone(Units.degreesToRotations(6.0));
         wristPIDController.setIntegratorRange(-0.5, 0.5) ;
         wristPIDController.setTolerance(Units.degreesToRotations(ArmConstants.WristAngleTolerance)) ;
-        wristPIDController.enableContinuousInput(-Math.PI, Math.PI);
+        wristPIDController.enableContinuousInput(-0.5, 0.5);
 
 //        feedForwardController = new SimpleMotorFeedforward(0.0, 1.15) ;
         feedForwardController = new SimpleMotorFeedforward(0.1, 0.5) ;
@@ -116,12 +116,12 @@ public class Wrist extends SubsystemBase {
         var setPoint = wristPIDController.getSetpoint() ;
         final double wristOutput = wristPIDController.calculate(currentRotations, Units.degreesToRotations(desiredDegrees));
         final double feedForward = feedForwardController.calculate(setPoint.velocity) ;
-       wristMotor.setVoltage(wristOutput + feedForward);
+        wristMotor.setVoltage(wristOutput + feedForward);
         // wristMotor.setVoltage(wristOutput);
 
         // wristMotor.getClosedLoopController().setReference(Units.degreesToRotations(desiredDegrees)*Constants.ArmConstants.WristAngleGearRatio, ControlType.kMAXMotionPositionControl);
 
-        Logger.recordOutput("Wrist/MAXMotionReference",Units.degreesToRotations(desiredDegrees)*Constants.ArmConstants.WristAngleGearRatio);        
+        // Logger.recordOutput("Wrist/MAXMotionReference",Units.degreesToRotations(desiredDegrees)*Constants.ArmConstants.WristAngleGearRatio);        
         Logger.recordOutput("Wrist/PIDOutput",wristOutput);        
         Logger.recordOutput("Wrist/feedForward",feedForward);        
         Logger.recordOutput("Wrist/setPointVelocity",setPoint.velocity);        
