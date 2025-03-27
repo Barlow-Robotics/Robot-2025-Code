@@ -75,10 +75,10 @@ public class Wrist extends SubsystemBase {
 
         // wristPIDController = new ProfiledPIDController(5.0, 0.001, 0.2, new TrapezoidProfile.Constraints(
         //         ArmConstants.WristMaxAngularVelocity, ArmConstants.WristMaxAngularAcceleration));
-        wristPIDController = new ProfiledPIDController(9.0, 0.000, 0.5, 
+        wristPIDController = new ProfiledPIDController(8.0, 0.000, 0.5, 
             new TrapezoidProfile.Constraints(
                 ArmConstants.WristMaxAngularVelocity, 
-                ArmConstants.WristMaxAngularAcceleration*4.0));
+                ArmConstants.WristMaxAngularAcceleration*0.75));
         wristPIDController.setIZone(Units.degreesToRotations(6.0));
         wristPIDController.setIntegratorRange(-0.5, 0.5) ;
         wristPIDController.setTolerance(Units.degreesToRotations(ArmConstants.WristAngleTolerance)) ;
