@@ -426,7 +426,9 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
 
                     scoreCoralCmd.command(),
-                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done))
+                    
+                    );
 
             // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new
             // WaitCommand(1), /*sequentalCommand1.asProxy(), sequentalCommand1.asProxy(),*/
@@ -440,8 +442,35 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         }
         return Commands.none();
     }
+    public Command ChoreoAuto1CoralL4(String name, Command autoAlignCommandRight, ScoreCoral scoreCoralCmd, PositionGripper setArmPosLevel4Cmd) {
+        try {
+            PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
+            PathPlannerPath finalPath;
 
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                finalPath = originalPath.flipPath();
+            } else {
+                finalPath = originalPath;
+            }
 
+            return Commands.sequence(
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
+                getFullCommandWithReset(finalPath),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
+                autoAlignCommandRight.withTimeout(2),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
+                setArmPosLevel4Cmd.command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
+                scoreCoralCmd.command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4))
+            );
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+        } catch (ParseException e) {
+            e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+        }
+        return Commands.none();
+    }
 
     public Command CustomChoreoAutoL4(String name, boolean mirror, PositionGripper setArmPosLevel4Cmd,
         PositionGripper goToTravel, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand,
