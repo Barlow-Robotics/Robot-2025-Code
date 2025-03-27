@@ -441,6 +441,81 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         return Commands.none();
     }
 
+
+
+    public Command CustomChoreoAutoL4(String name, boolean mirror, PositionGripper setArmPosLevel4Cmd,
+        PositionGripper goToTravel, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand,
+        Command autoAlignLeftCommand, BooleanSupplier chuteHasCoral) {
+    try {
+        PathPlannerPath originalPath;
+        PathPlannerPath originalPath_2;
+        PathPlannerPath originalPath_3;
+        if (mirror) {
+            originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1").mirrorPath();
+            originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2").mirrorPath();
+            originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3").mirrorPath();
+        } else {
+            originalPath = PathPlannerPath.fromChoreoTrajectory(name + "1");
+            originalPath_2 = PathPlannerPath.fromChoreoTrajectory(name + "2");
+            originalPath_3 = PathPlannerPath.fromChoreoTrajectory(name + "3");
+        }
+
+        PathPlannerPath finalPath;
+        PathPlannerPath finalPath_2;
+        PathPlannerPath finalPath_3;
+
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            finalPath = originalPath.flipPath();
+            finalPath_2 = originalPath_2.flipPath();
+            finalPath_3 = originalPath_3.flipPath();
+        } else {
+            finalPath = originalPath;
+            finalPath_2 = originalPath_2;
+            finalPath_3 = originalPath_3;
+        }
+
+        // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2),
+        // getFullCommand(finalPath_2));
+        //
+        // BooleanSupplier methodRefSupplier = chuteSub::hasCoral;
+        return Commands.sequence(
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
+                getFullCommandWithReset(finalPath),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
+                autoAlignRightCommand.withTimeout(2),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
+                setArmPosLevel4Cmd.command(),
+                scoreCoralCmd.command(),
+                // goToTravel.command(),
+                // sequentalCommand1.asProxy(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path2)),
+                getFullCommand(finalPath_2),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Waiting)),
+                (new WaitCommand(2)).until(chuteHasCoral),
+                // new SequentialCommandGroup(() -> chuteSub.hasCoral()).withTimeout(2),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path3)),
+                getFullCommand(finalPath_3),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
+                autoAlignLeftCommand.withTimeout(2),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+                setArmPosLevel4Cmd.command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+                scoreCoralCmd.command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
+
+        // return Commands.sequence(new WaitCommand(1), getFullCommand(finalPath), new
+        // WaitCommand(1), /*sequentalCommand1.asProxy(), sequentalCommand1.asProxy(),*/
+        // new WaitCommand(3), getFullCommand(finalPath_2), new WaitCommand(1),
+        // getFullCommand(finalPath_3));
+
+    } catch (IOException e) {
+        e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+    } catch (ParseException e) {
+        e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+    }
+    return Commands.none();
+    }
+
     private Command getFullCommandWithReset(PathPlannerPath finalPath) {
         return AutoBuilder.followPath(finalPath)
                 .alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));

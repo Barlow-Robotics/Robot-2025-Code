@@ -615,7 +615,8 @@ public class RobotContainer {
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Running)),
                 new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub).command(),
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done)));
-
+        
+        Command autoAlignCommandLeft = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset);
         Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset);
         Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AutoOffset);
 
@@ -636,6 +637,19 @@ public class RobotContainer {
                 () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1,
                         scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter, chuteHasCoral,
                         new PositionGripper(armState, ArmState.Level3, elevatorSub, armSub, wristSub)),
+                Set.of(driveSub)));
+
+
+        autoChooser.addOption("(L4) 2-Coral-Current-Alliance",
+                new DeferredCommand(
+                        () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", true, setArmPosLevel4Cmd, setArmPosTravellingCmd,
+                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+                                ),
+                        Set.of(driveSub)));
+        autoChooser.addOption("(L4) 2-Coral-Opposite-Alliance", new DeferredCommand(
+                () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", false, setArmPosLevel4Cmd, setArmPosTravellingCmd,
+                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+                        ),
                 Set.of(driveSub)));
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
