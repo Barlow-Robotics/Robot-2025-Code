@@ -415,7 +415,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path2)),
                     getFullCommand(finalPath_2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Waiting)),
-                    (new WaitCommand(2)).until(chuteHasCoral),
+                    (new WaitCommand(2)).until(chuteHasCoral).andThen(new WaitCommand(0.3)),
                     // new SequentialCommandGroup(() -> chuteSub.hasCoral()).withTimeout(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path3)),
                     getFullCommand(finalPath_3),
