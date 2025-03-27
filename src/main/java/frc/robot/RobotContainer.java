@@ -344,7 +344,7 @@ public class RobotContainer {
         /***************** DRIVE *****************/
 
         // reset the field-centric heading on left bumper press
-        resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button9);
+        resetFieldRelativeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
         resetFieldRelativeButton.onTrue(driveSub.runOnce(() -> driveSub.seedFieldCentric()));
 
         lockWheelsButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button7);
@@ -433,8 +433,8 @@ public class RobotContainer {
         // dynAutoBuilder.manualAlign(Constants.AutoConstants.RightOffset)
         // .andThen(Commands.waitUntil(() -> false)));
 
-        resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
-        resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
+        // resetOdometryToVision = new JoystickButton(driverController, LogitechExtreme3DConstants.Button12);
+        // resetOdometryToVision.onTrue(new InstantCommand(() -> driveSub.resetPose(driveSub.getPose())));
 
         // disableVisionButton = new JoystickButton(driverController,
         // LogitechExtreme3DConstants.Button12);
