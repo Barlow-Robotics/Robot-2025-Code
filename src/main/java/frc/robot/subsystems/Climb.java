@@ -85,6 +85,11 @@ public class Climb extends SubsystemBase {
         if ( robot.isTeleopEnabled()) {
             switch (currentState) {
                 case Idle: {
+                    if ( !hallSensor.get()) {
+                        if (winchMotor.getPosition().getValueAsDouble() != 0.0) {
+                            winchMotor.setPosition(0.0) ;
+                        }
+                    }
         
                 }
                     break;
