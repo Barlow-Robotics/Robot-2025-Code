@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
@@ -30,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -117,17 +117,19 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     /** Swerve request to apply during robot-centric path following */
 
     /**********************************************************************/
-    /**************************   CONSTRUCTORS   **************************/
+    /************************** CONSTRUCTORS **************************/
     /**********************************************************************/
 
-
     /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants. <p>
+     * Constructs a CTRE SwerveDrivetrain using the specified constants.
+     * <p>
      * This constructs the underlying hardware devices, so users should not
      * construct the devices themselves. If they need the devices, they can access
      * them through getters in the classes.
+     * 
      * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
-     * @param modules             Constants for each specific module */
+     * @param modules             Constants for each specific module
+     */
     public Drive(SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, modules);
@@ -136,15 +138,19 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    /** Constructs a CTRE SwerveDrivetrain using the specified constants. <p>
+    /**
+     * Constructs a CTRE SwerveDrivetrain using the specified constants.
+     * <p>
      * This constructs the underlying hardware devices, so users should not
      * construct the devices themselves. If they need the devices, they can access
      * them through getters in the classes.
+     * 
      * @param drivetrainConstants     Drivetrain-wide constants for the swerve drive
      * @param odometryUpdateFrequency The frequency to run the odom loop. If
      *                                unspecified or set to 0 Hz, this is 250 Hz on
      *                                CAN FD, and 100 Hz on CAN 2.0.
-     * @param modules                 Constants for each specific module */
+     * @param modules                 Constants for each specific module
+     */
     public Drive(
             SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
@@ -155,12 +161,15 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         }
     }
 
-    /** Constructs a CTRE SwerveDrivetrain using the specified constants. <p>
+    /**
+     * Constructs a CTRE SwerveDrivetrain using the specified constants.
+     * <p>
      * This constructs the underlying hardware devices, so users should not
      * construct the devices themselves. If they need the devices, they can access
      * them through getters in the classes.
      *
-     * @param drivetrainConstants       Drivetrain-wide constants for the swerve                                  drive
+     * @param drivetrainConstants       Drivetrain-wide constants for the swerve
+     *                                  drive
      * @param odometryUpdateFrequency   The frequency to run the odometry loop. If
      *                                  unspecified or set to 0 Hz, this is 250 Hz
      *                                  on
@@ -191,17 +200,16 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public void stopDrive() {
-        
-        for (int i=0; i<4; i++) {
+
+        for (int i = 0; i < 4; i++) {
             super.getModule(i).getDriveMotor().stopMotor();
             super.getModule(i).getSteerMotor().stopMotor();
         }
-        
+
         // not sure if this would work better/differently:
         // for (SwerveModule<TalonFX,TalonFX,CANcoder> module : super.getModules()) {
-        //     module.getSteerMotor().stopMotor(); module.getDriveMotor().stopMotor(); } 
+        // module.getSteerMotor().stopMotor(); module.getDriveMotor().stopMotor(); }
     }
-
 
     /**
      * Returns a command that applies the specified control request to this swerve
@@ -324,7 +332,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     // public void resetOdometry() {
-    //     this::resetPose
+    // this::resetPose
     // }
 
     public Command ChoreoAuto(String name) {
@@ -358,11 +366,13 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         Action2,
         Action3,
         Action4,
+        Action5,
         Done,
     }
 
     public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd,
-            Command sequentalCommand1, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand, Command autoAlignCenterCommand) {
+            Command sequentalCommand1, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand,
+            Command autoAlignCenterCommand, BooleanSupplier chuteHasCoral, PositionGripper goToL3) {
         try {
             PathPlannerPath originalPath;
             PathPlannerPath originalPath_2;
@@ -394,6 +404,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             // return Commands.sequence(getFullCommand(finalPath), new WaitCommand(2),
             // getFullCommand(finalPath_2));
             //
+            // BooleanSupplier methodRefSupplier = chuteSub::hasCoral;
             return Commands.sequence(
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
                     new ParallelCommandGroup(getFullCommandWithReset(finalPath), setArmPosLevel1Cmd.command()),
@@ -404,12 +415,16 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path2)),
                     getFullCommand(finalPath_2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Waiting)),
-                    new WaitCommand(2),
+                    (new WaitCommand(2)).until(chuteHasCoral),
+                    // new SequentialCommandGroup(() -> chuteSub.hasCoral()).withTimeout(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path3)),
                     getFullCommand(finalPath_3),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
                     autoAlignRightCommand.withTimeout(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+                    goToL3.command(),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+
                     scoreCoralCmd.command(),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Done)));
 
@@ -455,7 +470,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     private void logData() {
         Logger.recordOutput("Drive/StatesActual", getState().ModuleStates);
         Logger.recordOutput("Drive/Pose", getPose());
-        // Logger.recordOutput("Drive/PoseEstimate", poseEstimator.getEstimatedPosition());
+        // Logger.recordOutput("Drive/PoseEstimate",
+        // poseEstimator.getEstimatedPosition());
         Logger.recordOutput("Drive/Heading", getState().RawHeading);
         Logger.recordOutput("Drive/Odometry/X", getPose().getX());
         Logger.recordOutput("Drive/Odometry/Y", getPose().getY());
@@ -463,17 +479,25 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         Logger.recordOutput("Drive/Pitch", getPigeon2().getPitch().getValueAsDouble());
         Logger.recordOutput("Drive/Roll", getPigeon2().getRoll().getValueAsDouble());
         Logger.recordOutput("Drive/Yaw", getPigeon2().getYaw().getValueAsDouble());
-        // Logger.recordOutput("Drive/CurrentSupply/FrontLeftDrive", frontLeft.getDriveCurrent());
-        // Logger.recordOutput("Drive/CurrentSupply/FrontLeftTurn", frontLeft.getTurnCurrent());
-        // Logger.recordOutput("Drive/CurrentSupply/FrontRightDrive", frontRight.getDriveCurrent());
-        // Logger.recordOutput("Drive/CurrentSupply/FrontRightTurn", frontRight.getTurnCurrent());
-        // Logger.recordOutput("Drive/CurrentSupply/BackLeftDrive", backLeft.getDriveCurrent());
-        // Logger.recordOutput("Drive/CurrentSupply/BackLeftTurn", backLeft.getTurnCurrent());
-        // Logger.recordOutput("Drive/CurrentSupply/BackRightDrive", backRight.getDriveCurrent());
-        // Logger.recordOutput("Drive/CurrentSupply/BackRightTurn", backRight.getTurnCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontLeftDrive",
+        // frontLeft.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontLeftTurn",
+        // frontLeft.getTurnCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontRightDrive",
+        // frontRight.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/FrontRightTurn",
+        // frontRight.getTurnCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackLeftDrive",
+        // backLeft.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackLeftTurn",
+        // backLeft.getTurnCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackRightDrive",
+        // backRight.getDriveCurrent());
+        // Logger.recordOutput("Drive/CurrentSupply/BackRightTurn",
+        // backRight.getTurnCurrent());
     }
 
     // public Pose2d getPredictedPose() {
-    //     return poseEstimator.getEstimatedPosition();
+    // return poseEstimator.getEstimatedPosition();
     // }
 }
