@@ -10,6 +10,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
@@ -59,7 +61,7 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("ProjectName", "2025-Robot-Code"); // Set a metadata value
 
     if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
+      Logger.addDataReceiver(new WPILOGWriter("/media/sda2/")); // Log to a USB stick
       Logger.addDataReceiver(new NT4Publisher());
       // Publish data to NetworkTables
       new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging - ignore leak
@@ -107,6 +109,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledInit() {
+    CommandScheduler.getInstance().cancelAll();
+
     robotContainer.disableSubsytems();
 
     if (autonomousCommand != null) {
@@ -159,6 +163,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopInit() {
+    // CommandScheduler.getInstance().cancelAll();
+    // robotContainer.driveSub.applyRequest(new SwerveRequest.OpenLoopVoltage
+    // });
     robotContainer.armSub.applyAllConfigs();
 
     SequentialCommandGroup calibrationSequence = new SequentialCommandGroup();

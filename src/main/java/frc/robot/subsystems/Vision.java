@@ -394,7 +394,9 @@ public class Vision extends SubsystemBase {
 
         for (int id : aprilTagList) {
             possiblePoses.add(getLayout().getTagPose(id).get().toPose2d());
+            Logger.recordOutput("Vision/Poses" + id, getLayout().getTagPose(id).get().toPose2d());
         }
+
 
         return Optional.of(drivePose.nearest(possiblePoses));
     }

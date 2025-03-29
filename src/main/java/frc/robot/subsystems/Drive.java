@@ -201,6 +201,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
 
     public void stopDrive() {
 
+        
+
         for (int i = 0; i < 4; i++) {
             super.getModule(i).getDriveMotor().stopMotor();
             super.getModule(i).getSteerMotor().stopMotor();
