@@ -657,8 +657,11 @@ public class RobotContainer {
         //                 ),
         //         Set.of(driveSub)));
 
-        autoChooser.addOption("1-Coral-L4",
+        autoChooser.addOption("1-Coral-L4-Right",
                 new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandRight, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
+        autoChooser.addOption("1-Coral-L4-Left",
+                new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandLeft, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
+
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);
