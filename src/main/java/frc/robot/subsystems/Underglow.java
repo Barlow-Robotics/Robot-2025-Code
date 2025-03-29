@@ -40,7 +40,7 @@ public class Underglow extends SubsystemBase {
             // try to connect if we're disabled. Retry only once a second.
             if (!robot.isEnabled() && retryCount == 0) {
                 try {
-                    port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
+                    // port = new SerialPort(9600, Constants.UnderGlowConstants.Port);
                 } catch (Exception e) {
                     port = null;
                 }
