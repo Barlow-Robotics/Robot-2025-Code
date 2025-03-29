@@ -319,6 +319,29 @@ public class Vision extends SubsystemBase {
         // }
     
         int primaryId = tags.get(0).fiducialId;
+        var alliance = DriverStation.getAlliance();
+
+        if (alliance.isPresent()) {
+            boolean blue = alliance.get() == DriverStation.Alliance.Blue; 
+            if (blue) {
+                for (PhotonTrackedTarget tag : tags) {
+                    int id = tag.getFiducialId();
+                    if (id >= 6 && id <= 11) {
+                        return null;
+                    }
+                }
+            }
+            else {
+                for (PhotonTrackedTarget tag : tags) {
+                    int id = tag.getFiducialId();
+                    if (id >= 17 && id <= 22) {
+                        return null;
+                    }
+                }
+            }
+        }
+
+
         if ((primaryId >= 6 && primaryId <= 11) || (primaryId >= 17 && primaryId <= 22)) {
             double distanceToTarget = tags.get(0).bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0));
             
@@ -340,18 +363,20 @@ public class Vision extends SubsystemBase {
                     return null; 
                 }
             } else if (tagCount >= 2) {
-                stdDev = 0.7;
-                if (distanceToTarget <= 0.5) {
-                    stdDev = 0.5;
-                    if (distanceToTarget <= 0.25) {
-                        stdDev = 0.25;
-                    }
-                }
-                driveSub.addVisionMeasurement(
-                    new Pose2d(pose.getX(), pose.getY(), driveSub.getPose().getRotation()), 
-                    visionTime, 
-                    VecBuilder.fill(stdDev, stdDev, 50)
-                );
+            
+                return null;
+                // stdDev = 0.7;
+                // if (distanceToTarget <= 0.5) {
+                //     stdDev = 0.5;
+                //     if (distanceToTarget <= 0.25) {
+                //         stdDev = 0.25;
+                //     }
+                // }
+                // driveSub.addVisionMeasurement(
+                //     new Pose2d(pose.getX(), pose.getY(), pose.getRotation()), 
+                //     visionTime, 
+                //     VecBuilder.fill(stdDev, stdDev, stdDev)
+                // );
             }
         }
         return null;
