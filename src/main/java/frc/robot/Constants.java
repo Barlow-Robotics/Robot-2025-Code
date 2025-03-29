@@ -27,6 +27,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.commands.TuneableParameter;
+import frc.robot.subsystems.Vision;
 
 public class Constants {
 
@@ -78,8 +79,7 @@ public class Constants {
         
 
         // // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025ReefscapeAndyMark
-                .loadAprilTagLayoutField();
+        public static final AprilTagFieldLayout FieldTagLayout = Vision.filterAprilTagField(AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField());
 
         // The standard deviations of our vision estimated poses, which affect
         // correction rate
