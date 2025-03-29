@@ -5,7 +5,6 @@
 
 package frc.robot.subsystems;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +18,8 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -42,8 +41,6 @@ import static frc.robot.Constants.VisionConstants.FieldTagLayout;
 import static frc.robot.Constants.VisionConstants.PrimaryVisionStrategy;
 import static frc.robot.Constants.VisionConstants.RightClimbCamName;
 import static frc.robot.Constants.VisionConstants.RightClimbCamToRobot;
-// import static frc.robot.Constants.VisionConstants.RobotToElevatorCam;
-// import static frc.robot.Constants.VisionConstants.RobotToRightClimbCam;
 import frc.robot.Robot;
 
 public class Vision extends SubsystemBase {
@@ -97,14 +94,7 @@ public class Vision extends SubsystemBase {
         rightClimbPhotonEstimator = new PhotonPoseEstimator(FieldTagLayout, PrimaryVisionStrategy, RightClimbCamToRobot);
         rightClimbPhotonEstimator.setMultiTagFallbackStrategy(FallbackVisionStrategy);
 
-        AprilTagFieldLayout layout;
-        try {
-            layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile);
-        } catch (IOException e) {
-            DriverStation.reportError("Failed to load AprilTagFieldLayout", e.getStackTrace());
-            layout = null;
-        }
-        this.aprilTagFieldLayout = layout;
+        this.aprilTagFieldLayout = FieldTagLayout;
 
 
         // ----- Simulation
@@ -152,7 +142,7 @@ public class Vision extends SubsystemBase {
         visionEst.ifPresent(
                 est -> {
                     // driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
-                    addVisionMeasure(est);
+                    addVisionMeasure(est, "ElevatorCamera");
                     Logger.recordOutput("Vision/ElevatorCameraPoseEstimate", est.estimatedPose.toPose2d());
 
                     // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraOneStdDev);
@@ -163,7 +153,7 @@ public class Vision extends SubsystemBase {
         visionEst = getEstimatedGlobalPose(drivePose, rightClimbCam, rightClimbPhotonEstimator);
         visionEst.ifPresent(
                 est -> {
-                    addVisionMeasure(est);
+                    addVisionMeasure(est, "RightClimbCamera");
                     // m_PoseEstimator.setVisionMeasurementStdDevs(Constants.vision.localizationCameraTwoStdDev);
                     // driveSub.addVisionMeasurement(est.estimatedPose.toPose2d(), est.timestampSeconds);
                     Logger.recordOutput("Vision/RightClimbPoseEstimate", est.estimatedPose.toPose2d());
@@ -176,7 +166,7 @@ public class Vision extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (!Robot.isSimulation() && /*!robot.isAutonomous() && *//*(!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) &&*/ !this.disabledVision) {
+        if (/*!Robot.isSimulation() && *//*!robot.isAutonomous() && *//*(!robot.currentlyFollowingAPath || pathRecounter % 10 == 0) &&*/ !this.disabledVision) {
             Pose2d currentPose = driveSub.getPose();
             updateVisionLocalization(currentPose);
         }
@@ -199,6 +189,7 @@ public class Vision extends SubsystemBase {
         if(camera.isConnected()){
             poseEstimator.setReferencePose(robotPose);
             for (var change : camera.getAllUnreadResults()) {
+
                 visionEst = poseEstimator.update(change);
                 //updateEstimationStdDevs(visionEst, change.getTargets(), poseEstimator);
             }
@@ -311,62 +302,58 @@ public class Vision extends SubsystemBase {
     }
 
 
-    public Matrix<N3, N1> addVisionMeasure(EstimatedRobotPose estimated_pose) {
+    public Matrix<N3, N1> addVisionMeasure(EstimatedRobotPose estimated_pose, String cameraName) {
         Pose2d pose = estimated_pose.estimatedPose.toPose2d();
         double visionTime = estimated_pose.timestampSeconds;
         var tags = estimated_pose.targetsUsed;
+        ArrayList<Integer> tagIds = new ArrayList<>();
+
         int tagCount = tags.size();
         
         if (tagCount == 0) {
             return null;
         }
     
-        ArrayList<Integer> tagIds = new ArrayList<>();
-        for (PhotonTrackedTarget tag : tags) {
-            tagIds.add(tag.fiducialId);
-        }
+        // for (PhotonTrackedTarget tag : tags) {
+        //     tagIds.add(tag.fiducialId);
+        // }
     
-        int primaryId = tagIds.get(0);
-        double distanceToTarget = tags.get(0).bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0));
-        
-        double stdDev = 2;
-        Logger.recordOutput("Vision/DistanceToTarget", distanceToTarget);
-    
-        if (tagCount == 1) {
-            if (distanceToTarget > 2.5) {
-                return null;
-            }
-            if (((primaryId >= 6 && primaryId <= 11) || (primaryId >= 17 && primaryId <= 22)) && distanceToTarget <= 1.5) {
-                stdDev = 0.25;
-                if (distanceToTarget <= 0.75) {
-                    stdDev = 0.1;
-                    if (DriverStation.isTeleop()) {
-                        driveSub.addVisionMeasurement(pose, visionTime, VecBuilder.fill(stdDev, stdDev, stdDev));
-                        return null;
+        int primaryId = tags.get(0).fiducialId;
+        if ((primaryId >= 6 && primaryId <= 11) || (primaryId >= 17 && primaryId <= 22)) {
+            double distanceToTarget = tags.get(0).bestCameraToTarget.getTranslation().toTranslation2d().getDistance(new Translation2d(0, 0));
+            
+            double stdDev = 2;
+            Logger.recordOutput("Vision/stdDev/" + cameraName, stdDev);
+            Logger.recordOutput("Vision/tagCount/" + cameraName, tagCount);
+            Logger.recordOutput("Vision/DistanceToTarget/" + cameraName, distanceToTarget);
+
+            if (tagCount == 1) {
+                if (distanceToTarget > 2.5) {
+                    return null;
+                }
+                if (distanceToTarget <= 1.5) {
+                    stdDev = 0.25;
+                    if (distanceToTarget <= 0.75) {
+                        stdDev = 0.1;
+                    }
+                    driveSub.addVisionMeasurement(pose, visionTime, VecBuilder.fill(stdDev, stdDev, stdDev));
+                    return null; 
+                }
+            } else if (tagCount >= 2) {
+                stdDev = 0.7;
+                if (distanceToTarget <= 0.5) {
+                    stdDev = 0.5;
+                    if (distanceToTarget <= 0.25) {
+                        stdDev = 0.25;
                     }
                 }
-            }
-        } else if (tagCount >= 2) {
-            stdDev = 0.7;
-            if (((primaryId >= 6 && primaryId <= 11) || (primaryId >= 17 && primaryId <= 22)) && distanceToTarget <= 0.5) {
-                stdDev = 0.5;
-                if (distanceToTarget <= 0.25) {
-                    stdDev = 0.25;
-                }
+                driveSub.addVisionMeasurement(
+                    new Pose2d(pose.getX(), pose.getY(), driveSub.getPose().getRotation()), 
+                    visionTime, 
+                    VecBuilder.fill(stdDev, stdDev, 50)
+                );
             }
         }
-        Logger.recordOutput("Vision/stdDev", distanceToTarget);
-
-
-
-        // size of the angles. 
-
-        driveSub.addVisionMeasurement(
-            new Pose2d(pose.getX(), pose.getY(), driveSub.getPose().getRotation()), 
-            visionTime, 
-            VecBuilder.fill(stdDev, stdDev, 50)
-        );
-    
         return null;
     }
 
@@ -399,6 +386,26 @@ public class Vision extends SubsystemBase {
 
 
         return Optional.of(drivePose.nearest(possiblePoses));
+    }
+
+    private static boolean ifReefTag(int primaryId) {
+        return (primaryId >= 6 && primaryId <= 11) || (primaryId >= 17 && primaryId <= 22);
+    }
+
+    public static AprilTagFieldLayout filterAprilTagField(AprilTagFieldLayout field) {
+        var tags = field.getTags();
+        var newTags = new ArrayList<AprilTag>();
+        for (AprilTag tag : tags) {
+            if (ifReefTag(tag.ID)) {
+                newTags.add(tag);
+            }
+        }
+        return new AprilTagFieldLayout(
+            newTags,
+            field.getFieldLength(),
+            field.getFieldWidth()
+        );    
+
     }
 
 }
