@@ -126,7 +126,7 @@ public class Climb extends SubsystemBase {
                         winchMotor.set(0);
                         //currentState = ClimbState.Idle;
                     } else {
-                        final VoltageOut request = new VoltageOut(6.0);
+                        final VoltageOut request = new VoltageOut(12.0);
                         winchMotor.setControl(request.withEnableFOC(true));   
                     }
                 }
