@@ -45,7 +45,7 @@ public class Climb extends SubsystemBase {
     TalonFXSimState winchMotorSim;
 
     public enum ClimbState {
-        Idle, Unwind, ReadyToLatch, Wind
+        Idle, Unwind, ReadyToLatch, Wind, Holding
     }
 
     ClimbState currentState = ClimbState.Idle;
@@ -124,13 +124,20 @@ public class Climb extends SubsystemBase {
                     desiredWinchPosition = 0 ; // Just for logging
                     if (isWound()) {
                         winchMotor.set(0);
+                        currentState = ClimbState.Holding ;
                         //currentState = ClimbState.Idle;
                     } else {
-                        final VoltageOut request = new VoltageOut(6.0);
+                        final VoltageOut request = new VoltageOut(12.0);
                         winchMotor.setControl(request.withEnableFOC(true));   
                     }
                 }
                     break;
+                case Holding: {
+                    if ( !isWound() ){
+                        currentState = ClimbState.Wind ;
+                    }
+                }
+                break ;
             }
 
             // support for manual adjustment of climb arm height.
@@ -196,10 +203,10 @@ public class Climb extends SubsystemBase {
 
     public boolean isWound() {
         // wpk we should probably put that magic number in constants so we give it more meaning
-        boolean wound = !hallSensor.get() ;
+        // boolean wound = !hallSensor.get() ;
 
-        //  boolean wound = withinWinchTolerance(winchMotor.getPosition().getValueAsDouble(), 0)
-        //  || !hallSensor.get() ;
+         boolean wound = withinWinchTolerance(winchMotor.getPosition().getValueAsDouble(), 0)
+         || !hallSensor.get() ;
 
         return wound ;
     }

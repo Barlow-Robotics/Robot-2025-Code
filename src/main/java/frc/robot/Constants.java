@@ -512,7 +512,7 @@ public class Constants {
                                                             //  as needed.
         public static final double ServoRetractedPos = 1.0;  // Low initial value for testing.  Increase in small increments
 
-        public static final double WinchTolerance = 5;  //  In degrees..Get the winch rotation within +/- this many degrees
+        public static final double WinchTolerance = 10;  //  In degrees..Get the winch rotation within +/- this many degrees
 
     }
 
