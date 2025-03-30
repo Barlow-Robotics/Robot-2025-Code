@@ -27,6 +27,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.commands.TuneableParameter;
+import frc.robot.subsystems.Vision;
 
 public class Constants {
 
@@ -78,8 +79,7 @@ public class Constants {
         
 
         // // The layout of the AprilTags on the field
-        public static final AprilTagFieldLayout FieldTagLayout = AprilTagFields.k2025ReefscapeAndyMark
-                .loadAprilTagLayoutField();
+        public static final AprilTagFieldLayout FieldTagLayout = Vision.filterAprilTagField(AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField());
 
         // The standard deviations of our vision estimated poses, which affect
         // correction rate
@@ -475,7 +475,7 @@ public class Constants {
         //  Below measures the winch rotations required to move from the starting point, i.e. climbed, to horizontal harpoon
         //      As is, this is a negative value, i.e. we are unwinding the cable.
         // public static final double WinchAttachRotations = (WinchCableLenAtRest - WinchCableLenHarpoonHoriz)*RotationsPerWinchInch; 
-        public static final double WinchAttachRotations = -375.0; 
+        public static final double WinchAttachRotations = -325.0; 
         //  Below measures the winch rotations required to move from horizontal harpoon to fully back, i.e. climbed.
         public static final double WinchClimbRotations = (WinchCableLenHarpoonHoriz - WinchCableLenAfterClimb)*RotationsPerWinchInch;
 

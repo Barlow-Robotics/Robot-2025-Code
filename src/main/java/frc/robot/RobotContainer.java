@@ -645,20 +645,23 @@ public class RobotContainer {
                 Set.of(driveSub)));
 
 
-        autoChooser.addOption("(L4) 2-Coral-Current-Alliance",
-                new DeferredCommand(
-                        () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", true, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
-                                ),
-                        Set.of(driveSub)));
-        autoChooser.addOption("(L4) 2-Coral-Opposite-Alliance", new DeferredCommand(
-                () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", false, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
-                        ),
-                Set.of(driveSub)));
+        // autoChooser.addOption("(L4) 2-Coral-Current-Alliance",
+        //         new DeferredCommand(
+        //                 () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", true, setArmPosLevel4Cmd, setArmPosTravellingCmd,
+        //                         scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+        //                         ),
+        //                 Set.of(driveSub)));
+        // autoChooser.addOption("(L4) 2-Coral-Opposite-Alliance", new DeferredCommand(
+        //         () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", false, setArmPosLevel4Cmd, setArmPosTravellingCmd,
+        //                 scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+        //                 ),
+        //         Set.of(driveSub)));
 
-        autoChooser.addOption("1-Coral-L4",
+        autoChooser.addOption("1-Coral-L4-Right",
                 new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandRight, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
+        autoChooser.addOption("1-Coral-L4-Left",
+                new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandLeft, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
+
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
         Shuffleboard.getTab("Match").add("Path Name", autoChooser);
@@ -706,9 +709,9 @@ public class RobotContainer {
                             // TODO: These gains appears to have been massively under-tuned for
                             // reasonable PP Tracking.
                             // PID constants for translation
-                            new PIDConstants(5, 0.5, 0),
+                            new PIDConstants(3, 0.5, 0),
                             // PID constants for rotation
-                            new PIDConstants(5, 0.5, 0)),
+                            new PIDConstants(3, 0.5, 0)),
                     config,
                     // Assume the path needs to be flipped for Red vs Blue, this is normally the
                     // case
