@@ -645,22 +645,23 @@ public class RobotContainer {
                 Set.of(driveSub)));
 
 
-        // autoChooser.addOption("(L4) 2-Coral-Current-Alliance",
-        //         new DeferredCommand(
-        //                 () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", true, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-        //                         scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
-        //                         ),
-        //                 Set.of(driveSub)));
-        // autoChooser.addOption("(L4) 2-Coral-Opposite-Alliance", new DeferredCommand(
-        //         () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", false, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-        //                 scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
-        //                 ),
-        //         Set.of(driveSub)));
+        autoChooser.addOption("(L4) 2-Coral-Current-Alliance",
+                new DeferredCommand(
+                        () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", true, setArmPosLevel4Cmd, setArmPosTravellingCmd,
+                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+                                ),
+                        Set.of(driveSub)));
+        autoChooser.addOption("(L4) 2-Coral-Opposite-Alliance", new DeferredCommand(
+                () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", false, setArmPosLevel4Cmd, setArmPosTravellingCmd,
+                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+                        ),
+                Set.of(driveSub)));
 
-        autoChooser.addOption("1-Coral-L4-Right",
+                autoChooser.addOption("1-Coral-L4-Right",
                 new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandRight, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
         autoChooser.addOption("1-Coral-L4-Left",
                 new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandLeft, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
+
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 
