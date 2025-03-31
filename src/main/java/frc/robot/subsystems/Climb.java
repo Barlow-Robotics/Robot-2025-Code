@@ -133,15 +133,15 @@ public class Climb extends SubsystemBase {
                 }
                     break;
                 case Holding: {
-                    if ( !isWound() ){
-                        currentState = ClimbState.Wind ;
-                    }
+                    // if ( !isWound() ){
+                    //     currentState = ClimbState.Wind ;
+                    // }
                 }
                 break ;
             }
 
             // support for manual adjustment of climb arm height.
-            if ( currentState == ClimbState.Idle || currentState == ClimbState.ReadyToLatch ) {
+            if ( currentState == ClimbState.Idle || currentState == ClimbState.ReadyToLatch || currentState == ClimbState.Holding ) {
                 // don't do anything here
                 if (unwindWinchInTest.getAsBoolean() ) {
                     // set motor voltage to unwind
@@ -149,7 +149,7 @@ public class Climb extends SubsystemBase {
                     winchMotor.setControl(request.withEnableFOC(true));
                 } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
                     // set motor voltage to wind
-                    final VoltageOut request = new VoltageOut( 6.0 ) ;
+                    final VoltageOut request = new VoltageOut( 12.0 ) ;
                     winchMotor.setControl(request.withEnableFOC(true));
                 } else {
                     // set motor voltage to zero
