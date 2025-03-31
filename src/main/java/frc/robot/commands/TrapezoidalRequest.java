@@ -53,9 +53,9 @@ public class TrapezoidalRequest extends Command {
         double displacement = translationDelta.getNorm() ;
         double rotationDelta = driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians();
 
-        // displacementPID.reset( displacement) ;
-        Translation2d speedVector = new Translation2d( driveSub.getState().Speeds.vxMetersPerSecond, driveSub.getState().Speeds.vyMetersPerSecond) ;
-        displacementPID.reset( new State(displacement, speedVector.getNorm())) ;
+        displacementPID.reset( displacement) ;
+        // Translation2d speedVector = new Translation2d( driveSub.getState().Speeds.vxMetersPerSecond, driveSub.getState().Speeds.vyMetersPerSecond) ;
+        // displacementPID.reset( new State(displacement, speedVector.getNorm())) ;
 
         rotationPID.reset(  rotationDelta );
     }
