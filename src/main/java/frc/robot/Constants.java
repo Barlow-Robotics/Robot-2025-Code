@@ -299,7 +299,7 @@ public class Constants {
         public static final double ArmAngleKS2 = 0.14;
         public static TuneableParameter ArmAngleKS = new TuneableParameter(ArmAngleKS2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         
-        public static final double ArmAngleCruiseSpeed = /*testing*/ 270.0/360.0; // .1; // RPS - CHANGE
+        public static final double ArmAngleCruiseSpeed = 1.5; /*testing*//* 360.0/360.0; */// .1; // RPS - CHANGE
         public static final double ArmAngleAcceleration = /*testing*/ ArmAngleCruiseSpeed * 4.0; // 12; // CHANGE
         public static final double ArmAngleJerk = /*testing*/ ArmAngleAcceleration * 4.0; // 40; // CHANGE
         
@@ -326,7 +326,7 @@ public class Constants {
 
         public static final double ElevatorMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / ElevatorGearRatio
                 * ElevatorSprocketCircumference;
-        public static final double ElevatorCruiseVelocity = 20.0; // CHANGE
+        public static final double ElevatorCruiseVelocity = 36.0; // CHANGE
         public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE
         public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
@@ -367,7 +367,7 @@ public class Constants {
         
         public static final double CarriageMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / CarriageGearRatio
                 * CarriageSprocketCircumference;
-        public static final double CarriageCruiseVelocity = 20.0; // CHANGE In inches per second
+        public static final double CarriageCruiseVelocity = 30.0; // CHANGE In inches per second
         public static final double CarriageAcceleration = 4 * CarriageCruiseVelocity ; // CHANGE In inches per second per second
         public static final double CarriageJerk = 5 * CarriageAcceleration ; // CHANGE - In Inches/s/s
 

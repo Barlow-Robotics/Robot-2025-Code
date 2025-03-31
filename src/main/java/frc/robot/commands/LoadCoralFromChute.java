@@ -9,6 +9,7 @@ import java.util.Set;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ArmState;
@@ -50,10 +51,11 @@ public class LoadCoralFromChute {
                         // return gripper to load position
 
                         // wpk need to fix magic numbers
-                        new MoveElevator(theElevator, 0.0, startingCarriageHeight - 3.0),
-                        new InstantCommand(() -> theGripper.startIntaking()),
+                        Commands.parallel(
+                                new MoveElevator(theElevator, 0.0, startingCarriageHeight - 3.0),
+                                new InstantCommand(() -> theGripper.startIntaking())),
                         new MoveElevator(theElevator, 0.0, startingCarriageHeight),
-                        new WaitCommand(0.25),
+                        // new WaitCommand(0.25),
                         new StopGripper(theGripper),
                         new PositionGripper(armState, ArmState.Running, theElevator, theArm, theWrist).command());
 

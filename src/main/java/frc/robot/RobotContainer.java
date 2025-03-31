@@ -621,8 +621,8 @@ public class RobotContainer {
                 new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub).command(),
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done)));
         
-        Command autoAlignCommandLeft = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset);
-        Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset);
+        Command autoAlignCommandLeft = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset, 3.0, 3.0);
+        Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset, 3.0, 3.0);
         Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AutoOffset);
 
         autoChooser.addOption("Leave Zone",
@@ -648,12 +648,12 @@ public class RobotContainer {
         autoChooser.addOption("(L4) 2-Coral-Current-Alliance",
                 new DeferredCommand(
                         () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", true, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral, setArmPosLoadCoralCmd
                                 ),
                         Set.of(driveSub)));
         autoChooser.addOption("(L4) 2-Coral-Opposite-Alliance", new DeferredCommand(
                 () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", false, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral
+                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral, setArmPosLoadCoralCmd
                         ),
                 Set.of(driveSub)));
 

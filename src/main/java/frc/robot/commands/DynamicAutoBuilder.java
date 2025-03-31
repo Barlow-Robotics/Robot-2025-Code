@@ -111,13 +111,21 @@ public class DynamicAutoBuilder {
 
 
 
+  public Command trapezoidAlign(Transform2d extraOffset, double velocity, double acceleration) {
+    // manualAlign uses a deferred so that it can compute the new path when the
+    // trigger is run.
+    return new DeferredCommand(
+        () -> runTrapezoidPathing(extraOffset, velocity, acceleration),
+        Set.of(driveSub));
+  }
   public Command trapezoidAlign(Transform2d extraOffset) {
     // manualAlign uses a deferred so that it can compute the new path when the
     // trigger is run.
     return new DeferredCommand(
-        () -> runTrapezoidPathing(extraOffset),
+        () -> runTrapezoidPathing(extraOffset, 2.0, 2.0),
         Set.of(driveSub));
   }
+
 
 
 
@@ -224,7 +232,7 @@ public class DynamicAutoBuilder {
 
 
 
-  Command runTrapezoidPathing(Transform2d extraOffset) {
+  Command runTrapezoidPathing(Transform2d extraOffset, double velocity, double acceleration) {
 
     var maybeTargetPose = findTargetFromOffset(extraOffset);
     if (maybeTargetPose.isEmpty()) {
@@ -233,14 +241,14 @@ public class DynamicAutoBuilder {
 
     var targetPose = maybeTargetPose.get();
 
-    return  applyTrapezoidalRequest(targetPose) ;
+    return  applyTrapezoidalRequest(targetPose, velocity, acceleration) ;
   }
 
 
 
 
-  Command applyTrapezoidalRequest(Pose2d targetPose) {
-    return new TrapezoidalRequest(driveSub, targetPose) ;
+  Command applyTrapezoidalRequest(Pose2d targetPose, double velocity, double acceleration) {
+    return new TrapezoidalRequest(driveSub, targetPose, velocity, acceleration) ;
 
     // FunctionalCommand fc = new FunctionalCommand(
     //     // onInit

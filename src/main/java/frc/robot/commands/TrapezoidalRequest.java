@@ -31,17 +31,17 @@ public class TrapezoidalRequest extends Command {
     private final ProfiledPIDController rotationPID;
 
     /** Creates a new TrapazoidalRequest. */
-    public TrapezoidalRequest(Drive driveSub, Pose2d targetPose) {
+    public TrapezoidalRequest(Drive driveSub, Pose2d targetPose, double velocity, double acceleration) {
         // Use addRequirements() here to declare subsystem dependencies.
         this.driveSub = driveSub;
         this.targetPose = targetPose;
 
-        displacementPID = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(2.0, 2.0));
+        displacementPID = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(velocity, acceleration));
 
         rotationPID = new ProfiledPIDController(1.0, 0, 0, new TrapezoidProfile.Constraints(2.0*Math.PI, 8.0* Math.PI));
         rotationPID.setTolerance(Units.degreesToRadians(2.0)) ;
         rotationPID.enableContinuousInput(-Math.PI, Math.PI);
-        displacementPID.setTolerance(0.03);
+        displacementPID.setTolerance(0.05);
     }
 
     // Called when the command is initially scheduled.
