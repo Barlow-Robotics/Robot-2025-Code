@@ -233,6 +233,26 @@ public class PositionGripper {
         return c;
     }
 
+
+
+    private Command createOptimizedMoveToTravel(ArmState targetState) {
+        Command c = Commands.sequence(
+                new InstantCommand(() -> armStateManager.setTargetState(targetState)),
+                new ParallelCommandGroup(
+                        new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(),
+                                positionDictionary.get(targetState).getCarriageHeight()),
+                        Commands.sequence(
+                            Commands.waitSeconds(1.0).until(()->true),  // wpk need to make this real code
+                            new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()),
+                            new RotateWrist(theWrist, positionDictionary.get(targetState).getWristAngle()))
+                        ),
+                new InstantCommand(() -> armStateManager.setCurrentState(targetState)));
+        return c;
+    }
+
+
+
+
     private void buildTransitionCommands() {
 
         // transitions from running

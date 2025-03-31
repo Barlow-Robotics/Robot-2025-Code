@@ -15,6 +15,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
@@ -52,7 +53,10 @@ public class TrapezoidalRequest extends Command {
         double displacement = translationDelta.getNorm() ;
         double rotationDelta = driveSub.getPose().getRotation().minus(targetPose.getRotation()).getRadians();
 
-        displacementPID.reset( displacement) ;
+        // displacementPID.reset( displacement) ;
+        Translation2d speedVector = new Translation2d( driveSub.getState().Speeds.vxMetersPerSecond, driveSub.getState().Speeds.vyMetersPerSecond) ;
+        displacementPID.reset( new State(displacement, speedVector.getNorm())) ;
+
         rotationPID.reset(  rotationDelta );
     }
 
