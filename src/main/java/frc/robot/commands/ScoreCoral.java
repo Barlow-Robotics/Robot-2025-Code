@@ -99,4 +99,29 @@ public class ScoreCoral {
 
         return Commands.sequence(commands.toArray(new Command[0]));
     }
+
+    private Command createOptimizedL234ScoreCommand(double deltaElevatorHeight, double deltaCarriageHeight,
+            double deltaArmAngle) {
+
+        ArrayList<Command> commands = new ArrayList<Command>();
+
+        commands.add(new ParallelCommandGroup(
+                new InstantCommand(() -> theGripper.releaseCoral()),
+                // new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
+                new MoveElevator(theElevator,
+                        theElevator.getDesiredElevatorHeightInches() + deltaElevatorHeight,
+                        theElevator.getDesiredCarriageHeightInches() + deltaCarriageHeight)));
+        commands.add(new InstantCommand(() -> theGripper.stop()));
+
+        if (goToTravel) {
+            commands.add(
+                    new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist).command());
+        }
+
+        return Commands.sequence(commands.toArray(new Command[0]));
+    }
+
+
+
+
 }
