@@ -661,12 +661,12 @@ public class RobotContainer {
         autoChooser.addOption("(L4) 2-Coral-Current-Alliance",
                 new DeferredCommand(
                         () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", true, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral, setArmPosLoadCoralCmd
+                                scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral, new LoadCoralFromChute(elevatorSub, armSub, wristSub, gripperSub, armState)
                                 ),
                         Set.of(driveSub)));
         autoChooser.addOption("(L4) 2-Coral-Opposite-Alliance", new DeferredCommand(
                 () -> driveSub.CustomChoreoAutoL4("[USED] 2CoralP", false, setArmPosLevel4Cmd, setArmPosTravellingCmd,
-                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral, setArmPosLoadCoralCmd
+                        scoreCoralCmd, autoAlignCommandRight, autoAlignCommandLeft, chuteHasCoral, new LoadCoralFromChute(elevatorSub, armSub, wristSub, gripperSub, armState)
                         ),
                 Set.of(driveSub)));
 
