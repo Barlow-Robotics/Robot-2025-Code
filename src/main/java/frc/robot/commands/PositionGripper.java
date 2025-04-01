@@ -308,8 +308,8 @@ public class PositionGripper {
         transitionCommands.get(ArmState.Level2).put(ArmState.Level4, createStraightenArmFirstCommand(ArmState.Level4)) ;
         transitionCommands.get(ArmState.Level2).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
         transitionCommands.get(ArmState.Level2).put(ArmState.StartAlgaePosition, createStraightenArmFirstCommand(ArmState.StartAlgaePosition)) ;
-        transitionCommands.get(ArmState.Level2).put(ArmState.Running, createOptimizedMoveToTravel(ArmState.Running)) ;
-        // transitionCommands.get(ArmState.Level2).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
+        // transitionCommands.get(ArmState.Level2).put(ArmState.Running, createOptimizedMoveToTravel(ArmState.Running)) ;
+        transitionCommands.get(ArmState.Level2).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
         transitionCommands.get(ArmState.Level2).put(ArmState.Climb, createStraightenArmFirstCommand(ArmState.Climb)) ;
 
         // transitions from Level 3
@@ -332,8 +332,8 @@ public class PositionGripper {
         transitionCommands.get(ArmState.Level4).put(ArmState.Level4, Commands.none()) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.StartAlgaePosition, createStraightenArmFirstCommand(ArmState.StartAlgaePosition)) ;
-//        transitionCommands.get(ArmState.Level4).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
-        transitionCommands.get(ArmState.Level4).put(ArmState.Running, createOptimizedMoveToTravel(ArmState.Running)) ;
+       transitionCommands.get(ArmState.Level4).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
+        // transitionCommands.get(ArmState.Level4).put(ArmState.Running, createOptimizedMoveToTravel(ArmState.Running)) ;
         transitionCommands.get(ArmState.Level4).put(ArmState.Climb, createStraightenArmFirstCommand(ArmState.Climb)) ;
 
         // transitions from WaitingForCoral
