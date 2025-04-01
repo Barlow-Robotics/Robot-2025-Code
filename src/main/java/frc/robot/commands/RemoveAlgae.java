@@ -54,7 +54,7 @@ public class RemoveAlgae {
                                 //         theElevator.getDesiredCarriageHeightInches() + 0.0,
                                 //         ArmConstants.CarriageAlgaeRemovalVelocity),
                                 new MoveElevator(theElevator,
-                                        theElevator.getDesiredElevatorHeightInches() + 7.5,
+                                        theElevator.getDesiredElevatorHeightInches() + 5.0,
                                         ArmConstants.ElevatorAlgaeRemovalVelocity,
                                         20.0,
                                         ArmConstants.CarriageAlgaeRemovalVelocity),
