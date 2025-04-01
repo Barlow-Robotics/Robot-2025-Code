@@ -600,6 +600,17 @@ public class RobotContainer {
         // driveSub.ChoreoAuto("Left from Top 1 Coral"), Set.of(driveSub)));
         // autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() ->
         // driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
+        Command commandAlgaeL4 = Commands.sequence(
+                new InstantCommand(() -> gripperSub.startAlgaeRemoval()),
+                new MoveElevator(elevatorSub,
+                elevatorSub.getDesiredElevatorHeightInches(),
+                Constants.ArmConstants.ElevatorAlgaeRemovalVelocity,
+                elevatorSub.getDesiredCarriageHeightInches()+5.0,
+                20),
+                new InstantCommand(() -> gripperSub.stop()),
+                new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub).command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done))
+        );
 
         Command commandGroup1 = Commands.sequence(
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Scoring)),
@@ -638,6 +649,7 @@ public class RobotContainer {
                                 new PositionGripper(armState, ArmState.Level3, elevatorSub, armSub, wristSub)
                                 ),
                         Set.of(driveSub)));
+
         autoChooser.addOption("2-Coral-Opposite-Alliance", new DeferredCommand(
                 () -> driveSub.CustomChoreoAuto("[USED] 2CoralP", false, setArmPosLevel1Cmd, commandGroup1,
                         scoreCoralCmd, autoAlignCommandRight, autoAlignCommandCenter, chuteHasCoral,
@@ -657,11 +669,17 @@ public class RobotContainer {
                         ),
                 Set.of(driveSub)));
 
-                autoChooser.addOption("1-Coral-L4-Right",
+        autoChooser.addOption("1-Coral-L4-Right",
                 new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandRight, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
+
         autoChooser.addOption("1-Coral-L4-Left",
                 new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4("[USED] 1-Coral-L4", autoAlignCommandLeft, scoreCoralCmd, setArmPosLevel4Cmd), Set.of(driveSub)));
 
+        autoChooser.addOption("1-Coral-L4-Right-Algae",
+                new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4WithAlgae("[USED] 1-Coral-L4", autoAlignCommandRight, scoreCoralCmd, setArmPosLevel4Cmd, autoAlignCommandCenter, commandAlgaeL4), Set.of(driveSub)));
+                
+        autoChooser.addOption("1-Coral-L4-Left-Algae",
+                new DeferredCommand(() -> driveSub.ChoreoAuto1CoralL4WithAlgae("[USED] 1-Coral-L4", autoAlignCommandLeft, scoreCoralCmd, setArmPosLevel4Cmd, autoAlignCommandCenter, commandAlgaeL4), Set.of(driveSub)));
 
         // autoChooser.addOption("VisionTest", new PathPlannerAuto("TestVision"));
 

@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -475,6 +474,45 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         }
         return Commands.none();
     }
+
+
+    public Command ChoreoAuto1CoralL4WithAlgae(String name, Command autoAlignCommandRight, ScoreCoral scoreCoralCmd,
+    PositionGripper setArmPosLevel4Cmd, Command autoAlignCommandCenter, Command commandAlgaeL4) {
+    try {
+        PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
+        PathPlannerPath finalPath;
+
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            finalPath = originalPath.flipPath();
+        } else {
+            finalPath = originalPath;
+        }
+
+        return Commands.sequence(
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
+                getFullCommandWithReset(finalPath),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
+                autoAlignCommandRight.withTimeout(2),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
+                setArmPosLevel4Cmd.command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
+                scoreCoralCmd.command(),
+                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+                autoAlignCommandCenter.withTimeout(2),
+                commandAlgaeL4
+                
+
+        );
+
+
+    } catch (IOException e) {
+        e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+    } catch (ParseException e) {
+        e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
+    }
+    return Commands.none();
+    }
+
 
     public Command CustomChoreoAutoL4(String name, boolean mirror, PositionGripper setArmPosLevel4Cmd,
             PositionGripper goToTravel, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand,
