@@ -51,11 +51,14 @@ public class ScoreCoral {
             if (currentState == ArmState.Level1) {
                 return createL1ScoreCommand();
             } else if (currentState == ArmState.Level2) {
-                return createOptimizedL234ScoreCommand(0, -7.0, -30);
+                // return createOptimizedL234ScoreCommand(0, -7.0, -30);
+                return createL234ScoreCommand(0, -7.0, -30);
             } else if (currentState == ArmState.Level3) {
-                return createOptimizedL234ScoreCommand(0, -7.0, -30);
+//                return createOptimizedL234ScoreCommand(0, -7.0, -30);
+                return createL234ScoreCommand(0, -7.0, -30);
             } else if (currentState == ArmState.Level4) {
-                return createOptimizedL234ScoreCommand(0, -4.0, -30);
+                // return createOptimizedL234ScoreCommand(0, -4.0, -30);
+                return createL234ScoreCommand(0, -4.0, -30);
             } else {
                 // can't score coral if your not at one of the levels
                 return Commands.none();
@@ -105,24 +108,41 @@ public class ScoreCoral {
 
         ArrayList<Command> commands = new ArrayList<Command>();
 
+        Command returnCommand ;
+
         if ( goToTravel) {
-            commands.add(
-                new ParallelCommandGroup(
-                    new InstantCommand(() -> theGripper.releaseCoral()  ),
-                    new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist).command()
-                )
-            );
-            commands.add(new InstantCommand(() -> theGripper.stop())) ;
-        } else {
-            commands.add(new ParallelCommandGroup(
+            // returnCommand = 
+            // commands.add(
+            //     new ParallelCommandGroup(
+            //         new InstantCommand(() -> theGripper.releaseCoral()  ),
+            //         new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist).command()
+            //     )) ;
+            // commands.add(new InstantCommand(() -> theGripper.stop())) ;
+            // commands.add(new InstantCommand(() -> theGripper.stop())) ;
+
+            returnCommand = Commands.sequence(
                 new InstantCommand(() -> theGripper.releaseCoral()),
-                // new MoveArm( theArm, theArm.getArmEncoderDegrees()+deltaArmAngle) ,
+                new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist).command(),
+                new StopGripper(theGripper) ) ;
+                
+            // commands.add(
+            //     new ParallelCommandGroup(
+            //     )) ;
+            // commands.add(new InstantCommand(() -> theGripper.stop())) ;
+            // commands.add(new InstantCommand(() -> theGripper.stop())) ;
+
+
+        } else {
+            returnCommand = Commands.sequence(
+                new InstantCommand(() -> theGripper.releaseCoral()),
                 new MoveElevator(theElevator,
                         theElevator.getDesiredElevatorHeightInches() + deltaElevatorHeight,
-                        theElevator.getDesiredCarriageHeightInches() + deltaCarriageHeight)));
-            commands.add(new InstantCommand(() -> theGripper.stop()));
+                        theElevator.getDesiredCarriageHeightInches() + deltaCarriageHeight),
+                new InstantCommand(() -> theGripper.stop())
+            );
+
         }
-        return Commands.sequence(commands.toArray(new Command[0]));
+        return returnCommand;
     }
 
 

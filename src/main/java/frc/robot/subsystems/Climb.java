@@ -90,7 +90,6 @@ public class Climb extends SubsystemBase {
                             winchMotor.setPosition(0.0) ;
                         }
                     }
-        
                 }
                     break;
     
@@ -98,10 +97,6 @@ public class Climb extends SubsystemBase {
                     final VoltageOut request = new VoltageOut( -12.0 ) ;
                     winchMotor.setControl(request.withEnableFOC(true));
     
-                    // MotionMagicVoltage request = new MotionMagicVoltage( ClimbConstants.WinchAttachRotations ) ;
-                    //         // Units.degreesToRotations(ClimbConstants.UnwoundAngle.get()));
-                    // request.EnableFOC = Constants.IsFocEnabled;
-                    // winchMotor.setControl(request.withSlot(UnwindGainSlot));
                     desiredWinchPosition = ClimbConstants.WinchAttachRotations; // Just for logging
                     if (isUnwound()) {
                         winchMotor.set(0);
