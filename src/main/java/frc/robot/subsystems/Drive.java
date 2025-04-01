@@ -337,12 +337,12 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     // this::resetPose
     // }
 
-    public Command ChoreoAuto(String name) {
+    public Command ChoreoAuto(String name, Alliance alliance) {
         try {
             PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
             PathPlannerPath finalPath;
 
-            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            if (alliance == Alliance.Red) {
                 finalPath = originalPath.flipPath();
             } else {
                 finalPath = originalPath;
@@ -372,7 +372,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         Done,
     }
 
-    public Command CustomChoreoAuto(String name, boolean mirror, PositionGripper setArmPosLevel1Cmd,
+    public Command CustomChoreoAuto(String name, Alliance alliance, boolean mirror, PositionGripper setArmPosLevel1Cmd,
             Command sequentalCommand1, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand,
             Command autoAlignCenterCommand, BooleanSupplier chuteHasCoral, PositionGripper goToL3) {
         try {
@@ -393,7 +393,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             PathPlannerPath finalPath_2;
             PathPlannerPath finalPath_3;
 
-            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            if (alliance == Alliance.Red) {
                 finalPath = originalPath.flipPath();
                 finalPath_2 = originalPath_2.flipPath();
                 finalPath_3 = originalPath_3.flipPath();
@@ -413,7 +413,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
                     autoAlignCenterCommand.withTimeout(2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
-                    sequentalCommand1.asProxy(),
+                    sequentalCommand1,
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path2)),
                     getFullCommand(finalPath_2),
                     new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Waiting)),
@@ -445,13 +445,14 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         return Commands.none();
     }
 
-    public Command ChoreoAuto1CoralL4(String name, Command autoAlignCommandRight, ScoreCoral scoreCoralCmd,
+    public Command ChoreoAuto1CoralL4(String name, Alliance alliance, Command autoAlignCommandRight,
+            ScoreCoral scoreCoralCmd,
             PositionGripper setArmPosLevel4Cmd) {
         try {
             PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
             PathPlannerPath finalPath;
 
-            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            if (alliance == Alliance.Red) {
                 finalPath = originalPath.flipPath();
             } else {
                 finalPath = originalPath;
@@ -475,46 +476,44 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
         return Commands.none();
     }
 
+    public Command ChoreoAuto1CoralL4WithAlgae(String name, Alliance alliance, Command autoAlignCommandRight,
+            ScoreCoral scoreCoralCmd,
+            PositionGripper setArmPosLevel4Cmd, Command autoAlignCommandCenter, Command commandAlgaeL4) {
+        try {
+            PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
+            PathPlannerPath finalPath;
 
-    public Command ChoreoAuto1CoralL4WithAlgae(String name, Command autoAlignCommandRight, ScoreCoral scoreCoralCmd,
-    PositionGripper setArmPosLevel4Cmd, Command autoAlignCommandCenter, Command commandAlgaeL4) {
-    try {
-        PathPlannerPath originalPath = PathPlannerPath.fromChoreoTrajectory(name);
-        PathPlannerPath finalPath;
+            if (alliance == Alliance.Red) {
+                finalPath = originalPath.flipPath();
+            } else {
+                finalPath = originalPath;
+            }
 
-        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-            finalPath = originalPath.flipPath();
-        } else {
-            finalPath = originalPath;
+            return Commands.sequence(
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
+                    getFullCommandWithReset(finalPath),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
+                    autoAlignCommandRight.withTimeout(2),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
+                    setArmPosLevel4Cmd.command(),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
+                    scoreCoralCmd.command(),
+                    new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
+                    autoAlignCommandCenter.withTimeout(2),
+                    commandAlgaeL4
+
+            );
+
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
+        } catch (ParseException e) {
+            e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
         }
-
-        return Commands.sequence(
-                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Path1)),
-                getFullCommandWithReset(finalPath),
-                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action1)),
-                autoAlignCommandRight.withTimeout(2),
-                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action2)),
-                setArmPosLevel4Cmd.command(),
-                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action3)),
-                scoreCoralCmd.command(),
-                new InstantCommand(() -> Logger.recordOutput("Auto/State", AutoState.Action4)),
-                autoAlignCommandCenter.withTimeout(2),
-                commandAlgaeL4
-                
-
-        );
-
-
-    } catch (IOException e) {
-        e.printStackTrace(); // Handle the IOException (e.g., log it or notify the user)
-    } catch (ParseException e) {
-        e.printStackTrace(); // Handle the ParseException (e.g., log it or notify the user)
-    }
-    return Commands.none();
+        return Commands.none();
     }
 
-
-    public Command CustomChoreoAutoL4(String name, boolean mirror, PositionGripper setArmPosLevel4Cmd,
+    public Command CustomChoreoAutoL4(String name, Alliance alliance, boolean mirror,
+            PositionGripper setArmPosLevel4Cmd,
             PositionGripper goToTravel, ScoreCoral scoreCoralCmd, Command autoAlignRightCommand,
             Command autoAlignLeftCommand, BooleanSupplier chuteHasCoral, LoadCoralFromChute loadCoralCommand) {
         try {
@@ -535,7 +534,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
             PathPlannerPath finalPath_2;
             PathPlannerPath finalPath_3;
 
-            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            if (alliance == Alliance.Red) {
                 finalPath = originalPath.flipPath();
                 finalPath_2 = originalPath_2.flipPath();
                 finalPath_3 = originalPath_3.flipPath();
@@ -594,8 +593,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     private Command getFullCommandWithReset(PathPlannerPath finalPath) {
-        return AutoBuilder.followPath(finalPath)
-                .alongWith(Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())));
+        return Commands.runOnce(() -> resetPose(finalPath.getStartingHolonomicPose().get())).andThen(
+                AutoBuilder.followPath(finalPath));
     }
 
     private Command getFullCommand(PathPlannerPath finalPath) {

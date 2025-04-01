@@ -9,6 +9,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Vision;
 import frc.robot.Constants.AutoConstants;
 
+/*
 public class DynamicChoreoCommand extends SequentialCommandGroup {
     private String mainPath;
     private String newAutoCaseNote;
@@ -49,3 +50,4 @@ public class DynamicChoreoCommand extends SequentialCommandGroup {
         return AutoConstants.coralIsVisible.get() == 1;
     }
 }
+*/
