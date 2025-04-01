@@ -12,6 +12,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
@@ -26,6 +28,8 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElectronicsIDs;
@@ -35,6 +39,7 @@ public class Robot extends LoggedRobot {
 
   private final RobotContainer robotContainer;
   boolean pathPlannerConfigured = false;
+  boolean isAutoWarmedUp = false;
   Pose2d currentPose;
 
   /***** MECHANISM 2D FOR ADVANTAGE SCOPE *****/
@@ -77,13 +82,13 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     SignalLogger.start();
-
   }
 
   @Override
   public void robotPeriodic() {
     String currentDriverController = DriverStation.getJoystickName(ElectronicsIDs.DriverControllerPort);
     String currentOperatorController = DriverStation.getJoystickName(ElectronicsIDs.OperatorControllerPort);
+    Logger.recordOutput("Auto/Enabled", DriverStation.isAutonomousEnabled());
     Logger.recordOutput("Controllers/Driver", currentDriverController);
     Logger.recordOutput("Controllers/Operator", currentOperatorController);
     Logger.recordOutput("vision/differenceInPosition", Units
@@ -113,9 +118,19 @@ public class Robot extends LoggedRobot {
 
     robotContainer.disableSubsytems();
 
+    if (!this.isAutoWarmedUp) {
+      FollowPathCommand.warmupCommand().andThen(PathfindingCommand.warmupCommand())
+          .andThen(new InstantCommand(() -> {
+            Logger.recordOutput("Auto/Warmup", true);
+            this.isAutoWarmedUp = true;
+          }).ignoringDisable(true))
+          .schedule();
+    }
+
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
   }
 
   @Override
