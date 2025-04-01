@@ -601,6 +601,7 @@ public class RobotContainer {
         // autoChooser.addOption("[TEST] Box Auto", new DeferredCommand(() ->
         // driveSub.ChoreoAuto("Box Auto"), Set.of(driveSub)));
         Command commandAlgaeL4 = Commands.sequence(
+                new PositionGripper(armState, ArmState.StartAlgaePosition, elevatorSub, armSub, wristSub).command(),
                 new InstantCommand(() -> gripperSub.startAlgaeRemoval()),
                 new MoveElevator(elevatorSub,
                 elevatorSub.getDesiredElevatorHeightInches(),
