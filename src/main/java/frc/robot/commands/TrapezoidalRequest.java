@@ -42,7 +42,7 @@ public class TrapezoidalRequest extends Command {
         rotationPID = new ProfiledPIDController(1.0, 0, 0, new TrapezoidProfile.Constraints(2.0*Math.PI, 8.0* Math.PI));
         rotationPID.setTolerance(Units.degreesToRadians(2.0)) ;
         rotationPID.enableContinuousInput(-Math.PI, Math.PI);
-        displacementPID.setTolerance(0.05);
+        displacementPID.setTolerance(0.07);
     }
 
     // Called when the command is initially scheduled.
