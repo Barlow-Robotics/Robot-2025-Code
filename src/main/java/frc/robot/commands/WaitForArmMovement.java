@@ -5,26 +5,27 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Arm;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class WaitForElevatorToTravel extends Command {
+public class WaitForArmMovement extends Command {
 
-    Elevator elevator;
-    double heightDelta = 0.0 ;
-    double startingHeight = 0.0 ;
+    Arm armSub ;
+    double angleDelta = 0.0 ;
+    double startingAngle = 0.0 ;
 
-    /** Creates a new WaitForElevatorToTravel. */
-    public WaitForElevatorToTravel(Elevator e, double change) {
+
+    /** Creates a new WaitForArmMovement. */
+    public WaitForArmMovement(Arm a, double change) {
+        armSub = a ;
+        angleDelta = change ;
         // Use addRequirements() here to declare subsystem dependencies.
-        elevator = e ;
-        heightDelta = change ;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        startingHeight = elevator.getTotalHeightInches() ;
+        startingAngle = armSub.getArmEncoderDegrees() ;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -38,13 +39,14 @@ public class WaitForElevatorToTravel extends Command {
     }
 
     // Returns true when the command should end.
+    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
         // if we're waiting for the elevator to go down
-        if ( heightDelta < 0.0) {
-            return elevator.getTotalHeightInches() < (startingHeight+heightDelta) ;
+        if ( angleDelta < 0.0) {
+            return armSub.getArmEncoderDegrees() < (startingAngle+angleDelta) ;
         } else {
-            return elevator.getTotalHeightInches() > (startingHeight+heightDelta) ;
+            return armSub.getArmEncoderDegrees() > (startingAngle+angleDelta) ;
         }
     }
 }

@@ -221,6 +221,28 @@ public class PositionGripper {
         return c;
     }
 
+
+
+    private Command createWaitingToRunningCommand() {
+        Command c = Commands.sequence(
+                new InstantCommand(() -> armStateManager.setTargetState(targetState)),
+                new ParallelCommandGroup(
+                        new MoveArm(theArm, positionDictionary.get(ArmState.Running).getArmAngle()),
+                        new RotateWrist(theWrist, positionDictionary.get(ArmState.Running).getWristAngle())),
+                        Commands.sequence(
+                            new WaitForArmMovement(theArm, 40) ,
+                            new MoveElevator(theElevator, positionDictionary.get(ArmState.Running).getElevatorHeight(),
+                                positionDictionary.get(ArmState.Running).getCarriageHeight())
+                        ),
+                new InstantCommand(() -> armStateManager.setCurrentState(ArmState.Running))
+                );
+        return c;
+    }
+
+
+
+
+
     private Command createParallelMovementCommand(ArmState targetState) {
         Command c = Commands.sequence(
                 new InstantCommand(() -> armStateManager.setTargetState(targetState)),
@@ -322,7 +344,7 @@ public class PositionGripper {
         transitionCommands.get(ArmState.WaitingForCoral).put(ArmState.Level4, createStraightenArmFirstCommand(ArmState.Level4)) ;
         transitionCommands.get(ArmState.WaitingForCoral).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
         transitionCommands.get(ArmState.WaitingForCoral).put(ArmState.StartAlgaePosition, createStraightenArmFirstCommand(ArmState.StartAlgaePosition)) ;
-        transitionCommands.get(ArmState.WaitingForCoral).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
+        transitionCommands.get(ArmState.WaitingForCoral).put(ArmState.Running, createWaitingToRunningCommand()) ;
         transitionCommands.get(ArmState.WaitingForCoral).put(ArmState.Climb, createStraightenArmFirstCommand(ArmState.Climb)) ;
         
         // transitions from StartAlgaePosition
