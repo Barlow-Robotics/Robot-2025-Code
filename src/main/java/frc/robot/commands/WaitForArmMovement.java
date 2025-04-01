@@ -44,8 +44,15 @@ public class WaitForArmMovement extends Command {
     public boolean isFinished() {
         // if we're waiting for the elevator to go down
         if ( angleDelta < 0.0) {
+            if ( armSub.getArmEncoderDegrees() < (startingAngle+angleDelta)) {
+                int wpk = 1 ;
+            }
             return armSub.getArmEncoderDegrees() < (startingAngle+angleDelta) ;
         } else {
+            if ( armSub.getArmEncoderDegrees() >= (startingAngle+angleDelta)) {
+                int wpk = 1 ;
+            }
+
             return armSub.getArmEncoderDegrees() > (startingAngle+angleDelta) ;
         }
     }

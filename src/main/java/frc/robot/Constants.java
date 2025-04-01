@@ -299,7 +299,7 @@ public class Constants {
         public static final double ArmAngleKS2 = 0.14;
         public static TuneableParameter ArmAngleKS = new TuneableParameter(ArmAngleKS2, 0, 3, true, "TuneableParameter/Arm/PID/ArmAngleKG");
         
-        public static final double ArmAngleCruiseSpeed = 1.5; /*testing*//* 360.0/360.0; */// .1; // RPS - CHANGE
+        public static final double ArmAngleCruiseSpeed = 1.25; /*testing*//* 360.0/360.0; */// .1; // RPS - CHANGE
         public static final double ArmAngleAcceleration = /*testing*/ ArmAngleCruiseSpeed * 4.0; // 12; // CHANGE
         public static final double ArmAngleJerk = /*testing*/ ArmAngleAcceleration * 4.0; // 40; // CHANGE
         
@@ -327,8 +327,8 @@ public class Constants {
         public static final double ElevatorMaxInchesPerSec = KrakenX60MaxRPM / SecondsPerMinute / ElevatorGearRatio
                 * ElevatorSprocketCircumference;
         public static final double ElevatorCruiseVelocity = 36.0; // CHANGE
-        public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE
-        public static final double ElevatorJerk = 5*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
+        public static final double ElevatorAcceleration = 3 * ElevatorCruiseVelocity ; // CHANGE
+        public static final double ElevatorJerk = 4*ElevatorAcceleration; // CHANGE - Target jerk of 1600 rps/s/s (0.1 seconds)
 
         public static final double ElevatorAlgaeRemovalVelocity = 8.0;
         // public static final double ElevatorAcceleration = 3.8 * ElevatorCruiseVelocity ; // CHANGE

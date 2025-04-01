@@ -228,12 +228,12 @@ public class PositionGripper {
                 new InstantCommand(() -> armStateManager.setTargetState(targetState)),
                 new ParallelCommandGroup(
                         new MoveArm(theArm, positionDictionary.get(ArmState.Running).getArmAngle()),
-                        new RotateWrist(theWrist, positionDictionary.get(ArmState.Running).getWristAngle())),
+                        new RotateWrist(theWrist, positionDictionary.get(ArmState.Running).getWristAngle()),
                         Commands.sequence(
-                            new WaitForArmMovement(theArm, 40) ,
-                            new MoveElevator(theElevator, positionDictionary.get(ArmState.Running).getElevatorHeight(),
-                                positionDictionary.get(ArmState.Running).getCarriageHeight())
-                        ),
+                            new WaitForArmMovement(theArm, 30) ,
+                            new MoveElevator(theElevator, positionDictionary.get(ArmState.Running).getElevatorHeight(), positionDictionary.get(ArmState.Running).getCarriageHeight())
+                        )
+                ),
                 new InstantCommand(() -> armStateManager.setCurrentState(ArmState.Running))
                 );
         return c;
@@ -320,8 +320,8 @@ public class PositionGripper {
         transitionCommands.get(ArmState.Level3).put(ArmState.Level4, createStraightenArmFirstCommand(ArmState.Level4)) ;
         transitionCommands.get(ArmState.Level3).put(ArmState.WaitingForCoral, createStraightenArmFirstCommand(ArmState.WaitingForCoral)) ;
         transitionCommands.get(ArmState.Level3).put(ArmState.StartAlgaePosition, createStraightenArmFirstCommand(ArmState.StartAlgaePosition)) ;
-        transitionCommands.get(ArmState.Level3).put(ArmState.Running, createOptimizedMoveToTravel(ArmState.Running)) ;
-        // transitionCommands.get(ArmState.Level3).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
+        // transitionCommands.get(ArmState.Level3).put(ArmState.Running, createOptimizedMoveToTravel(ArmState.Running)) ;
+        transitionCommands.get(ArmState.Level3).put(ArmState.Running, createStraightenArmFirstCommand(ArmState.Running)) ;
         transitionCommands.get(ArmState.Level3).put(ArmState.Climb, createStraightenArmFirstCommand(ArmState.Climb)) ;
 
         // transitions from Level 4
