@@ -53,10 +53,11 @@ public class RemoveAlgae {
                                 //         ArmConstants.ElevatorAlgaeRemovalVelocity,
                                 //         theElevator.getDesiredCarriageHeightInches() + 0.0,
                                 //         ArmConstants.CarriageAlgaeRemovalVelocity),
+
                                 new MoveElevator(theElevator,
-                                        theElevator.getDesiredElevatorHeightInches() + 5.0,
+                                        theElevator.getDesiredElevatorHeightInches(),
                                         ArmConstants.ElevatorAlgaeRemovalVelocity,
-                                        20.0,
+                                        theElevator.getDesiredCarriageHeightInches()+5.0,
                                         ArmConstants.CarriageAlgaeRemovalVelocity),
                                 new InstantCommand(() -> theGripper.stop()),
                                 new PositionGripper(armStateManager, ArmState.Running, theElevator, theArm, theWrist)
