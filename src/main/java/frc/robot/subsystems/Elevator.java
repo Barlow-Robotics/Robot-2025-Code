@@ -324,6 +324,7 @@ public class Elevator extends SubsystemBase {
         Logger.recordOutput("Elevator/Carriage/ClosedLoopFF", carriageMotor.getClosedLoopFeedForward().getValue());
         Logger.recordOutput("Elevator/Carriage/ClosedLoopReference", carriageMotor.getClosedLoopReference().getValue()/ ArmConstants.RotationsPerCarriageInch);
         Logger.recordOutput("Elevator/Carriage/MotionMagicIsRunning", carriageMotor.getMotionMagicIsRunning().getValue());
+        Logger.recordOutput("Elevator/TotalHeighInches", getTotalHeightInches());
 
         Logger.recordOutput("Elevator/Carriage/hasCompletedMotion", carriageHasCompletedMotion());
         Logger.recordOutput("Elevator/Elevator/hasCompletedMotion", elevatorHasCompletedMotion());
