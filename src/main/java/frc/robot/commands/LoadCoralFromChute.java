@@ -27,6 +27,8 @@ public class LoadCoralFromChute {
     Gripper theGripper;
     ArmStateManager armState;
 
+    boolean goToTravel = true ;
+
     /** Creates a new LoadCoralFromChute. */
     public LoadCoralFromChute(Elevator e, Arm a, Wrist w, Gripper g, ArmStateManager asm) {
         theElevator = e;
@@ -38,12 +40,27 @@ public class LoadCoralFromChute {
         // Use addRequirements() here to declare subsystem dependencies.
     }
 
+
+    public LoadCoralFromChute withFullGoToTravel(boolean val ) {
+        goToTravel = val ;
+        return this ;
+    }
+
+
     public Command command() {
+
         return Commands.defer(() -> {
             if (armState.getCurrentState() != ArmState.WaitingForCoral) {
                 return new PositionGripper(armState, ArmState.WaitingForCoral, theElevator, theArm, theWrist).command();
             } else {
                 double startingCarriageHeight = theElevator.getCarriageHeightInches();
+                Command finishingCommand ;
+                if ( goToTravel) {
+                    finishingCommand = new PositionGripper(armState, ArmState.Running, theElevator, theArm, theWrist).command() ;
+                } else {
+                    finishingCommand = new MoveArm( theArm, 90.0) ;
+                }
+
                 return Commands.sequence(
                         // move arm to load position
                         // start gripper spinng to intake
@@ -57,7 +74,8 @@ public class LoadCoralFromChute {
                         new MoveElevator(theElevator, 0.0, startingCarriageHeight),
                         // new WaitCommand(0.25),
                         new StopGripper(theGripper),
-                        new PositionGripper(armState, ArmState.Running, theElevator, theArm, theWrist).command());
+                        finishingCommand
+                        );
 
             }
         },

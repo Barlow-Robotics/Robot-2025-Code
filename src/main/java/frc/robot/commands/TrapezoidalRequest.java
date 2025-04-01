@@ -57,6 +57,10 @@ public class TrapezoidalRequest extends Command {
         // Translation2d speedVector = new Translation2d( driveSub.getState().Speeds.vxMetersPerSecond, driveSub.getState().Speeds.vyMetersPerSecond) ;
         // displacementPID.reset( new State(displacement, speedVector.getNorm())) ;
 
+        Logger.recordOutput("AutoAlign/displacement", displacement);
+        Logger.recordOutput("AutoAlign/setPoint/Velocity", displacementPID.getSetpoint().velocity);
+        Logger.recordOutput("AutoAlign/setPoint/Position", displacementPID.getSetpoint().position);
+
         rotationPID.reset(  rotationDelta );
     }
 
@@ -96,7 +100,9 @@ public class TrapezoidalRequest extends Command {
         Logger.recordOutput("AutoAlign/translationDeltaY", translationDelta.getY());
         Logger.recordOutput("AutoAlign/displacement", displacement);
         Logger.recordOutput("AutoAlign/rotationDelta", rotationDelta);
-
+        Logger.recordOutput("AutoAlign/setPoint/Velocity", displacementPID.getSetpoint().velocity);
+        Logger.recordOutput("AutoAlign/setPoint/Position", displacementPID.getSetpoint().position);
+    
         Logger.recordOutput("AutoAlign/pidRotVelocity", rotationPID.getSetpoint().velocity);
         Logger.recordOutput("AutoAlign/requestXVelocity", swerveRequest.VelocityX);
         Logger.recordOutput("AutoAlign/requestYVelocity", swerveRequest.VelocityY);

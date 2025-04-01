@@ -530,7 +530,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem {
                     new ParallelCommandGroup(
                             new SequentialCommandGroup(
                                     new WaitCommand(0.3),
-                                    loadCoralCommand.command()),
+                                    loadCoralCommand.withFullGoToTravel(false).command()),
                             autoAlignLeftCommand.withTimeout(4)),
                     // loadCoralCommand.command(),
                     // getFullCommand(finalPath_3),
