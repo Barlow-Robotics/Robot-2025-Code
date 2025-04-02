@@ -6,5 +6,5 @@ package frc.robot.subsystems;
 
 /** Add your docs here. */
 public enum ArmState {
-    WaitingForCoral, Level1,  Level2,  Level3,  Level4, StartAlgaePosition, Running , Climb
+    WaitingForCoral, Level1,  Level2,  Level3,  Level4, StartAlgaePosition, StartAlgaeHighPosition, Running , Climb
 }

@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElectronicsIDs;
+import frc.robot.Constants.LogitechDAConstants;
 import frc.robot.Constants.LogitechExtreme3DConstants;
 import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.ArmStateManager;
@@ -43,6 +44,7 @@ import frc.robot.commands.LoadCoralFromChute;
 import frc.robot.commands.MoveElevator;
 import frc.robot.commands.PositionGripper;
 import frc.robot.commands.RemoveAlgae;
+import frc.robot.commands.RemoveHighAlgae;
 import frc.robot.commands.ScoreCoral;
 import frc.robot.commands.ScoreCoralWithoutTravel;
 import frc.robot.commands.StopAlgaeIntake;
@@ -95,6 +97,7 @@ public class RobotContainer {
     private final ScoreCoral scoreCoralCmd;
     private final ScoreCoralWithoutTravel scoreCoralCmdWithoutTravelling;
     private final RemoveAlgae removeAlgaeCmd;
+    private final RemoveHighAlgae removeHighAlgaeCmd;
 
     private final DoClimb startClimbingCmd;
 
@@ -127,6 +130,7 @@ public class RobotContainer {
 
     // private Trigger moveToAlgaeButton;
     private Trigger removeAlgaeButton;
+    private Trigger removeHighAlgaeButton;
 
     private Trigger startClimbButton;
 
@@ -217,6 +221,7 @@ public class RobotContainer {
         scoreCoralCmdWithoutTravelling = new ScoreCoralWithoutTravel(armState, elevatorSub, armSub, wristSub,
                 gripperSub);
         removeAlgaeCmd = new RemoveAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
+        removeHighAlgaeCmd = new RemoveHighAlgae(armState, elevatorSub, armSub, wristSub, gripperSub);
 
         startClimbingCmd = new DoClimb(climbSub, armSub, armState, elevatorSub, wristSub);
 
@@ -369,6 +374,9 @@ public class RobotContainer {
 
         removeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper);
         removeAlgaeButton.onTrue(removeAlgaeCmd.command());
+
+        removeHighAlgaeButton = new JoystickButton(operatorController, LogitechDAConstants.ButtonX);
+        removeHighAlgaeButton.onTrue(removeHighAlgaeCmd.command());
 
         moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonY);
         moveToLevel1Button.onTrue(setArmPosLevel1Cmd.command());
