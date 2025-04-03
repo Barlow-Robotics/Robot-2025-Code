@@ -96,7 +96,10 @@ public class TrapezoidalRequest extends Command {
         Logger.recordOutput("AutoAlign/translationDeltaX", translationDelta.getX());
         Logger.recordOutput("AutoAlign/translationDeltaY", translationDelta.getY());
         Logger.recordOutput("AutoAlign/displacement", displacement);
+        Logger.recordOutput("AutoAlign/displacementIN", Units.metersToInches(displacement));
+
         Logger.recordOutput("AutoAlign/rotationDelta", rotationDelta);
+        Logger.recordOutput("AutoAlign/rotationDeltaDegrees", Units.radiansToDegrees(rotationDelta));
         Logger.recordOutput("AutoAlign/setPoint/Velocity", displacementPID.getSetpoint().velocity);
         Logger.recordOutput("AutoAlign/setPoint/Position", displacementPID.getSetpoint().position);
     
