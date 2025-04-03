@@ -613,7 +613,7 @@ public class Constants {
 
         public static final Transform2d AlgaeOffset = new Transform2d(0, Units.inchesToMeters(1+misAlignmentTuning), Rotation2d.kZero);
         public static final Transform2d LeftOffset = new Transform2d(0, Units.inchesToMeters(5.5+misAlignmentTuning), /*Units.inchesToMeters(6),*/ Rotation2d.kZero);
-        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-7.5+misAlignmentTuning), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
+        public static final Transform2d RightOffset = new Transform2d(0, Units.inchesToMeters(-9.5+misAlignmentTuning), /*Units.inchesToMeters(-6),*/ Rotation2d.kZero);
 
     }
 
