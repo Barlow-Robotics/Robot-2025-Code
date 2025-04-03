@@ -104,6 +104,8 @@ public class TrapezoidalRequest extends Command {
         Logger.recordOutput("AutoAlign/setPoint/Position", displacementPID.getSetpoint().position);
     
         Logger.recordOutput("AutoAlign/pidRotVelocity", rotationPID.getSetpoint().velocity);
+        Logger.recordOutput("AutoAlign/pidRotPosition", rotationPID.getSetpoint().position);
+
         Logger.recordOutput("AutoAlign/requestXVelocity", swerveRequest.VelocityX);
         Logger.recordOutput("AutoAlign/requestYVelocity", swerveRequest.VelocityY);
 
