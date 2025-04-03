@@ -38,13 +38,15 @@ public class DoClimb {
                 () -> {
                     if (climbSub.getCurrentState() == ClimbState.Idle) {
                         return Commands.sequence(                      
-                        new InstantCommand(() -> climbSub.goToUnwind()),
+                        // new InstantCommand(() -> climbSub.goToUnwind()),
                         new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub).command(),                       
                         Commands.none()  // wpk this is a hack to work around command not finishing
                         );
 
                     } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
                         return new InstantCommand(() -> climbSub.goToWind());
+                    } else if ( climbSub.getCurrentState() == ClimbState.Holding) {
+                        return new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub).command();                       
                     } else {
                         return Commands.none();
                     }

@@ -94,14 +94,14 @@ public class Climb extends SubsystemBase {
                     break;
     
                 case Unwind: {
-                    final VoltageOut request = new VoltageOut( -12.0 ) ;
-                    winchMotor.setControl(request.withEnableFOC(true));
+                    // final VoltageOut request = new VoltageOut( -12.0 ) ;
+                    // winchMotor.setControl(request.withEnableFOC(true));
     
-                    desiredWinchPosition = ClimbConstants.WinchAttachRotations; // Just for logging
-                    if (isUnwound()) {
-                        winchMotor.set(0);
+                    // desiredWinchPosition = ClimbConstants.WinchAttachRotations; // Just for logging
+                    // if (isUnwound()) {
+                    //     winchMotor.set(0);
                         currentState = ClimbState.ReadyToLatch;
-                    }
+                    // }
                 }
                     break;
     
@@ -116,15 +116,15 @@ public class Climb extends SubsystemBase {
                     // where it was when we started.
                     // set motor voltage to wind
 
-                    desiredWinchPosition = 0 ; // Just for logging
-                    if (isWound()) {
-                        winchMotor.set(0);
+                    // desiredWinchPosition = 0 ; // Just for logging
+                    // if (isWound()) {
+                    //     winchMotor.set(0);
                         currentState = ClimbState.Holding ;
-                        //currentState = ClimbState.Idle;
-                    } else {
-                        final VoltageOut request = new VoltageOut(12.0);
-                        winchMotor.setControl(request.withEnableFOC(true));   
-                    }
+                    //     //currentState = ClimbState.Idle;
+                    // } else {
+                    //     final VoltageOut request = new VoltageOut(12.0);
+                    //     winchMotor.setControl(request.withEnableFOC(true));   
+                    // }
                 }
                     break;
                 case Holding: {

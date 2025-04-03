@@ -1,4 +1,9 @@
 {
+  "Keyboard 0 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -18,12 +23,20 @@
         }
       ],
       "axisCount": 3,
-      "buttonCount": 4,
+      "buttonCount": 12,
       "buttonKeys": [
         90,
         88,
+        -1,
+        86,
+        -1,
+        76,
+        -1,
         67,
-        86
+        -1,
+        -1,
+        -1,
+        -1
       ],
       "povConfig": [
         {
@@ -42,8 +55,7 @@
     {
       "axisConfig": [
         {
-          "decKey": 74,
-          "incKey": 76
+          "decKey": 74
         },
         {
           "decKey": 73,
@@ -97,8 +109,7 @@
       "guid": "030000006d04000015c2000000000000"
     },
     {
-      "guid": "78696e70757401000000000000000000",
-      "useGamepad": true
+      "guid": "Keyboard0"
     }
   ]
 }
