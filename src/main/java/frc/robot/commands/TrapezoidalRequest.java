@@ -10,15 +10,12 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.Drive;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -32,7 +29,7 @@ public class TrapezoidalRequest extends Command {
     private final ProfiledPIDController rotationPID;
 
     /** Creates a new TrapazoidalRequest. */
-    public TrapezoidalRequest(Drive driveSub, Pose2d targetPose, double velocity, double acceleration) {
+    public TrapezoidalRequest(Drive driveSub, Pose2d targetPose, double velocity, double acceleration, double customDisplacement) {
         // Use addRequirements() here to declare subsystem dependencies.
         this.driveSub = driveSub;
         this.targetPose = targetPose;
@@ -42,7 +39,7 @@ public class TrapezoidalRequest extends Command {
         rotationPID = new ProfiledPIDController(1.0, 0, 0, new TrapezoidProfile.Constraints(2.0*Math.PI, 8.0* Math.PI));
         rotationPID.setTolerance(Units.degreesToRadians(2.0)) ;
         rotationPID.enableContinuousInput(-Math.PI, Math.PI);
-        displacementPID.setTolerance(0.07);
+        displacementPID.setTolerance(customDisplacement);
     }
 
     // Called when the command is initially scheduled.

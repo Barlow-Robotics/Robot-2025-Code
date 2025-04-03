@@ -111,18 +111,18 @@ public class DynamicAutoBuilder {
 
 
 
-  public Command trapezoidAlign(Transform2d extraOffset, double velocity, double acceleration) {
+  public Command trapezoidAlign(Transform2d extraOffset, double velocity, double acceleration, double customDisplacement) {
     // manualAlign uses a deferred so that it can compute the new path when the
     // trigger is run.
     return new DeferredCommand(
-        () -> runTrapezoidPathing(extraOffset, velocity, acceleration),
+        () -> runTrapezoidPathing(extraOffset, velocity, acceleration, customDisplacement),
         Set.of(driveSub));
   }
-  public Command trapezoidAlign(Transform2d extraOffset) {
+  public Command trapezoidAlign(Transform2d extraOffset, double customDisplacement) {
     // manualAlign uses a deferred so that it can compute the new path when the
     // trigger is run.
     return new DeferredCommand(
-        () -> runTrapezoidPathing(extraOffset, 2.0, 2.0),
+        () -> runTrapezoidPathing(extraOffset, 2.0, 2.0, customDisplacement),
         Set.of(driveSub));
   }
 
@@ -232,7 +232,7 @@ public class DynamicAutoBuilder {
 
 
 
-  Command runTrapezoidPathing(Transform2d extraOffset, double velocity, double acceleration) {
+  Command runTrapezoidPathing(Transform2d extraOffset, double velocity, double acceleration, double customDisplacement) {
 
     var maybeTargetPose = findTargetFromOffset(extraOffset);
     if (maybeTargetPose.isEmpty()) {
@@ -241,14 +241,14 @@ public class DynamicAutoBuilder {
 
     var targetPose = maybeTargetPose.get();
 
-    return  applyTrapezoidalRequest(targetPose, velocity, acceleration) ;
+    return  applyTrapezoidalRequest(targetPose, velocity, acceleration, customDisplacement) ;
   }
 
 
 
 
-  Command applyTrapezoidalRequest(Pose2d targetPose, double velocity, double acceleration) {
-    return new TrapezoidalRequest(driveSub, targetPose, velocity, acceleration) ;
+  Command applyTrapezoidalRequest(Pose2d targetPose, double velocity, double acceleration, double customDisplacement) {
+    return new TrapezoidalRequest(driveSub, targetPose, velocity, acceleration, customDisplacement) ;
 
     // FunctionalCommand fc = new FunctionalCommand(
     //     // onInit
