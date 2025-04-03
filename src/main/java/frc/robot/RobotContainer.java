@@ -375,7 +375,7 @@ public class RobotContainer {
         removeAlgaeButton = new JoystickButton(operatorController, XboxControllerConstants.LeftBumper);
         removeAlgaeButton.onTrue(removeAlgaeCmd.command());
 
-        removeHighAlgaeButton = new JoystickButton(testController, LogitechDAConstants.ButtonX);
+        removeHighAlgaeButton = new POVButton(operatorController, XboxControllerConstants.POVLeft);
         removeHighAlgaeButton.onTrue(removeHighAlgaeCmd.command());
 
         moveToLevel1Button = new JoystickButton(operatorController, XboxControllerConstants.ButtonY);

@@ -248,8 +248,8 @@ public class PositionGripper {
         Command c = Commands.sequence(
                 new InstantCommand(() -> armStateManager.setTargetState(targetState)),
                 new ParallelCommandGroup(
-                        new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(),
-                                positionDictionary.get(targetState).getCarriageHeight()),
+                        new MoveElevator(theElevator, positionDictionary.get(targetState).getElevatorHeight(), 36.0,
+                                positionDictionary.get(targetState).getCarriageHeight(), 32.0),
                         new MoveArm(theArm, positionDictionary.get(targetState).getArmAngle()),
                         new RotateWrist(theWrist, positionDictionary.get(targetState).getWristAngle())),
                 new InstantCommand(() -> armStateManager.setCurrentState(targetState)));
