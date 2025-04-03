@@ -140,7 +140,7 @@ public class Climb extends SubsystemBase {
                 // don't do anything here
                 if (unwindWinchInTest.getAsBoolean() ) {
                     // set motor voltage to unwind
-                    final VoltageOut request = new VoltageOut( -6.0 ) ;
+                    final VoltageOut request = new VoltageOut( -12.0 ) ;
                     winchMotor.setControl(request.withEnableFOC(true));
                 } else if (windWinchInTest.getAsBoolean() && hallSensor.get() ) {
                     // set motor voltage to wind

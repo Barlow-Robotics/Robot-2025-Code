@@ -46,7 +46,7 @@ public class DoClimb {
                     } else if (climbSub.getCurrentState() == ClimbState.ReadyToLatch) {
                         return new InstantCommand(() -> climbSub.goToWind());
                     } else if ( climbSub.getCurrentState() == ClimbState.Holding) {
-                        return new PositionGripper(armStateManager, ArmState.Climb, elevatorSub, armSub, wristSub).command();                       
+                        return new PositionGripper(armStateManager, ArmState.Running, elevatorSub, armSub, wristSub).command();                       
                     } else {
                         return Commands.none();
                     }
