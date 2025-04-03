@@ -411,7 +411,7 @@ public class RobotContainer {
 
         autoAlignAlgaeButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button5);
         autoAlignAlgaeButton.whileTrue(
-                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset, 0.04)
                         .andThen(Commands.waitUntil(() -> false)));
         // autoAlignAlgaeButton.whileTrue(
         // dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
@@ -419,7 +419,7 @@ public class RobotContainer {
 
         autoAlignAlgaeButton_2 = new JoystickButton(driverController, LogitechExtreme3DConstants.Button6);
         autoAlignAlgaeButton_2.whileTrue(
-                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AlgaeOffset, 0.04)
                         .andThen(Commands.waitUntil(() -> false)));
         // autoAlignAlgaeButton_2.whileTrue(
         // dynAutoBuilder.manualAlign(Constants.AutoConstants.AlgaeOffset)
@@ -427,7 +427,7 @@ public class RobotContainer {
 
         autoAlignLeftButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button3);
         autoAlignLeftButton.whileTrue(
-                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset, 0.04)
                         .andThen(Commands.waitUntil(() -> false)));
         // autoAlignLeftButton.whileTrue(
         // dynAutoBuilder.manualAlign(Constants.AutoConstants.LeftOffset)
@@ -435,7 +435,7 @@ public class RobotContainer {
 
         autoAlignRightButton = new JoystickButton(driverController, LogitechExtreme3DConstants.Button4);
         autoAlignRightButton.whileTrue(
-                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset)
+                dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset, 0.04)
                         .andThen(Commands.waitUntil(() -> false)));
 
 
@@ -641,9 +641,9 @@ public class RobotContainer {
                 new PositionGripper(armState, ArmState.Running, elevatorSub, armSub, wristSub).command(),
                 new InstantCommand(() -> Logger.recordOutput("Auto/Group1", Group1State.Done)));
         
-        Command autoAlignCommandLeft = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset, 3.0, 3.0);
-        Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset, 3.0, 3.0);
-        Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AutoOffset);
+        Command autoAlignCommandLeft = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.LeftOffset, 3.0, 3.0, 0.07);
+        Command autoAlignCommandRight = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.RightOffset, 3.0, 3.0, 0.07);
+        Command autoAlignCommandCenter = dynAutoBuilder.trapezoidAlign(Constants.AutoConstants.AutoOffset, 0.07);
 
         autoChooser.addOption("Leave Zone",
                 new DeferredCommand(() -> driveSub.ChoreoAuto("[USED] Leave Zone"), Set.of(driveSub)));
